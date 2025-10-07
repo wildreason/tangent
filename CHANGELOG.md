@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-alpha.5] - 2025-10-07
+
+- **CRITICAL FIX**: Correct module path from `local/characters` to `github.com/wildreason/tangent`
+- Fix `go install` command now works correctly
+- Fix all import paths in examples and documentation
+- Fix generated code uses correct module path
+
 ## [0.1.0-alpha.4] - 2025-10-07
 
 - Add non-interactive CLI mode for AI agents (create, animate, export commands)
