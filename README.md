@@ -224,9 +224,14 @@ tangent/
 
 ---
 
+## Contributing
+
+We welcome contributions! See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
+
 ## License
 
-Proprietary - © 2025 Wildreason, Inc  
+MIT License - © 2025 Wildreason, Inc  
+See [`LICENSE`](LICENSE) for details.  
 https://wildreason.com
 
 ---
