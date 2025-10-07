@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0-alpha.4] - 2025-10-07
+
+- Add non-interactive CLI mode for AI agents (create, animate, export commands)
+- Add comprehensive AI agents guide (AGENTS-README.md)
+- Add 3 new library characters: pulse, wave, rocket
+- Add `tangent gallery` command to browse all characters
+- Shell/Python integration examples for agent workflows
+
 ## [0.1.0-alpha.3] - 2025-10-07
 
 - Add one-line installer script for easy setup
