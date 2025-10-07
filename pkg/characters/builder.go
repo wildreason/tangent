@@ -5,16 +5,6 @@ import (
 	"strings"
 )
 
-// Block Elements palette
-const (
-	FullBlock      = '█' // U+2588
-	LeftHalfBlock  = '▌' // U+258C
-	RightHalfBlock = '▐' // U+2590
-	Comp1          = '▛' // U+259B QuadrantUL_UR_LL
-	Comp2          = '▜' // U+259C QuadrantUL_UR_LR
-	Space          = ' '
-)
-
 // Character represents a single character sprite
 type Character struct {
 	Name   string
@@ -80,12 +70,12 @@ func (b *Builder) RightCap() *Builder {
 	return b.Custom(RightHalfBlock)
 }
 
-func (b *Builder) Comp1() *Builder {
-	return b.Custom(Comp1)
+func (b *Builder) ThreeQuad5() *Builder {
+	return b.Custom(ThreeQuad5)
 }
 
-func (b *Builder) Comp2() *Builder {
-	return b.Custom(Comp2)
+func (b *Builder) ThreeQuad6() *Builder {
+	return b.Custom(ThreeQuad6)
 }
 
 func (b *Builder) FullBlocks(n int) *Builder {

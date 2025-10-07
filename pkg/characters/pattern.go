@@ -5,8 +5,35 @@ import (
 	"strings"
 )
 
+// Block Elements - Centralized character definitions
+// All block element constants used throughout the package
+const (
+	FullBlock       = '█' // U+2588 Full Block
+	TopHalfBlock    = '▀' // U+2580 Top Half
+	BottomHalfBlock = '▄' // U+2584 Bottom Half
+	LeftHalfBlock   = '▌' // U+258C Left Half
+	RightHalfBlock  = '▐' // U+2590 Right Half
+
+	LightShade  = '░' // U+2591 Light Shade
+	MediumShade = '▒' // U+2592 Medium Shade
+	DarkShade   = '▓' // U+2593 Dark Shade
+
+	QuadUpperLeft  = '▘' // U+2598 Quadrant Upper Left
+	QuadUpperRight = '▝' // U+259D Quadrant Upper Right
+	QuadLowerLeft  = '▖' // U+2596 Quadrant Lower Left
+	QuadLowerRight = '▗' // U+2597 Quadrant Lower Right
+
+	ThreeQuad5 = '▛' // U+259B Three Quadrants: UL+UR+LL (reverse of 4)
+	ThreeQuad6 = '▜' // U+259C Three Quadrants: UL+UR+LR (reverse of 3)
+	ThreeQuad7 = '▙' // U+2599 Three Quadrants: UL+LL+LR (reverse of 2)
+	ThreeQuad8 = '▟' // U+259F Three Quadrants: UR+LL+LR (reverse of 1)
+
+	DiagonalBackward = '▚' // U+259A Diagonal Backward (\)
+	DiagonalForward  = '▞' // U+259E Diagonal Forward (/)
+)
+
 // PatternCompiler converts single-character hex-style codes to Unicode block elements
-// Pattern format: "00R9FFF9L00" (no commas, like hex color codes)
+// Pattern format: "__R5FFF6L__" (no commas, like hex color codes)
 type PatternCompiler struct {
 	// Pattern mapping: single char -> Unicode block element
 	patterns map[rune]rune
@@ -18,42 +45,41 @@ func NewPatternCompiler() *PatternCompiler {
 	return &PatternCompiler{
 		patterns: map[rune]rune{
 			// Basic blocks
-			'F': '█', // Full block
-			'T': '▀', // Top half (Upper)
-			'B': '▄', // Bottom half (Lower)
-			'L': '▌', // Left half
-			'R': '▐', // Right half
+			'F': FullBlock,
+			'T': TopHalfBlock,
+			'B': BottomHalfBlock,
+			'L': LeftHalfBlock,
+			'R': RightHalfBlock,
 
 			// Shading blocks
-			'.': '░', // Light shade (like a light dot)
-			':': '▒', // Medium shade (like colon density)
-			'#': '▓', // Dark shade (like hash density)
+			'.': LightShade,
+			':': MediumShade,
+			'#': DarkShade,
 
-			// Single quadrants
-			'1': '▘', // Quadrant 1 (Upper Left)
-			'2': '▝', // Quadrant 2 (Upper Right)
-			'3': '▖', // Quadrant 3 (Lower Left)
-			'4': '▗', // Quadrant 4 (Lower Right)
+			// Single quadrants (1-4)
+			'1': QuadUpperLeft,
+			'2': QuadUpperRight,
+			'3': QuadLowerLeft,
+			'4': QuadLowerRight,
+
+			// Three-quadrant composites (5-8, reverse of 1-4)
+			'5': ThreeQuad5, // ▛ (reverse of 4): UL+UR+LL
+			'6': ThreeQuad6, // ▜ (reverse of 3): UL+UR+LR
+			'7': ThreeQuad7, // ▙ (reverse of 2): UL+LL+LR
+			'8': ThreeQuad8, // ▟ (reverse of 1): UR+LL+LR
 
 			// Diagonals
-			'/':  '▚', // Diagonal forward slash pattern
-			'\\': '▞', // Diagonal backslash pattern
+			'\\': DiagonalBackward,
+			'/':  DiagonalForward,
 
-			// Three-quadrant composites (look like the numbers)
-			'7': '▛', // Three-quad: UL_UR_LL (looks like 7)
-			'9': '▜', // Three-quad: UL_UR_LR (looks like 9)
-			'6': '▙', // Three-quad: UL_LL_LR (looks like 6)
-			'8': '▟', // Three-quad: UR_LL_LR (looks like 8)
-
-			// Space (support both 0 and _)
-			'0': ' ', // Space as zero (like hex colors)
-			'_': ' ', // Space as underscore (for readability)
+			// Space
+			'_': ' ',
 		},
 	}
 }
 
 // CompilePattern converts a compact hex-style pattern to a Unicode string
-// Example: "00R9FFF9L00" → "  ▐▜███▜▌  "
+// Example: "__R6FFF6L__" → "  ▐▜███▜▌  "
 func (pc *PatternCompiler) CompilePattern(pattern string) string {
 	var result strings.Builder
 
@@ -141,21 +167,20 @@ func (pc *PatternCompiler) GetPatternLegend() string {
 	legend.WriteString("  . = ░ (Light shade)\n")
 	legend.WriteString("  : = ▒ (Medium shade)\n")
 	legend.WriteString("  # = ▓ (Dark shade)\n\n")
-	legend.WriteString("Quadrants (Single):\n")
+	legend.WriteString("Quadrants (Single, 1-4):\n")
 	legend.WriteString("  1 = ▘ (Upper Left)\n")
 	legend.WriteString("  2 = ▝ (Upper Right)\n")
 	legend.WriteString("  3 = ▖ (Lower Left)\n")
 	legend.WriteString("  4 = ▗ (Lower Right)\n\n")
-	legend.WriteString("Quadrants (Three):\n")
-	legend.WriteString("  7 = ▛ (UL+UR+LL)\n")
-	legend.WriteString("  9 = ▜ (UL+UR+LR)\n")
-	legend.WriteString("  6 = ▙ (UL+LL+LR)\n")
-	legend.WriteString("  8 = ▟ (UR+LL+LR)\n\n")
+	legend.WriteString("Quadrants (Three, 5-8 = reverse of 1-4):\n")
+	legend.WriteString("  5 = ▛ (reverse of 4)\n")
+	legend.WriteString("  6 = ▜ (reverse of 3)\n")
+	legend.WriteString("  7 = ▙ (reverse of 2)\n")
+	legend.WriteString("  8 = ▟ (reverse of 1)\n\n")
 	legend.WriteString("Diagonals:\n")
-	legend.WriteString("  / = ▚ (Forward slash)\n")
-	legend.WriteString("  \\ = ▞ (Backslash)\n\n")
+	legend.WriteString("  \\ = ▚ (Backward)\n")
+	legend.WriteString("  / = ▞ (Forward)\n\n")
 	legend.WriteString("Space:\n")
-	legend.WriteString("  0 = Space (like hex colors)\n")
-	legend.WriteString("  _ = Space (for readability)\n")
+	legend.WriteString("  _ = Space\n")
 	return legend.String()
 }
