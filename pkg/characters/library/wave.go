@@ -4,12 +4,12 @@ package library
 // Perfect for welcome messages, greetings, or friendly interactions
 //
 // Frames: 5 (wave1-wave5)
-// Size: 11x5
+// Size: 13x5
 // Author: Wildreason, Inc
 // Use case: Welcome screens, greeting animations, friendly AI interactions
 
 const WaveName = "wave"
-const WaveWidth = 11
+const WaveWidth = 13
 const WaveHeight = 5
 
 var WaveFrames = map[string][]string{

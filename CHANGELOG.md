@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.0-beta.2] - 2025-10-07
+
+**Critical Bug Fix: Frame Normalization**
+
+- **FIXED**: Wave character frame normalization bug
+- **FIXED**: Inconsistent frame widths causing jitter in Bubble Tea applications
+- **UPDATED**: Wave character width from 11 to 13 to match actual pattern length
+- **IMPROVED**: Frame consistency validation now uses rune count instead of string length
+- **VERIFIED**: All library characters now have consistent frame dimensions
+
 ## [0.1.0-beta.1] - 2025-10-07
 
 **Strategic Pivot: Character Design System**
