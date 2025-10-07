@@ -1,0 +1,138 @@
+# GoReleaser configuration for Tangent
+# https://goreleaser.com
+
+version: 2
+
+before:
+  hooks:
+    # Clean up before building
+    - go mod tidy
+
+builds:
+  - id: tangent
+    binary: tangent
+    main: ./cmd/tangent
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    # Ignore combinations that don't make sense
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+    flags:
+      - -trimpath
+
+archives:
+  - id: tangent
+    format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+      - docs/**/*
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: 'New Features'
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: 'Bug Fixes'
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: 'Performance Improvements'
+      regexp: "^.*perf[(\\w)]*:+.*$"
+      order: 2
+    - title: 'Refactors'
+      regexp: "^.*refactor[(\\w)]*:+.*$"
+      order: 3
+    - title: 'Other Changes'
+      order: 999
+
+release:
+  github:
+    owner: wildreason
+    name: tangent
+  draft: false
+  prerelease: auto
+  mode: replace
+  name_template: "Tangent {{.Version}}"
+  header: |
+    ## Tangent {{.Version}} - Terminal Agent Designer
+    
+    Design animated terminal characters using Unicode block elements.
+    
+    ### Installation
+    
+    Download the binary for your platform below, or build from source:
+    ```bash
+    git clone https://github.com/wildreason/tangent.git
+    cd tangent/cmd/tangent
+    go build -o tangent .
+    ```
+    
+    ### Quick Start
+    ```bash
+    ./tangent  # Start the interactive builder
+    ```
+  footer: |
+    ---
+    
+    **Full Changelog**: https://github.com/wildreason/tangent/compare/{{.PreviousTag}}...{{.Tag}}
+    
+    ## Documentation
+    - [README](https://github.com/wildreason/tangent/blob/main/README.md)
+    - [Pattern Guide](https://github.com/wildreason/tangent/blob/main/docs/PATTERN_GUIDE.md)
+    - [Library Characters](https://github.com/wildreason/tangent/blob/main/docs/LIBRARY.md)
+    - [Contributing](https://github.com/wildreason/tangent/blob/main/CONTRIBUTING.md)
+    
+    © 2025 Wildreason, Inc. - [MIT License](https://github.com/wildreason/tangent/blob/main/LICENSE)
+
+# Enable GitHub Actions for releases
+# gomod:
+#   proxy: true
+
+# Announce release on social media (optional)
+# announce:
+#   twitter:
+#     enabled: false
+#   discord:
+#     enabled: false
+

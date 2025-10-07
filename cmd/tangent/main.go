@@ -12,7 +12,11 @@ import (
 	"local/characters/pkg/characters"
 )
 
-const version = "v0.0.1"
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
 
 func main() {
 	showBanner()
@@ -23,7 +27,7 @@ func showBanner() {
 	fmt.Println("╔══════════════════════════════════════════╗")
 	fmt.Println("║  TANGENT - Terminal Agent Designer      ║")
 	fmt.Println("║  Design characters for your CLI agents  ║")
-	fmt.Println("║  " + version + "                                  ║")
+	fmt.Printf("║  %-40s ║\n", version)
 	fmt.Println("╚══════════════════════════════════════════╝")
 	fmt.Println()
 }
