@@ -171,8 +171,9 @@ alien, _ := characters.Library("alien")
 characters.Animate(os.Stdout, alien, 5, 3)
 ```
 
-**Available**: `alien` (3 frames, waving animation)
+**Available**: `alien`, `pulse`, `wave`, `rocket`
 
+**Visual gallery**: [`GALLERY.md`](GALLERY.md) 🎨  
 **Full library**: [`docs/LIBRARY.md`](docs/LIBRARY.md)
 
 ---

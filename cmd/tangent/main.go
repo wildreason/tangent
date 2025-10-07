@@ -881,6 +881,8 @@ func handleCLI() {
 		handleAnimate()
 	case "export":
 		handleExport()
+	case "gallery":
+		handleGallery()
 	case "version", "--version", "-v":
 		fmt.Printf("tangent %s (commit: %s, built: %s)\n", version, commit, date)
 	case "help", "--help", "-h":
@@ -900,6 +902,7 @@ func printUsage() {
 	fmt.Println("  tangent create [options]          Create character from CLI")
 	fmt.Println("  tangent animate [options]         Show character animation")
 	fmt.Println("  tangent export [options]          Export character to Go code")
+	fmt.Println("  tangent gallery                   Browse library characters")
 	fmt.Println("  tangent version                   Show version information")
 	fmt.Println("  tangent help                      Show this help message")
 	fmt.Println()
@@ -1193,4 +1196,80 @@ func generateExportCode(name, pkg string, spec *characters.CharacterSpec) string
 	sb.WriteString("}\n")
 	
 	return sb.String()
+}
+
+func handleGallery() {
+	// Get all library characters
+	names := characters.ListLibrary()
+	
+	if len(names) == 0 {
+		fmt.Println("No library characters available.")
+		return
+	}
+
+	fmt.Println("╔══════════════════════════════════════════════════════════════╗")
+	fmt.Println("║             TANGENT CHARACTER GALLERY                        ║")
+	fmt.Println("╚══════════════════════════════════════════════════════════════╝")
+	fmt.Println()
+
+	for i, name := range names {
+		if i > 0 {
+			fmt.Println()
+			fmt.Println("────────────────────────────────────────────────────────────")
+			fmt.Println()
+		}
+
+		// Load character
+		char, err := characters.Library(name)
+		if err != nil {
+			fmt.Printf("Error loading %s: %v\n", name, err)
+			continue
+		}
+
+		// Get description
+		info, _ := characters.LibraryInfo(name)
+
+		// Display header
+		fmt.Printf("◆ %s\n", strings.ToUpper(name))
+		fmt.Println()
+
+		// Show first frame
+		characters.ShowIdle(os.Stdout, char)
+		fmt.Println()
+
+		// Show metadata
+		fmt.Printf("  Size: %dx%d | Frames: %d | Author: Wildreason, Inc\n", 
+			char.Width, char.Height, len(char.Frames))
+		fmt.Println()
+
+		// Show description (first line only)
+		descLines := strings.Split(info, "\n")
+		if len(descLines) > 0 {
+			fmt.Printf("  %s\n", strings.TrimSpace(descLines[0]))
+		}
+		fmt.Println()
+
+		// Show usage
+		fmt.Printf("  Try it:\n")
+		fmt.Printf("    tangent animate --name %s --fps 5 --loops 3\n", name)
+		fmt.Println()
+		fmt.Printf("  Use in code:\n")
+		fmt.Printf("    %s, _ := characters.Library(\"%s\")\n", name, name)
+		fmt.Printf("    characters.Animate(os.Stdout, %s, 5, 3)\n", name)
+	}
+
+	fmt.Println()
+	fmt.Println("────────────────────────────────────────────────────────────")
+	fmt.Println()
+	fmt.Printf("Total: %d character%s available\n", len(names), pluralize(len(names)))
+	fmt.Println()
+	fmt.Println("Create your own: tangent (interactive mode)")
+	fmt.Println("Full docs: https://github.com/wildreason/tangent")
+}
+
+func pluralize(count int) string {
+	if count == 1 {
+		return ""
+	}
+	return "s"
 }

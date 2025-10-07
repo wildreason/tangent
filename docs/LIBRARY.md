@@ -49,48 +49,85 @@ alien, _ := characters.Get("alien")
 
 **Description:** Animated alien with waving hands - three-frame idle animation
 
-**Dimensions:** 11x3
+**Dimensions:** 7x3  
+**Frames:** 3  
+**Recommended FPS:** 5
 
-**Frames:** 3
-- `idle` - Default pose
-- `left` - Left hand waving
-- `right` - Right hand waving
+**Animation:** Friendly alien mascot with alternating hand waves
 
-**Pattern:**
-```
-Frame 1 (idle):
-  ▐▜███▜▌  
- ▀▜█████▛▀ 
-   ▘▘   ▝▝ 
-
-Frame 2 (left):
-  ▐▜███▜▌  
-▛▀▜█████▛▀ 
-   ▘▘   ▝▝ 
-
-Frame 3 (right):
-  ▐▜███▜▌  
- ▀▜█████▛▀▜
-   ▘▘   ▝▝ 
+**Try it:**
+```bash
+tangent animate --name alien --fps 5 --loops 3
 ```
 
-**Hex-Style Patterns:**
-```go
-// Frame 1
-"00R9FFF9L00"
-"0T9FFFFF7T0"
-"00011000220"
+---
 
-// Frame 2
-"00R9FFF9L00"
-"7T9FFFFF7T0"
-"00011000220"
+### pulse
 
-// Frame 3
-"00R9FFF9L00"
-"0T9FFFFF7T9"
-"00011000220"
+**Description:** Heartbeat/thinking indicator with expanding pulse effect
+
+**Dimensions:** 9x5  
+**Frames:** 3  
+**Recommended FPS:** 8
+
+**Animation:** Expanding and contracting heartbeat, perfect for AI processing indicators
+
+**Try it:**
+```bash
+tangent animate --name pulse --fps 8 --loops 3
 ```
+
+**Use cases:**
+- AI thinking indicators
+- Loading animations
+- Background processing
+- Heartbeat monitors
+
+---
+
+### wave
+
+**Description:** Friendly greeting bot with waving hands
+
+**Dimensions:** 11x5  
+**Frames:** 5  
+**Recommended FPS:** 6
+
+**Animation:** Bot character waving hello with alternating left and right hands
+
+**Try it:**
+```bash
+tangent animate --name wave --fps 6 --loops 3
+```
+
+**Use cases:**
+- Welcome screens
+- Greeting animations
+- Onboarding sequences
+- Friendly AI interactions
+
+---
+
+### rocket
+
+**Description:** Launch sequence animation for deployments
+
+**Dimensions:** 7x7  
+**Frames:** 4  
+**Recommended FPS:** 5
+
+**Animation:** Rocket ignition, liftoff, and flight sequence
+
+**Try it:**
+```bash
+tangent animate --name rocket --fps 5 --loops 3
+```
+
+**Use cases:**
+- CI/CD pipelines
+- Deployment scripts
+- Build celebrations
+- Launch sequences
 
 ## API
 
