@@ -1,0 +1,12 @@
+# Archive - experimental and non-essential files
+archive/
+
+# Build artifacts
+*.exe
+*.out
+*.test
+
+# OS files
+.DS_Store
+Thumbs.db
+
