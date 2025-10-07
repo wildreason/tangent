@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	"local/characters/pkg/characters"
+	"github.com/wildreason/tangent/pkg/characters"
 )
 
 var (
@@ -628,7 +628,7 @@ func generateGoFile(session *Session, pkgName string) string {
 
 	// Package and imports
 	code.WriteString(fmt.Sprintf("package %s\n\n", pkgName))
-	code.WriteString("import \"local/characters/pkg/characters\"\n\n")
+	code.WriteString("import \"github.com/wildreason/tangent/pkg/characters\"\n\n")
 
 	// Comment
 	code.WriteString(fmt.Sprintf("// %s returns a %dx%d character with %d frame(s)\n",

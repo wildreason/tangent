@@ -11,7 +11,7 @@ package main
 
 import (
     "os"
-    "local/characters/pkg/characters"
+    "github.com/wildreason/tangent/pkg/characters"
 )
 
 func main() {
@@ -202,7 +202,7 @@ package main
 import (
     "fmt"
     "os"
-    "local/characters/pkg/characters"
+    "github.com/wildreason/tangent/pkg/characters"
 )
 
 func main() {

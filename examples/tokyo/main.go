@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"local/characters/pkg/characters"
+	"github.com/wildreason/tangent/pkg/characters"
 )
 
 func main() {

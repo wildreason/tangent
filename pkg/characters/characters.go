@@ -1,6 +1,6 @@
 package characters
 
-import "local/characters/pkg/characters/library"
+import "github.com/wildreason/tangent/pkg/characters/library"
 
 // Package characters provides a simple API for creating and animating
 // Unicode Block Elements (U+2580–U+259F) characters in Go applications.
