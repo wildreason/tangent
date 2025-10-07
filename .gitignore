@@ -9,6 +9,12 @@ internal_docs/
 *.out
 *.test
 
+# Binaries
+/cmd/tangent/tangent
+/tools/builder/builder
+tangent
+builder
+
 # OS files
 .DS_Store
 Thumbs.db
