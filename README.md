@@ -2,49 +2,62 @@
 
 **Design terminal agents with Unicode block characters**
 
-A Go package and CLI tool for creating animated terminal characters using Unicode Block Elements (U+2580–U+259F).
+Two ways to use: **CLI Builder** (visual design) or **Go Package** (code directly).
 
 ---
 
-## Quick Start
+## Choose Your Path
 
-### 1. Install the CLI Tool
+### 🎨 Path 1: Visual Design (Recommended for Beginners)
 
+**Use the Tangent CLI builder** - No coding required, visual character design.
+
+**Install:**
 ```bash
-# Build from source
-cd cmd/tangent
+# Download binary from releases
+# OR build from source:
+git clone https://github.com/wildreason/tangent.git
+cd tangent/cmd/tangent
 go build -o tangent .
-cp tangent ~/.local/bin/  # Optional: add to PATH
 ```
 
-### 2. Create Your First Character
-
+**Use:**
 ```bash
-tangent
+./tangent  # Start interactive builder
 ```
 
-Follow the interactive prompts to:
-- Design characters visually
-- Preview animations live
-- Export Go code
-- Save reusable `.go` files
+**What you get:**
+- Visual character designer
+- Live animation preview
+- Export ready-to-use Go code
+- Save characters for later
 
-### 3. Use in Your Go Project
+---
 
+### 💻 Path 2: Go Package (For Developers)
+
+**Use as a Go library** - Write code directly, full programmatic control.
+
+**Install:**
+```bash
+go get github.com/wildreason/tangent/pkg/characters
+```
+
+**Use:**
 ```go
 package main
 
 import (
     "os"
-    "local/characters/pkg/characters"
+    "github.com/wildreason/tangent/pkg/characters"
 )
 
 func main() {
-    // Use a library character
+    // Option A: Use library character
     alien, _ := characters.Library("alien")
     characters.Animate(os.Stdout, alien, 5, 3)
     
-    // Or create your own
+    // Option B: Create your own
     spec := characters.NewCharacterSpec("robot", 9, 3).
         AddFrame("idle", []string{
             "__R6FFF6L__",
@@ -56,6 +69,20 @@ func main() {
     characters.Animate(os.Stdout, robot, 5, 3)
 }
 ```
+
+---
+
+## Which Should I Use?
+
+| Scenario | Use This |
+|----------|----------|
+| 🎨 Want to design visually | **CLI Builder** (tangent) |
+| 💻 Building a Go app | **Go Package** |
+| 🚀 Quick prototyping | **CLI Builder** → export code |
+| 🔧 Need programmatic control | **Go Package** |
+| 📚 Want pre-built characters | **Both work!** |
+
+**Best workflow**: Design in CLI builder → Export code → Use in your Go app
 
 ---
 
@@ -154,30 +181,46 @@ names := characters.ListLibrary()  // ["alien"]
 
 ---
 
-## Installation
+## Installation Guide
 
-### For Users (CLI Tool)
+### 🎨 CLI Builder (Tangent)
 
+**Option A: Download Binary** (Easiest)
 ```bash
-# Clone and build
+# Go to Releases page and download for your platform
+# https://github.com/wildreason/tangent/releases
+
+# macOS/Linux
+chmod +x tangent
+./tangent
+```
+
+**Option B: Build from Source**
+```bash
 git clone https://github.com/wildreason/tangent.git
 cd tangent/cmd/tangent
 go build -o tangent .
+./tangent
+
+# Optional: Install to PATH
 cp tangent ~/.local/bin/
 ```
 
-### For Developers (Package)
+---
 
+### 💻 Go Package
+
+**Add to your project:**
 ```bash
 go get github.com/wildreason/tangent/pkg/characters
 ```
 
-Or use as a local module:
-
-```bash
-# In your go.mod
-replace github.com/wildreason/tangent => /path/to/tangent
+**Use in your code:**
+```go
+import "github.com/wildreason/tangent/pkg/characters"
 ```
+
+That's it! Zero external dependencies.
 
 ---
 
@@ -244,4 +287,5 @@ https://wildreason.com
 
 ---
 
-**Built with ❤️ for terminal agent designers**
+**Built with ◆ by for AI agent buildersr**
+© 2025 Wildreason, Inc - https://wildreason.com
