@@ -51,6 +51,8 @@ tangent animate --name alien --fps 10 --loops 5
 tangent export --session mychar --output mychar.go
 ```
 
+**📘 AI Agents:** See complete guide at [`AGENTS-README.md`](AGENTS-README.md)
+
 ### Use in Your Code
 
 ```go
@@ -208,6 +210,7 @@ char, _ := characters.Get("name")
 
 ## Documentation
 
+- [`AGENTS-README.md`](AGENTS-README.md) - **Complete guide for AI agents**
 - [`docs/PATTERN_GUIDE.md`](docs/PATTERN_GUIDE.md) - Pattern codes reference
 - [`docs/LIBRARY.md`](docs/LIBRARY.md) - Pre-built characters
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) - How to contribute
