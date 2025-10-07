@@ -1,6 +1,13 @@
 # Changelog
 
-## [0.1.0-alpha] - 2025-10-07
+## [0.1.0-alpha.3] - 2025-10-07
+
+- Add one-line installer script for easy setup
+- Simplify README (290 → 150 lines) with clear install → use workflow
+- Remove confusing CLI vs Package sections
+- Single install command provides both tangent CLI and Go package
+
+## [0.1.0-alpha.2] - 2025-10-07
 
 - Add Tangent CLI builder with interactive character designer
 - Add live animation preview and multi-frame session management
