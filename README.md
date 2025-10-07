@@ -1,107 +1,61 @@
 # Tangent
 
-**Design terminal agents with Unicode block characters**
+**Terminal character animation library for Go**
 
-Two ways to use: **CLI Builder** (visual design) or **Go Package** (code directly).
-
----
-
-## Choose Your Path
-
-### 🎨 Path 1: Visual Design (Recommended for Beginners)
-
-**Use the Tangent CLI builder** - No coding required, visual character design.
-
-**Install:**
-```bash
-# Download binary from releases
-# OR build from source:
-git clone https://github.com/wildreason/tangent.git
-cd tangent/cmd/tangent
-go build -o tangent .
-```
-
-**Use:**
-```bash
-./tangent  # Start interactive builder
-```
-
-**What you get:**
-- Visual character designer
-- Live animation preview
-- Export ready-to-use Go code
-- Save characters for later
+Build animated CLI agents with zero dependencies.
 
 ---
 
-### 💻 Path 2: Go Package (For Developers)
+## Install
 
-**Use as a Go library** - Write code directly, full programmatic control.
-
-**Install:**
 ```bash
-go get github.com/wildreason/tangent/pkg/characters
+curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | bash
 ```
 
-**Use:**
+This installs:
+- ✅ `tangent` command (visual builder)
+- ✅ Go package (for your code)
+
+**Alternative**: Via Go
+```bash
+go install github.com/wildreason/tangent/cmd/tangent@latest
+```
+
+---
+
+## Quick Start
+
+### 1. Design a Character
+
+```bash
+tangent  # Opens interactive builder
+```
+
+Create your character visually:
+- Design frame by frame
+- Preview animation live
+- Export Go code
+
+### 2. Use in Your Code
+
 ```go
-package main
+import "github.com/wildreason/tangent/pkg/characters"
 
-import (
-    "os"
-    "github.com/wildreason/tangent/pkg/characters"
-)
+// Option A: Use library character
+alien, _ := characters.Library("alien")
+characters.Animate(os.Stdout, alien, 5, 3)
 
-func main() {
-    // Option A: Use library character
-    alien, _ := characters.Library("alien")
-    characters.Animate(os.Stdout, alien, 5, 3)
-    
-    // Option B: Create your own
-    spec := characters.NewCharacterSpec("robot", 9, 3).
-        AddFrame("idle", []string{
-            "__R6FFF6L__",
-            "_T6FFFFF5T_",
-            "___11_22___",
-        })
-    
-    robot, _ := spec.Build()
-    characters.Animate(os.Stdout, robot, 5, 3)
-}
+// Option B: Use your own (from tangent export)
+spec := characters.NewCharacterSpec("robot", 11, 3).
+    AddFrame("idle", []string{
+        "__R6FFF6L__",
+        "_T6FFFFF5T_",
+        "___11_22___",
+    })
+
+robot, _ := spec.Build()
+characters.Animate(os.Stdout, robot, 5, 3)
 ```
-
----
-
-## Which Should I Use?
-
-| Scenario | Use This |
-|----------|----------|
-| 🎨 Want to design visually | **CLI Builder** (tangent) |
-| 💻 Building a Go app | **Go Package** |
-| 🚀 Quick prototyping | **CLI Builder** → export code |
-| 🔧 Need programmatic control | **Go Package** |
-| 📚 Want pre-built characters | **Both work!** |
-
-**Best workflow**: Design in CLI builder → Export code → Use in your Go app
-
----
-
-## Features
-
-### Tangent CLI Builder
-- ✓ Interactive visual design
-- ✓ Live animation preview
-- ✓ Multi-frame session management
-- ✓ Auto-save & resume
-- ✓ Export code or save to `.go` file
-- ✓ Duplicate frames for easy animation
-
-### Go Package
-- ✓ Zero external dependencies
-- ✓ Pattern-based character definition
-- ✓ Built-in animation engine
-- ✓ Pre-built character library
-- ✓ Fluent builder API
 
 ---
 
@@ -109,56 +63,84 @@ func main() {
 
 Single-character codes for block elements:
 
-| Code | Block | Name | Code | Block | Name |
-|------|-------|------|------|-------|------|
-| `F` | █ | Full | `1` | ▘ | Upper Left |
-| `T` | ▀ | Top Half | `2` | ▝ | Upper Right |
-| `B` | ▄ | Bottom Half | `3` | ▖ | Lower Left |
-| `L` | ▌ | Left Half | `4` | ▗ | Lower Right |
-| `R` | ▐ | Right Half | `5` | ▛ | Three Quads (5) |
-| `.` | ░ | Light Shade | `6` | ▜ | Three Quads (6) |
-| `:` | ▒ | Medium Shade | `7` | ▙ | Three Quads (7) |
-| `#` | ▓ | Dark Shade | `8` | ▟ | Three Quads (8) |
-| `_` | (space) | Space | `X` | | Mirror marker |
+| Code | Block | Code | Block | Code | Block |
+|------|-------|------|-------|------|-------|
+| `F` | █ | `1` | ▘ | `.` | ░ |
+| `T` | ▀ | `2` | ▝ | `:` | ▒ |
+| `B` | ▄ | `3` | ▖ | `#` | ▓ |
+| `L` | ▌ | `4` | ▗ | `_` | space |
+| `R` | ▐ | `5` | ▛ | `X` | mirror |
+|     |   | `6` | ▜ |     |       |
+|     |   | `7` | ▙ |     |       |
+|     |   | `8` | ▟ |     |       |
 
-**Full guide**: See [`docs/PATTERN_GUIDE.md`](docs/PATTERN_GUIDE.md)
+**Full guide**: [`docs/PATTERN_GUIDE.md`](docs/PATTERN_GUIDE.md)
+
+---
+
+## Features
+
+- **Zero dependencies** - Pure Go stdlib
+- **Visual builder** - Design without coding
+- **Pattern-based** - Simple, intuitive codes
+- **Library characters** - Pre-built animations
+- **Export ready** - Copy-paste Go code
+- **Cross-platform** - macOS, Linux, Windows
+
+---
+
+## Use Cases
+
+- CLI applications
+- Terminal games  
+- Loading animations
+- Status indicators
+- Agent UX
+- Developer tools
 
 ---
 
 ## Examples
 
-### Run the Demo
+See working examples in [`examples/`](examples/):
+- [`examples/demo/`](examples/demo/) - Library + custom characters
+- [`examples/tokyo/`](examples/tokyo/) - Character created with tangent
 
+Run demo:
 ```bash
-go run examples/demo/main.go
+cd examples/demo
+go run main.go
 ```
 
-Shows:
-- Library characters in action
-- Custom character creation
-- Animation examples
+---
 
-### Example Character (created with Tangent)
+## Library Characters
 
-See [`examples/tokyo/`](examples/tokyo/) - A character designed in Tangent, exported, and animated in Go.
+Pre-built characters you can use immediately:
+
+```go
+alien, _ := characters.Library("alien")
+characters.Animate(os.Stdout, alien, 5, 3)
+```
+
+**Available**: `alien` (3 frames, waving animation)
+
+**Full library**: [`docs/LIBRARY.md`](docs/LIBRARY.md)
 
 ---
 
 ## API Reference
 
-### Create Characters
-
+### Create Character
 ```go
-// Pattern-based (recommended)
-spec := characters.NewCharacterSpec("name", width, height).
-    AddFrame("idle", []string{"pattern1", "pattern2", ...}).
-    AddFrame("wave", []string{...})
+spec := characters.NewCharacterSpec(name, width, height).
+    AddFrame("idle", []string{"pattern..."}).
+    AddFrame("move", []string{"pattern..."})
 
 char, err := spec.Build()
 ```
 
 ### Animate
-
 ```go
 // Animate at 5 FPS for 3 loops
 characters.Animate(os.Stdout, char, 5, 3)
@@ -167,115 +149,45 @@ characters.Animate(os.Stdout, char, 5, 3)
 characters.ShowIdle(os.Stdout, char)
 ```
 
-### Library Characters
-
+### Registry
 ```go
-// Load pre-built character
-alien, _ := characters.Library("alien")
+// Register character
+characters.Register(char)
 
-// List available
-names := characters.ListLibrary()  // ["alien"]
+// Retrieve later
+char, _ := characters.Get("name")
 ```
-
-**Library reference**: See [`docs/LIBRARY.md`](docs/LIBRARY.md)
-
----
-
-## Installation Guide
-
-### 🎨 CLI Builder (Tangent)
-
-**Option A: Download Binary** (Easiest)
-```bash
-# Go to Releases page and download for your platform
-# https://github.com/wildreason/tangent/releases
-
-# macOS/Linux
-chmod +x tangent
-./tangent
-```
-
-**Option B: Build from Source**
-```bash
-git clone https://github.com/wildreason/tangent.git
-cd tangent/cmd/tangent
-go build -o tangent .
-./tangent
-
-# Optional: Install to PATH
-cp tangent ~/.local/bin/
-```
-
----
-
-### 💻 Go Package
-
-**Add to your project:**
-```bash
-go get github.com/wildreason/tangent/pkg/characters
-```
-
-**Use in your code:**
-```go
-import "github.com/wildreason/tangent/pkg/characters"
-```
-
-That's it! Zero external dependencies.
-
----
-
-## Dependencies
-
-**Zero external dependencies** - Uses only Go standard library:
-- `fmt`, `strings`, `time`, `io`, `sync`, `math`
-
-Works with Go 1.21+
 
 ---
 
 ## Documentation
 
-| Doc | Description |
-|-----|-------------|
-| [`docs/PATTERN_GUIDE.md`](docs/PATTERN_GUIDE.md) | Pattern code reference |
-| [`docs/LIBRARY.md`](docs/LIBRARY.md) | Pre-built characters |
-| [`examples/`](examples/) | Usage examples |
-| [`CHANGELOG.md`](CHANGELOG.md) | Version history |
+- [`docs/PATTERN_GUIDE.md`](docs/PATTERN_GUIDE.md) - Pattern codes reference
+- [`docs/LIBRARY.md`](docs/LIBRARY.md) - Pre-built characters
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) - How to contribute
+- [`CHANGELOG.md`](CHANGELOG.md) - Version history
+- [`ROADMAP.md`](ROADMAP.md) - Future plans
 
 ---
 
-## Project Structure
+## Requirements
 
-```
-tangent/
-├── cmd/tangent/        # CLI builder
-├── pkg/characters/     # Go package
-├── examples/           # Usage examples
-├── docs/              # User documentation
-└── tools/             # Build scripts
-```
+- Go 1.21 or higher
+- Terminal with Unicode support
 
 ---
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run examples to verify
-5. Submit a pull request
+Contributions welcome! See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ---
-
-## Contributing
-
-We welcome contributions! See [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-MIT License - © 2025 Wildreason, Inc  
-See [`LICENSE`](LICENSE) for details.  
-https://wildreason.com
+MIT License - © 2025 Wildreason, Inc
+
+See [`LICENSE`](LICENSE) for details.
 
 ---
 
@@ -283,9 +195,8 @@ https://wildreason.com
 
 - **Repository**: https://github.com/wildreason/tangent
 - **Issues**: https://github.com/wildreason/tangent/issues
-- **Website**: https://wildreason.com
+- **Releases**: https://github.com/wildreason/tangent/releases
 
 ---
 
-**Built with ◆ by for AI agent buildersr**
-© 2025 Wildreason, Inc - https://wildreason.com
+**Built for terminal developers**
