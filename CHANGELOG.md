@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0-alpha.5] - 2025-10-07
+tangen## [0.1.0-alpha.5] - 2025-10-07
 
 - **CRITICAL FIX**: Correct module path from `local/characters` to `github.com/wildreason/tangent`
 - Fix `go install` command now works correctly
