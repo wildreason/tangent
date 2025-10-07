@@ -212,6 +212,7 @@ char, _ := characters.Get("name")
 ## Documentation
 
 - [`AGENTS-README.md`](AGENTS-README.md) - **Complete guide for AI agents**
+- [`docs/BUBBLETEA_INTEGRATION.md`](docs/BUBBLETEA_INTEGRATION.md) - **Bubble Tea integration guide**
 - [`docs/PATTERN_GUIDE.md`](docs/PATTERN_GUIDE.md) - Pattern codes reference
 - [`docs/LIBRARY.md`](docs/LIBRARY.md) - Pre-built characters
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) - How to contribute
