@@ -16,18 +16,18 @@ type Frame struct {
 
 // FrameMetadata contains optional metadata for frames
 type FrameMetadata struct {
-	States      map[string][]int      // Named states mapping to frame indices
-	Durations   []time.Duration       // Per-frame durations
-	DefaultFPS  int                   // Suggested frames per second
-	LoopCount   int                   // Suggested loop count (0 = infinite)
-	Description string                // Frame sequence description
+	States      map[string][]int // Named states mapping to frame indices
+	Durations   []time.Duration  // Per-frame durations
+	DefaultFPS  int              // Suggested frames per second
+	LoopCount   int              // Suggested loop count (0 = infinite)
+	Description string           // Frame sequence description
 }
 
 // GetFrames returns all frames from a character with metadata
 // This is the primary API for frame extraction
 func (c *Character) GetFrames() []Frame {
 	frames := make([]Frame, len(c.Frames))
-	
+
 	for i, frameContent := range c.Frames {
 		frames[i] = Frame{
 			Name:    fmt.Sprintf("frame_%d", i),
@@ -35,7 +35,7 @@ func (c *Character) GetFrames() []Frame {
 			Lines:   strings.Split(frameContent, "\n"),
 		}
 	}
-	
+
 	return frames
 }
 
@@ -44,7 +44,7 @@ func (c *Character) GetFrame(index int) (Frame, error) {
 	if index < 0 || index >= len(c.Frames) {
 		return Frame{}, fmt.Errorf("frame index %d out of range (0-%d)", index, len(c.Frames)-1)
 	}
-	
+
 	frameContent := c.Frames[index]
 	return Frame{
 		Name:    fmt.Sprintf("frame_%d", index),
@@ -56,11 +56,11 @@ func (c *Character) GetFrame(index int) (Frame, error) {
 // GetFrameLines returns all frames as [][]string for easy manipulation
 func (c *Character) GetFrameLines() [][]string {
 	result := make([][]string, len(c.Frames))
-	
+
 	for i, frameContent := range c.Frames {
 		result[i] = strings.Split(frameContent, "\n")
 	}
-	
+
 	return result
 }
 
@@ -70,7 +70,7 @@ func (c *Character) GetIdleFrame() Frame {
 	if content == "" && len(c.Frames) > 0 {
 		content = c.Frames[0]
 	}
-	
+
 	return Frame{
 		Name:    "idle",
 		Content: content,
@@ -92,12 +92,12 @@ func (c *Character) Dimensions() (width, height int) {
 func (c *Character) IsNormalized() bool {
 	for _, frame := range c.Frames {
 		lines := strings.Split(frame, "\n")
-		
+
 		// Check height
 		if len(lines) != c.Height {
 			return false
 		}
-		
+
 		// Check width of each line
 		for _, line := range lines {
 			if len([]rune(line)) != c.Width {
@@ -105,7 +105,7 @@ func (c *Character) IsNormalized() bool {
 			}
 		}
 	}
-	
+
 	return true
 }
 
@@ -115,7 +115,7 @@ func (c *Character) Normalize() *Character {
 	if c.IsNormalized() {
 		return c
 	}
-	
+
 	normalized := &Character{
 		Name:   c.Name,
 		Width:  c.Width,
@@ -123,11 +123,11 @@ func (c *Character) Normalize() *Character {
 		Idle:   normalizeFrame(c.Idle, c.Width, c.Height),
 		Frames: make([]string, len(c.Frames)),
 	}
-	
+
 	for i, frame := range c.Frames {
 		normalized.Frames[i] = normalizeFrame(frame, c.Width, c.Height)
 	}
-	
+
 	return normalized
 }
 
@@ -135,12 +135,12 @@ func (c *Character) Normalize() *Character {
 func normalizeFrame(frame string, width, height int) string {
 	lines := strings.Split(frame, "\n")
 	normalized := make([]string, height)
-	
+
 	for i := 0; i < height; i++ {
 		if i < len(lines) {
 			line := lines[i]
 			runes := []rune(line)
-			
+
 			// Pad or trim to exact width
 			if len(runes) < width {
 				// Pad with spaces
@@ -149,14 +149,14 @@ func normalizeFrame(frame string, width, height int) string {
 				// Trim to width
 				line = string(runes[:width])
 			}
-			
+
 			normalized[i] = line
 		} else {
 			// Add empty lines if needed
 			normalized[i] = strings.Repeat(" ", width)
 		}
 	}
-	
+
 	return strings.Join(normalized, "\n")
 }
 
@@ -176,25 +176,25 @@ func ExtractFrames(c *Character) []string {
 
 // FrameStats provides statistics about character frames
 type FrameStats struct {
-	TotalFrames   int
-	Width         int
-	Height        int
-	IsNormalized  bool
-	TotalLines    int
-	TotalRunes    int
+	TotalFrames  int
+	Width        int
+	Height       int
+	IsNormalized bool
+	TotalLines   int
+	TotalRunes   int
 }
 
 // Stats returns statistics about the character's frames
 func (c *Character) Stats() FrameStats {
 	totalLines := 0
 	totalRunes := 0
-	
+
 	for _, frame := range c.Frames {
 		lines := strings.Split(frame, "\n")
 		totalLines += len(lines)
 		totalRunes += len([]rune(frame))
 	}
-	
+
 	return FrameStats{
 		TotalFrames:  len(c.Frames),
 		Width:        c.Width,
@@ -204,4 +204,3 @@ func (c *Character) Stats() FrameStats {
 		TotalRunes:   totalRunes,
 	}
 }
-

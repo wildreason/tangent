@@ -24,14 +24,14 @@ import (
 func SpinnerFromCharacter(char *characters.Character, fps int) spinner.Model {
 	// Extract frames from character
 	frames := characters.ToSpinnerFrames(char)
-	
+
 	// Create spinner with Tangent frames
 	s := spinner.New()
 	s.Spinner = spinner.Spinner{
 		Frames: frames,
 		FPS:    time.Second / time.Duration(fps),
 	}
-	
+
 	return s
 }
 
@@ -77,11 +77,11 @@ func NormalizedSpinner(char *characters.Character, fps int) spinner.Model {
 //	loading := spinners["loading"]
 func MultiCharacterSpinners(chars map[string]*characters.Character, fps int) map[string]spinner.Model {
 	spinners := make(map[string]spinner.Model, len(chars))
-	
+
 	for name, char := range chars {
 		spinners[name] = SpinnerFromCharacter(char, fps)
 	}
-	
+
 	return spinners
 }
 
@@ -99,15 +99,15 @@ func LibrarySpinner(name string, fps int) (spinner.Model, error) {
 	if err != nil {
 		return spinner.Model{}, err
 	}
-	
+
 	return SpinnerFromCharacter(char, fps), nil
 }
 
 // SpinnerConfig provides advanced configuration options
 type SpinnerConfig struct {
-	FPS        int
-	Normalize  bool  // Normalize frames to prevent jitter
-	Style      any   // Optional lipgloss.Style (interface{} to avoid import)
+	FPS       int
+	Normalize bool // Normalize frames to prevent jitter
+	Style     any  // Optional lipgloss.Style (interface{} to avoid import)
 }
 
 // ConfiguredSpinner creates a spinner with advanced configuration
@@ -116,7 +116,7 @@ func ConfiguredSpinner(char *characters.Character, config SpinnerConfig) spinner
 	if config.Normalize {
 		char = char.Normalize()
 	}
-	
+
 	// Create spinner
 	frames := characters.ToSpinnerFrames(char)
 	s := spinner.New()
@@ -124,10 +124,9 @@ func ConfiguredSpinner(char *characters.Character, config SpinnerConfig) spinner
 		Frames: frames,
 		FPS:    time.Second / time.Duration(config.FPS),
 	}
-	
+
 	// Note: Styling should be done in the View() method with lipgloss
 	// We don't apply styles here to maintain separation of concerns
-	
+
 	return s
 }
-

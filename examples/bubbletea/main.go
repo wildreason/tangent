@@ -23,7 +23,7 @@ func initialModel() model {
 	agentSpinner, _ := bubbletea.LibrarySpinner("wave", 6)
 	loadingSpinner, _ := bubbletea.LibrarySpinner("pulse", 8)
 	rocketSpinner, _ := bubbletea.LibrarySpinner("rocket", 5)
-	
+
 	return model{
 		agent:   agentSpinner,
 		loading: loadingSpinner,
@@ -48,12 +48,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	}
-	
+
 	var agentCmd, loadingCmd, rocketCmd tea.Cmd
 	m.agent, agentCmd = m.agent.Update(msg)
 	m.loading, loadingCmd = m.loading.Update(msg)
 	m.rocket, rocketCmd = m.rocket.Update(msg)
-	
+
 	return m, tea.Batch(agentCmd, loadingCmd, rocketCmd)
 }
 
@@ -61,56 +61,56 @@ func (m model) View() string {
 	if m.quitting {
 		return "Goodbye! 👋\n"
 	}
-	
+
 	// Define styles with Lip Gloss
 	titleStyle := lipgloss.NewStyle().
 		Bold(true).
 		Foreground(lipgloss.Color("#00FFFF")).
 		Padding(1, 0)
-	
+
 	agentStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#00FF00")).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("#00FF00")).
 		Padding(0, 2)
-	
+
 	loadingStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#FF00FF")).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("#FF00FF")).
 		Padding(0, 2)
-	
+
 	rocketStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#FFFF00")).
 		Border(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("#FFFF00")).
 		Padding(0, 2)
-	
+
 	helpStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#888888")).
 		Padding(1, 0)
-	
+
 	// Build view with styled characters
 	title := titleStyle.Render("Tangent + Bubble Tea Integration Demo")
-	
+
 	agentView := lipgloss.JoinVertical(
 		lipgloss.Center,
 		agentStyle.Render(m.agent.View()),
 		"Agent (wave)",
 	)
-	
+
 	loadingView := lipgloss.JoinVertical(
 		lipgloss.Center,
 		loadingStyle.Render(m.loading.View()),
 		"Loading (pulse)",
 	)
-	
+
 	rocketView := lipgloss.JoinVertical(
 		lipgloss.Center,
 		rocketStyle.Render(m.rocket.View()),
 		"Status (rocket)",
 	)
-	
+
 	// Horizontal layout of characters
 	charactersRow := lipgloss.JoinHorizontal(
 		lipgloss.Top,
@@ -120,9 +120,9 @@ func (m model) View() string {
 		"   ",
 		rocketView,
 	)
-	
+
 	help := helpStyle.Render("Press 'q' to quit")
-	
+
 	// Vertical layout
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
@@ -147,11 +147,10 @@ func main() {
 	fmt.Println()
 	fmt.Println("Starting...")
 	fmt.Println()
-	
+
 	p := tea.NewProgram(initialModel())
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
-

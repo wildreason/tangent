@@ -1,6 +1,24 @@
 # Changelog
 
-tangen## [0.1.0-alpha.5] - 2025-10-07
+## [0.1.0-beta.1] - 2025-10-07
+
+**Strategic Pivot: Character Design System**
+
+- **BREAKING REPOSITIONING**: Tangent is now a Character Design System, not just an animation library
+- Add frame extraction API (GetFrames, Normalize, ToSpinnerFrames)
+- Add Bubble Tea adapter package (pkg/adapters/bubbletea)
+- Add complete Bubble Tea integration example
+- Add Bubble Tea integration guide (docs/BUBBLETEA_INTEGRATION.md)
+- Reposition README: framework-agnostic, "Two Ways to Use" pattern
+- Built-in animation now "optional convenience" for simple CLIs
+- Frame extraction is now first-class API
+
+**New Dependencies:**
+- github.com/charmbracelet/bubbletea (adapter only)
+- github.com/charmbracelet/bubbles (adapter only)
+- Core package remains dependency-free
+
+## [0.1.0-alpha.5] - 2025-10-07
 
 - **CRITICAL FIX**: Correct module path from `local/characters` to `github.com/wildreason/tangent`
 - Fix `go install` command now works correctly
