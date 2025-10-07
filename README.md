@@ -25,10 +25,10 @@ go install github.com/wildreason/tangent/cmd/tangent@latest
 
 ## Quick Start
 
-### 1. Design a Character
+### Interactive Mode
 
 ```bash
-tangent  # Opens interactive builder
+tangent  # Opens visual builder
 ```
 
 Create your character visually:
@@ -36,7 +36,22 @@ Create your character visually:
 - Preview animation live
 - Export Go code
 
-### 2. Use in Your Code
+### CLI Mode (for AI agents)
+
+```bash
+# Create character
+tangent create --name robot --width 11 --height 3 \
+  --frame idle '__R6FFF6L__,_T5FFFFF6T_,___11_22___' \
+  --output robot.go --package agent
+
+# Animate library character
+tangent animate --name alien --fps 10 --loops 5
+
+# Export saved session
+tangent export --session mychar --output mychar.go
+```
+
+### Use in Your Code
 
 ```go
 import "github.com/wildreason/tangent/pkg/characters"
@@ -78,25 +93,56 @@ Single-character codes for block elements:
 
 ---
 
+## CLI Commands
+
+### `tangent create`
+Create character from command line:
+```bash
+tangent create --name NAME --width W --height H \
+  --frame FRAME_NAME "pattern,lines,here" \
+  [--output file.go] [--package pkg]
+```
+
+### `tangent animate`
+Show animation in terminal:
+```bash
+# Library character
+tangent animate --name alien --fps 10 --loops 5
+
+# From saved session
+tangent animate --session mychar --fps 5 --loops 3
+```
+
+### `tangent export`
+Export session to Go code:
+```bash
+tangent export --session mychar --output mychar.go --package agent
+```
+
+**Get help**: `tangent help`
+
+---
+
 ## Features
 
 - **Zero dependencies** - Pure Go stdlib
-- **Visual builder** - Design without coding
+- **Interactive + CLI modes** - Visual builder or command line
+- **AI-friendly** - Non-interactive CLI for agents
 - **Pattern-based** - Simple, intuitive codes
 - **Library characters** - Pre-built animations
-- **Export ready** - Copy-paste Go code
+- **Export ready** - Generate Go code
 - **Cross-platform** - macOS, Linux, Windows
 
 ---
 
 ## Use Cases
 
-- CLI applications
-- Terminal games  
-- Loading animations
-- Status indicators
-- Agent UX
-- Developer tools
+- **AI Agents** - Characters for terminal agents
+- **CLI Apps** - Interactive terminal UIs
+- **Terminal Games** - Animated sprites
+- **Loading States** - Progress indicators
+- **Status Display** - Visual feedback
+- **DevOps Tools** - Build/deploy animations
 
 ---
 

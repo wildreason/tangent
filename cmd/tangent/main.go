@@ -2,6 +2,8 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -19,6 +21,13 @@ var (
 )
 
 func main() {
+	// Non-interactive CLI mode
+	if len(os.Args) > 1 {
+		handleCLI()
+		return
+	}
+
+	// Interactive mode
 	showBanner()
 	mainMenu()
 }
@@ -851,4 +860,337 @@ func sessionExists(name string) bool {
 		}
 	}
 	return false
+}
+
+// ============================================================================
+// NON-INTERACTIVE CLI MODE
+// ============================================================================
+
+func handleCLI() {
+	if len(os.Args) < 2 {
+		printUsage()
+		os.Exit(1)
+	}
+
+	command := os.Args[1]
+
+	switch command {
+	case "create":
+		handleCreate()
+	case "animate":
+		handleAnimate()
+	case "export":
+		handleExport()
+	case "version", "--version", "-v":
+		fmt.Printf("tangent %s (commit: %s, built: %s)\n", version, commit, date)
+	case "help", "--help", "-h":
+		printUsage()
+	default:
+		fmt.Fprintf(os.Stderr, "Error: unknown command '%s'\n\n", command)
+		printUsage()
+		os.Exit(1)
+	}
+}
+
+func printUsage() {
+	fmt.Println("Tangent - Terminal Agent Designer")
+	fmt.Println()
+	fmt.Println("USAGE:")
+	fmt.Println("  tangent                           Start interactive builder")
+	fmt.Println("  tangent create [options]          Create character from CLI")
+	fmt.Println("  tangent animate [options]         Show character animation")
+	fmt.Println("  tangent export [options]          Export character to Go code")
+	fmt.Println("  tangent version                   Show version information")
+	fmt.Println("  tangent help                      Show this help message")
+	fmt.Println()
+	fmt.Println("CREATE OPTIONS:")
+	fmt.Println("  --name <string>                   Character name (required)")
+	fmt.Println("  --width <int>                     Character width (required)")
+	fmt.Println("  --height <int>                    Character height (required)")
+	fmt.Println("  --frame <name> <pattern>          Add frame (can repeat)")
+	fmt.Println("  --output <file>                   Save to .go file")
+	fmt.Println("  --package <name>                  Go package name (default: main)")
+	fmt.Println()
+	fmt.Println("ANIMATE OPTIONS:")
+	fmt.Println("  --name <string>                   Character name (from library)")
+	fmt.Println("  --session <string>                Load from session file")
+	fmt.Println("  --fps <int>                       Frames per second (default: 5)")
+	fmt.Println("  --loops <int>                     Number of loops (default: 3)")
+	fmt.Println()
+	fmt.Println("EXPORT OPTIONS:")
+	fmt.Println("  --session <string>                Load from session file (required)")
+	fmt.Println("  --output <file>                   Output file (default: stdout)")
+	fmt.Println("  --package <name>                  Go package name (default: main)")
+	fmt.Println()
+	fmt.Println("EXAMPLES:")
+	fmt.Println("  # Create character")
+	fmt.Println("  tangent create --name robot --width 11 --height 3 \\")
+	fmt.Println("    --frame idle '__R6FFF6L__,_T5FFFFF6T_,___11_22___'")
+	fmt.Println()
+	fmt.Println("  # Create multi-frame character")
+	fmt.Println("  tangent create --name alien --width 7 --height 3 \\")
+	fmt.Println("    --frame idle 'L6FFF6R,T5FFF6T,_1_2_' \\")
+	fmt.Println("    --frame wave 'R6FFF6L,T5FFF6T,_1_2_' \\")
+	fmt.Println("    --output alien.go --package myagent")
+	fmt.Println()
+	fmt.Println("  # Animate library character")
+	fmt.Println("  tangent animate --name alien --fps 10 --loops 5")
+	fmt.Println()
+	fmt.Println("  # Animate from session")
+	fmt.Println("  tangent animate --session robot --fps 5 --loops 3")
+	fmt.Println()
+	fmt.Println("  # Export session to file")
+	fmt.Println("  tangent export --session robot --output robot.go --package agent")
+	fmt.Println()
+	fmt.Println("PATTERN CODES:")
+	fmt.Println("  F=█ T=▀ B=▄ L=▌ R=▐ 1-8=quads .=#:=shades _=space X=mirror")
+	fmt.Println()
+	fmt.Println("For full documentation: https://github.com/wildreason/tangent")
+}
+
+func handleCreate() {
+	var name, output, pkg string
+	var width, height int
+	var frames []struct {
+		name    string
+		pattern string
+	}
+
+	// Parse args manually to handle multiple --frame
+	args := os.Args[2:]
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--name":
+			if i+1 < len(args) {
+				name = args[i+1]
+				i++
+			}
+		case "--width":
+			if i+1 < len(args) {
+				fmt.Sscanf(args[i+1], "%d", &width)
+				i++
+			}
+		case "--height":
+			if i+1 < len(args) {
+				fmt.Sscanf(args[i+1], "%d", &height)
+				i++
+			}
+		case "--output":
+			if i+1 < len(args) {
+				output = args[i+1]
+				i++
+			}
+		case "--package":
+			if i+1 < len(args) {
+				pkg = args[i+1]
+				i++
+			}
+		case "--frame":
+			if i+2 < len(args) {
+				frames = append(frames, struct {
+					name    string
+					pattern string
+				}{
+					name:    args[i+1],
+					pattern: args[i+2],
+				})
+				i += 2
+			}
+		}
+	}
+
+	// Set defaults
+	if pkg == "" {
+		pkg = "main"
+	}
+
+	// Validate required fields
+	if name == "" {
+		fmt.Fprintln(os.Stderr, "Error: --name is required")
+		os.Exit(1)
+	}
+	if width == 0 {
+		fmt.Fprintln(os.Stderr, "Error: --width is required")
+		os.Exit(1)
+	}
+	if height == 0 {
+		fmt.Fprintln(os.Stderr, "Error: --height is required")
+		os.Exit(1)
+	}
+	if len(frames) == 0 {
+		fmt.Fprintln(os.Stderr, "Error: at least one --frame is required")
+		os.Exit(1)
+	}
+
+	// Build character spec
+	spec := characters.NewCharacterSpec(name, width, height)
+
+	for _, frame := range frames {
+		// Split pattern by comma for multi-line
+		lines := strings.Split(frame.pattern, ",")
+		
+		// Validate line count
+		if len(lines) != height {
+			fmt.Fprintf(os.Stderr, "Error: frame '%s' has %d lines, expected %d\n", frame.name, len(lines), height)
+			os.Exit(1)
+		}
+
+		spec = spec.AddFrame(frame.name, lines)
+	}
+
+	// Build character
+	char, err := spec.Build()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error building character: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Output handling
+	if output != "" {
+		// Save to file
+		code := generateExportCode(name, pkg, spec)
+		err := os.WriteFile(output, []byte(code), 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing file: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("✓ Character saved to %s\n", output)
+	} else {
+		// Show preview
+		fmt.Printf("✓ Character '%s' created\n\n", name)
+		characters.ShowIdle(os.Stdout, char)
+		fmt.Println()
+		fmt.Println("To export: tangent create ... --output file.go")
+	}
+}
+
+func handleAnimate() {
+	fs := flag.NewFlagSet("animate", flag.ExitOnError)
+	name := fs.String("name", "", "Character name (from library)")
+	session := fs.String("session", "", "Session name to load")
+	fps := fs.Int("fps", 5, "Frames per second")
+	loops := fs.Int("loops", 3, "Number of loops")
+
+	fs.Parse(os.Args[2:])
+
+	var char *characters.Character
+	var err error
+
+	if *name != "" {
+		// Load from library
+		char, err = characters.Library(*name)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: library character '%s' not found\n", *name)
+			fmt.Fprintln(os.Stderr, "Available: alien")
+			os.Exit(1)
+		}
+	} else if *session != "" {
+		// Load from session
+		sessData, err := LoadSession(*session)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading session '%s': %v\n", *session, err)
+			os.Exit(1)
+		}
+
+		// Build character from session
+		spec := characters.NewCharacterSpec(sessData.Name, sessData.Width, sessData.Height)
+		for _, frame := range sessData.Frames {
+			spec = spec.AddFrame(frame.Name, frame.Lines)
+		}
+
+		char, err = spec.Build()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error building character: %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		fmt.Fprintln(os.Stderr, "Error: either --name or --session is required")
+		os.Exit(1)
+	}
+
+	// Animate
+	fmt.Printf("Animating '%s' at %d FPS for %d loops...\n\n", char.Name, *fps, *loops)
+	characters.Animate(os.Stdout, char, *fps, *loops)
+	fmt.Println()
+}
+
+func handleExport() {
+	fs := flag.NewFlagSet("export", flag.ExitOnError)
+	session := fs.String("session", "", "Session name to load")
+	output := fs.String("output", "", "Output file (default: stdout)")
+	pkg := fs.String("package", "main", "Go package name")
+
+	fs.Parse(os.Args[2:])
+
+	if *session == "" {
+		fmt.Fprintln(os.Stderr, "Error: --session is required")
+		os.Exit(1)
+	}
+
+	// Load session
+	sessData, err := LoadSession(*session)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading session '%s': %v\n", *session, err)
+		os.Exit(1)
+	}
+
+	// Build spec
+	spec := characters.NewCharacterSpec(sessData.Name, sessData.Width, sessData.Height)
+	for _, frame := range sessData.Frames {
+		spec = spec.AddFrame(frame.Name, frame.Lines)
+	}
+
+	// Generate code
+	code := generateExportCode(sessData.Name, *pkg, spec)
+
+	// Output
+	if *output != "" {
+		err := os.WriteFile(*output, []byte(code), 0644)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing file: %v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("✓ Exported to %s\n", *output)
+	} else {
+		fmt.Println(code)
+	}
+}
+
+func generateExportCode(name, pkg string, spec *characters.CharacterSpec) string {
+	// Get spec data via JSON (hacky but works)
+	data, _ := json.Marshal(spec)
+	var specData struct {
+		Name   string `json:"name"`
+		Width  int    `json:"width"`
+		Height int    `json:"height"`
+		Frames []struct {
+			Name     string   `json:"name"`
+			Patterns []string `json:"patterns"`
+		} `json:"frames"`
+	}
+	json.Unmarshal(data, &specData)
+
+	var sb strings.Builder
+	
+	sb.WriteString(fmt.Sprintf("package %s\n\n", pkg))
+	sb.WriteString("import (\n")
+	sb.WriteString("\t\"github.com/wildreason/tangent/pkg/characters\"\n")
+	sb.WriteString(")\n\n")
+	sb.WriteString(fmt.Sprintf("// Get%s returns the %s character\n", strings.Title(name), name))
+	sb.WriteString(fmt.Sprintf("func Get%s() (*characters.Character, error) {\n", strings.Title(name)))
+	sb.WriteString(fmt.Sprintf("\tspec := characters.NewCharacterSpec(\"%s\", %d, %d)\n", 
+		specData.Name, specData.Width, specData.Height))
+	
+	for _, frame := range specData.Frames {
+		sb.WriteString(fmt.Sprintf("\tspec = spec.AddFrame(\"%s\", []string{\n", frame.Name))
+		for _, pattern := range frame.Patterns {
+			sb.WriteString(fmt.Sprintf("\t\t\"%s\",\n", pattern))
+		}
+		sb.WriteString("\t})\n")
+	}
+	
+	sb.WriteString("\treturn spec.Build()\n")
+	sb.WriteString("}\n")
+	
+	return sb.String()
 }
