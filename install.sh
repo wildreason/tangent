@@ -85,7 +85,7 @@ echo -e "${GREEN}✓${NC} Installed to $INSTALL_DIR/tangent"
 # Install Go package
 echo ""
 echo "Installing Go package..."
-if go install "github.com/$REPO/cmd/tangent@latest" 2>/dev/null; then
+if go install "github.com/$REPO/cmd/tangent@$VERSION" 2>/dev/null; then
     echo -e "${GREEN}✓${NC} Go package installed"
 else
     echo -e "${YELLOW}⚠${NC}  Package install skipped (optional)"
