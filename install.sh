@@ -52,34 +52,90 @@ echo -e "${GREEN}✓${NC} Platform: $OS-$ARCH"
 mkdir -p "$INSTALL_DIR"
 echo -e "${GREEN}✓${NC} Install directory: $INSTALL_DIR"
 
-# Determine download URL
+# Get release info and determine download URL
+echo ""
+echo "Fetching release information..."
+
 if [ "$VERSION" = "latest" ]; then
-    DOWNLOAD_URL="https://github.com/$REPO/releases/latest/download/tangent_${OS}_${ARCH}"
+    # Try to get latest release (including pre-releases)
+    RELEASE_TAG=$(curl -fsSL https://api.github.com/repos/$REPO/releases 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -1 | sed 's/"tag_name": *"\(.*\)"/\1/')
+    if [ -z "$RELEASE_TAG" ]; then
+        echo -e "${RED}✗ Failed to fetch latest release${NC}"
+        echo ""
+        echo "Alternative: Install via Go"
+        echo "  go install github.com/$REPO/cmd/tangent@latest"
+        exit 1
+    fi
+    VERSION_NUM=$(echo "$RELEASE_TAG" | sed 's/^v//')
 else
-    DOWNLOAD_URL="https://github.com/$REPO/releases/download/$VERSION/tangent_${OS}_${ARCH}"
+    RELEASE_TAG="$VERSION"
+    VERSION_NUM=$(echo "$VERSION" | sed 's/^v//')
 fi
 
-echo ""
-echo "Downloading tangent..."
+# Determine file extension based on OS
+case $OS in
+    windows)
+        FILE_EXT="zip"
+        ;;
+    *)
+        FILE_EXT="tar.gz"
+        ;;
+esac
+
+# Construct platform string (capitalize first letter for release assets)
+OS_CAPITALIZED="$(tr '[:lower:]' '[:upper:]' <<< ${OS:0:1})${OS:1}"
+DOWNLOAD_URL="https://github.com/$REPO/releases/download/$RELEASE_TAG/tangent_${VERSION_NUM}_${OS_CAPITALIZED}_${ARCH}.${FILE_EXT}"
+
+echo "Downloading tangent $RELEASE_TAG..."
 echo "  From: $DOWNLOAD_URL"
 
-# Download binary
-TEMP_FILE=$(mktemp)
-if curl -fsSL -o "$TEMP_FILE" "$DOWNLOAD_URL" 2>/dev/null; then
-    echo -e "${GREEN}✓${NC} Downloaded tangent binary"
-else
+# Download archive
+TEMP_DIR=$(mktemp -d)
+TEMP_FILE="$TEMP_DIR/tangent.${FILE_EXT}"
+if ! curl -fsSL -o "$TEMP_FILE" "$DOWNLOAD_URL" 2>/dev/null; then
     echo -e "${RED}✗ Failed to download${NC}"
     echo "  URL: $DOWNLOAD_URL"
     echo ""
     echo "Alternative: Install via Go"
     echo "  go install github.com/$REPO/cmd/tangent@latest"
-    rm -f "$TEMP_FILE"
+    rm -rf "$TEMP_DIR"
+    exit 1
+fi
+echo -e "${GREEN}✓${NC} Downloaded tangent archive"
+
+# Extract binary
+echo "Extracting binary..."
+cd "$TEMP_DIR"
+if [ "$FILE_EXT" = "zip" ]; then
+    if ! unzip -q "$TEMP_FILE"; then
+        echo -e "${RED}✗ Failed to extract archive${NC}"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+else
+    if ! tar -xzf "$TEMP_FILE"; then
+        echo -e "${RED}✗ Failed to extract archive${NC}"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+fi
+
+# Find and install binary
+BINARY_NAME="tangent"
+if [ "$OS" = "windows" ]; then
+    BINARY_NAME="tangent.exe"
+fi
+
+if [ ! -f "$BINARY_NAME" ]; then
+    echo -e "${RED}✗ Binary not found in archive${NC}"
+    rm -rf "$TEMP_DIR"
     exit 1
 fi
 
 # Install binary
-mv "$TEMP_FILE" "$INSTALL_DIR/tangent"
+mv "$BINARY_NAME" "$INSTALL_DIR/tangent"
 chmod +x "$INSTALL_DIR/tangent"
+rm -rf "$TEMP_DIR"
 echo -e "${GREEN}✓${NC} Installed to $INSTALL_DIR/tangent"
 
 # Install Go package
