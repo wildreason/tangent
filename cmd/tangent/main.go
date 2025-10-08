@@ -1031,7 +1031,7 @@ func handleCreate() {
 	for _, frame := range frames {
 		// Split pattern by comma for multi-line
 		lines := strings.Split(frame.pattern, ",")
-		
+
 		// Validate line count
 		if len(lines) != height {
 			fmt.Fprintf(os.Stderr, "Error: frame '%s' has %d lines, expected %d\n", frame.name, len(lines), height)
@@ -1174,16 +1174,16 @@ func generateExportCode(name, pkg string, spec *characters.CharacterSpec) string
 	json.Unmarshal(data, &specData)
 
 	var sb strings.Builder
-	
+
 	sb.WriteString(fmt.Sprintf("package %s\n\n", pkg))
 	sb.WriteString("import (\n")
 	sb.WriteString("\t\"github.com/wildreason/tangent/pkg/characters\"\n")
 	sb.WriteString(")\n\n")
 	sb.WriteString(fmt.Sprintf("// Get%s returns the %s character\n", strings.Title(name), name))
 	sb.WriteString(fmt.Sprintf("func Get%s() (*characters.Character, error) {\n", strings.Title(name)))
-	sb.WriteString(fmt.Sprintf("\tspec := characters.NewCharacterSpec(\"%s\", %d, %d)\n", 
+	sb.WriteString(fmt.Sprintf("\tspec := characters.NewCharacterSpec(\"%s\", %d, %d)\n",
 		specData.Name, specData.Width, specData.Height))
-	
+
 	for _, frame := range specData.Frames {
 		sb.WriteString(fmt.Sprintf("\tspec = spec.AddFrame(\"%s\", []string{\n", frame.Name))
 		for _, pattern := range frame.Patterns {
@@ -1191,17 +1191,17 @@ func generateExportCode(name, pkg string, spec *characters.CharacterSpec) string
 		}
 		sb.WriteString("\t})\n")
 	}
-	
+
 	sb.WriteString("\treturn spec.Build()\n")
 	sb.WriteString("}\n")
-	
+
 	return sb.String()
 }
 
 func handleGallery() {
 	// Get all library characters
 	names := characters.ListLibrary()
-	
+
 	if len(names) == 0 {
 		fmt.Println("No library characters available.")
 		return
@@ -1238,7 +1238,7 @@ func handleGallery() {
 		fmt.Println()
 
 		// Show metadata
-		fmt.Printf("  Size: %dx%d | Frames: %d | Author: Wildreason, Inc\n", 
+		fmt.Printf("  Size: %dx%d | Frames: %d | Author: Wildreason, Inc\n",
 			char.Width, char.Height, len(char.Frames))
 		fmt.Println()
 

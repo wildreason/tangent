@@ -56,7 +56,7 @@ echo -e "${GREEN}✓${NC} Install directory: $INSTALL_DIR"
 if [ "$VERSION" = "latest" ]; then
     DOWNLOAD_URL="https://github.com/$REPO/releases/latest/download/tangent_${OS}_${ARCH}"
 else
-    DOWNLOAD_URL="https://github.com/$REPO/releases/download/$VERSION/tangent_${os}_${ARCH}"
+    DOWNLOAD_URL="https://github.com/$REPO/releases/download/$VERSION/tangent_${OS}_${ARCH}"
 fi
 
 echo ""
@@ -98,11 +98,17 @@ if echo "$PATH" | grep -q "$INSTALL_DIR"; then
 else
     echo -e "${YELLOW}⚠${NC}  $INSTALL_DIR is not in your PATH"
     echo ""
-    echo "Add to your PATH by adding this to ~/.bashrc or ~/.zshrc:"
+    echo "Quick fix - run this command:"
     echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
     echo ""
-    echo "Then restart your shell or run:"
-    echo "  source ~/.bashrc  # or ~/.zshrc"
+    echo "To make it permanent, add to your shell config:"
+    if [ -n "$ZSH_VERSION" ]; then
+        echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.zshrc"
+        echo "  source ~/.zshrc"
+    else
+        echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
+        echo "  source ~/.bashrc"
+    fi
 fi
 
 # Success message

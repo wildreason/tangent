@@ -24,7 +24,13 @@ Design animated Unicode block characters with an intuitive pattern system, visua
 curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | bash
 
 # Or via Go (specify version for pre-release)
-go install github.com/wildreason/tangent/cmd/tangent@v0.1.0-beta.2
+go install github.com/wildreason/tangent/cmd/tangent@v0.1.0-beta.3
+
+# If 'tangent' command not found, add Go bin to PATH:
+export PATH=$PATH:$(go env GOPATH)/bin
+
+# Alternative: Use Go's built-in PATH management
+go env -w PATH=$PATH:$(go env GOPATH)/bin
 ```
 
 ---
