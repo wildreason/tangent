@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1] - 2025-10-08
+
+**Installation Fix**
+
+- **FIXED**: Removed duplicate `go install` step causing version conflict
+- **FIXED**: Binary now shows correct version (0.1.1) instead of "dev"
+- Single install method for all users via curl installer
+- Go package imported via standard `go mod tidy` workflow
+
 ## [0.1.0] - 2025-10-08
 
 **First Stable Release**

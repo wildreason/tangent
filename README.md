@@ -19,19 +19,21 @@ Design animated Unicode block characters with an intuitive pattern system, visua
 
 ## Install
 
+**One command for everyone:**
+
 ```bash
-# Quick install (binary + package)
 curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | bash
-
-# Or via Go (specify version for pre-release)
-go install github.com/wildreason/tangent/cmd/tangent@v0.1.0-beta.3
-
-# If 'tangent' command not found, add Go bin to PATH:
-export PATH=$PATH:$(go env GOPATH)/bin
-
-# Alternative: Use Go's built-in PATH management
-go env -w PATH=$PATH:$(go env GOPATH)/bin
 ```
+
+This installs the `tangent` CLI tool to `~/.local/bin`.
+
+**For Go developers:** To use the package in your code, just import it:
+
+```go
+import "github.com/wildreason/tangent/pkg/characters"
+```
+
+Then run `go mod tidy` in your project. No separate installation needed.
 
 ---
 
