@@ -20,14 +20,56 @@ echo "║  Terminal Agent Designer                 ║"
 echo "╚══════════════════════════════════════════╝"
 echo ""
 
-# Check if Go is installed
-if ! command -v go &> /dev/null; then
-    echo -e "${RED}✗ Go is not installed${NC}"
-    echo "  Install Go from: https://go.dev/dl/"
-    exit 1
+# Check for existing installation
+EXISTING_VERSION=""
+FORCE_INSTALL=false
+
+if command -v tangent &> /dev/null; then
+    EXISTING_VERSION=$(tangent --version 2>/dev/null | awk '{print $2}' || echo "unknown")
+    echo -e "${YELLOW}⚠${NC}  Tangent is already installed: v$EXISTING_VERSION"
 fi
 
-echo -e "${GREEN}✓${NC} Go detected: $(go version | awk '{print $3}')"
+# Get latest available version early
+echo "Checking latest version..."
+LATEST_TAG=$(curl -fsSL https://api.github.com/repos/$REPO/releases 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -1 | sed 's/"tag_name": *"\(.*\)"/\1/')
+if [ -z "$LATEST_TAG" ]; then
+    echo -e "${RED}✗ Failed to fetch latest version from GitHub${NC}"
+    exit 1
+fi
+LATEST_VERSION=$(echo "$LATEST_TAG" | sed 's/^v//')
+
+# Decide what to do
+if [ -n "$EXISTING_VERSION" ] && [ "$EXISTING_VERSION" != "unknown" ]; then
+    if [ "$EXISTING_VERSION" = "$LATEST_VERSION" ]; then
+        echo -e "${GREEN}✓${NC} You have the latest version ($LATEST_VERSION)"
+        echo ""
+        echo "To reinstall anyway, run:"
+        echo "  curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | FORCE=1 bash"
+        exit 0
+    else
+        echo -e "${YELLOW}→${NC} Upgrading from v$EXISTING_VERSION to v$LATEST_VERSION"
+        FORCE_INSTALL=true
+    fi
+else
+    echo -e "${GREEN}→${NC} Installing Tangent v$LATEST_VERSION"
+fi
+
+# Check if FORCE environment variable is set
+if [ "$FORCE" = "1" ]; then
+    echo -e "${YELLOW}→${NC} Force install requested"
+    FORCE_INSTALL=true
+fi
+
+echo ""
+
+# Check if Go is installed (optional for CLI users)
+GO_AVAILABLE=false
+if command -v go &> /dev/null; then
+    echo -e "${GREEN}✓${NC} Go detected: $(go version | awk '{print $3}')"
+    GO_AVAILABLE=true
+else
+    echo -e "${YELLOW}⚠${NC}  Go not detected (optional - CLI will work without it)"
+fi
 
 # Detect OS and architecture
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
@@ -52,22 +94,13 @@ echo -e "${GREEN}✓${NC} Platform: $OS-$ARCH"
 mkdir -p "$INSTALL_DIR"
 echo -e "${GREEN}✓${NC} Install directory: $INSTALL_DIR"
 
-# Get release info and determine download URL
+# Use version info we already fetched
 echo ""
-echo "Fetching release information..."
-
 if [ "$VERSION" = "latest" ]; then
-    # Try to get latest release (including pre-releases)
-    RELEASE_TAG=$(curl -fsSL https://api.github.com/repos/$REPO/releases 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -1 | sed 's/"tag_name": *"\(.*\)"/\1/')
-    if [ -z "$RELEASE_TAG" ]; then
-        echo -e "${RED}✗ Failed to fetch latest release${NC}"
-        echo ""
-        echo "Alternative: Install via Go"
-        echo "  go install github.com/$REPO/cmd/tangent@latest"
-        exit 1
-    fi
-    VERSION_NUM=$(echo "$RELEASE_TAG" | sed 's/^v//')
+    RELEASE_TAG="$LATEST_TAG"
+    VERSION_NUM="$LATEST_VERSION"
 else
+    # User specified a specific version
     RELEASE_TAG="$VERSION"
     VERSION_NUM=$(echo "$VERSION" | sed 's/^v//')
 fi
@@ -138,13 +171,15 @@ chmod +x "$INSTALL_DIR/tangent"
 rm -rf "$TEMP_DIR"
 echo -e "${GREEN}✓${NC} Installed to $INSTALL_DIR/tangent"
 
-# Install Go package
-echo ""
-echo "Installing Go package..."
-if go install "github.com/$REPO/cmd/tangent@$VERSION" 2>/dev/null; then
-    echo -e "${GREEN}✓${NC} Go package installed"
-else
-    echo -e "${YELLOW}⚠${NC}  Package install skipped (optional)"
+# Install Go package (optional)
+if [ "$GO_AVAILABLE" = true ]; then
+    echo ""
+    echo "Installing Go package..."
+    if go install "github.com/$REPO/cmd/tangent@$RELEASE_TAG" 2>/dev/null; then
+        echo -e "${GREEN}✓${NC} Go package installed"
+    else
+        echo -e "${YELLOW}⚠${NC}  Package install skipped (optional)"
+    fi
 fi
 
 # Check if in PATH
@@ -169,9 +204,17 @@ fi
 
 # Success message
 echo ""
-echo "╔══════════════════════════════════════════╗"
-echo "║  ✓ Installation Complete!                ║"
-echo "╚══════════════════════════════════════════╝"
+if [ -n "$EXISTING_VERSION" ] && [ "$EXISTING_VERSION" != "unknown" ]; then
+    echo "╔══════════════════════════════════════════╗"
+    echo "║  ✓ Upgrade Complete!                     ║"
+    echo "║    $EXISTING_VERSION → $LATEST_VERSION                      ║"
+    echo "╚══════════════════════════════════════════╝"
+else
+    echo "╔══════════════════════════════════════════╗"
+    echo "║  ✓ Installation Complete!                ║"
+    echo "║    Tangent v$LATEST_VERSION                       ║"
+    echo "╚══════════════════════════════════════════╝"
+fi
 echo ""
 echo "Quick Start:"
 echo "  1. Run the builder:  tangent"
