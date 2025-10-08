@@ -23,8 +23,8 @@ Design animated Unicode block characters with an intuitive pattern system, visua
 # Quick install (binary + package)
 curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | bash
 
-# Or via Go
-go install github.com/wildreason/tangent/cmd/tangent@latest
+# Or via Go (specify version for pre-release)
+go install github.com/wildreason/tangent/cmd/tangent@v0.1.0-beta.2
 ```
 
 ---
