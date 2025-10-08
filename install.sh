@@ -171,16 +171,9 @@ chmod +x "$INSTALL_DIR/tangent"
 rm -rf "$TEMP_DIR"
 echo -e "${GREEN}✓${NC} Installed to $INSTALL_DIR/tangent"
 
-# Install Go package (optional)
-if [ "$GO_AVAILABLE" = true ]; then
-    echo ""
-    echo "Installing Go package..."
-    if go install "github.com/$REPO/cmd/tangent@$RELEASE_TAG" 2>/dev/null; then
-        echo -e "${GREEN}✓${NC} Go package installed"
-    else
-        echo -e "${YELLOW}⚠${NC}  Package install skipped (optional)"
-    fi
-fi
+# Note: Go package developers can import the package in their code:
+# import "github.com/wildreason/tangent/pkg/characters"
+# No separate installation needed - go mod will handle it automatically
 
 # Check if in PATH
 echo ""
@@ -217,12 +210,13 @@ else
 fi
 echo ""
 echo "Quick Start:"
-echo "  1. Run the builder:  tangent"
-echo "  2. Use in Go code:   import \"github.com/$REPO/pkg/characters\""
-echo ""
-echo "Examples:"
 echo "  tangent                    # Start visual builder"
 echo "  tangent --version          # Check version"
+echo "  tangent gallery            # Browse library"
+echo ""
+echo "For Go developers:"
+echo "  import \"github.com/$REPO/pkg/characters\""
+echo "  (Run 'go mod tidy' in your project)"
 echo ""
 echo "Documentation:"
 echo "  https://github.com/$REPO"
