@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.0] - 2025-10-08
+
+**First Stable Release**
+
+This is the first stable release of Tangent, a character design system for terminal applications.
+
+### Fixed
+- **CRITICAL**: Installer now correctly downloads and extracts release archives
+- Fixed installer URL construction to match GoReleaser asset naming
+- Fixed platform capitalization in download URLs (darwin -> Darwin)
+- Installer now supports pre-release versions from GitHub API
+
+### Added
+- Proper version management system
+- Support for tar.gz/zip archive extraction in installer
+- Comprehensive installation validation and PATH checking
+
+### Technical Notes
+- Installer tested on darwin-arm64 with v0.1.0-beta.4
+- All beta features now stable and production-ready
+- Module path: `github.com/wildreason/tangent`
+
 ## [0.1.0-beta.2] - 2025-10-07
 
 **Critical Bug Fix: Frame Normalization**
