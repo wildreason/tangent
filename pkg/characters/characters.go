@@ -12,42 +12,30 @@ import (
 	"github.com/wildreason/tangent/pkg/characters/service"
 )
 
-// Package characters provides a simple API for creating and animating
-// Unicode Block Elements (U+2580–U+259F) characters in Go applications.
+// Package characters provides a simple API for terminal character animation.
 //
-// This package focuses exclusively on Block Elements for pixel-perfect
-// character design and animation.
+// Core API (3 functions only):
 //
-// Block Elements used:
-// - █ (U+2588) Full Block
-// - ▌ (U+258C) Left Half Block
-// - ▐ (U+2590) Right Half Block
-// - ▛ (U+259B) Quadrant Upper Left + Upper Right + Lower Left
-// - ▜ (U+259C) Quadrant Upper Left + Upper Right + Lower Right
-// - ▙ (U+2599) Quadrant Upper Left + Lower Left + Lower Right
-// - ▟ (U+259F) Quadrant Upper Right + Lower Left + Lower Right
-// - ▘ (U+2598) Quadrant Upper Left
-// - ▝ (U+259D) Quadrant Upper Right
-// - ▖ (U+2596) Quadrant Lower Left
-// - ▗ (U+2597) Quadrant Lower Right
+//	// 1. Get library character
+//	alien, _ := characters.Library("alien")
 //
-// Example usage:
-//
-//	char, err := NewBuilder("alien", 16, 16).
-//		Pattern("▌▛███▜▐").
-//		Block(16).
-//		NewFrame().
-//		Pattern("▌▛██  ").
-//		Block(16).
+//	// 2. Create custom character
+//	robot := characters.NewCharacterSpec("my-robot", 8, 4).
+//		AddFrame("idle", []string{"FRF", "LRL", "FRF", "LRL"}).
 //		Build()
 //
-//	Register(char)
-//	Animate(os.Stdout, char, 6, 3)
+//	// 3. Use character
+//	characters.Animate(os.Stdout, alien, 5, 3)
+//	characters.ShowIdle(os.Stdout, robot)
 //
-// Library characters:
+// Library characters available:
+// - alien: Animated character (3 frames)
+// - robot: Static character (1 frame)
+// - pulse: Loading indicator (3 frames)
+// - wave: Progress indicator (5 frames)
+// - rocket: Launch sequence (4 frames)
 //
-//	alien, _ := Library("alien")
-//	Animate(os.Stdout, alien, 4, 2)
+// Pattern characters: F=█ T=▀ B=▄ L=▌ R=▐ 1-8=quadrants _=space
 
 // NewCharacterService creates a new character service with default implementations
 func NewCharacterService() *service.CharacterService {
@@ -174,3 +162,6 @@ func LibraryInfo(name string) (string, error) {
 	}
 	return libChar.Description, nil
 }
+
+// Core API functions are already implemented in animator.go
+// Animate() and ShowIdle() functions are available for immediate use
