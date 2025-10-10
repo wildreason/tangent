@@ -103,7 +103,7 @@ func TestCharacterBuilderV2_AddFrameFromString(t *testing.T) {
 		{"Empty pattern", "idle", "", true},
 		{"Wrong line count", "idle", "FRF\nLRL", true},
 		{"Too many lines", "idle", "FRF\nLRL\nFRF\nEXTRA", true},
-		{"With empty lines", "idle", "FRF\n\nLRL\nFRF", false}, // Should ignore empty lines
+		{"With empty lines", "idle", "FRF\n\nLRL\nFRF", true}, // Should panic on empty lines
 	}
 
 	for _, tt := range tests {

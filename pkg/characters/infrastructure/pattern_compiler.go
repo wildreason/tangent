@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"fmt"
 	"github.com/wildreason/tangent/pkg/characters/domain"
 )
 
@@ -70,8 +71,25 @@ func (c *SimplePatternCompiler) Compile(pattern string) string {
 	return string(result)
 }
 
-// Validate validates a pattern string
+// Validate validates a pattern string with detailed error reporting
 func (c *SimplePatternCompiler) Validate(pattern string) error {
+	if pattern == "" {
+		return domain.ErrEmptyPattern
+	}
+	
+	// Check pattern length
+	if len(pattern) > 100 { // Reasonable limit
+		return domain.NewValidationError("pattern", pattern, "pattern exceeds maximum length of 100 characters")
+	}
+	
+	// Check for invalid characters
+	for i, char := range pattern {
+		if _, exists := c.patterns[char]; !exists && char != ' ' && char != '\t' {
+			return domain.NewPatternCompilationError(pattern, i, fmt.Sprintf("invalid character '%c'", char), nil)
+		}
+	}
+	
+	// Run additional validators
 	for _, validator := range c.validators {
 		if err := validator.Validate(pattern); err != nil {
 			return err

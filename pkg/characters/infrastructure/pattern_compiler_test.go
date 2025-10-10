@@ -46,7 +46,7 @@ func TestPatternValidation(t *testing.T) {
 		{"Empty pattern", "", true},
 		{"Valid single char", "F", false},
 		{"Valid with spaces", "F_R_F", false},
-		{"Valid with unknown chars", "FXF", false},
+		{"Valid with unknown chars", "FXF", true}, // Should now fail with enhanced validation
 	}
 
 	for _, test := range tests {
