@@ -15,20 +15,20 @@ func NewAnimationEngine() domain.AnimationEngine {
 	return &SimpleAnimationEngine{}
 }
 
-// Animate animates a character
+// Animate animates a character with enhanced error handling
 func (e *SimpleAnimationEngine) Animate(character *domain.Character, fps int, loops int) error {
 	if character == nil {
-		return fmt.Errorf("character cannot be nil")
+		return domain.NewValidationError("character", nil, "character cannot be nil")
 	}
 	if fps <= 0 {
-		return fmt.Errorf("fps must be positive")
+		return domain.NewValidationError("fps", fps, "fps must be positive")
 	}
 	if loops <= 0 {
-		return fmt.Errorf("loops must be positive")
+		return domain.NewValidationError("loops", loops, "loops must be positive")
 	}
 
 	if len(character.Frames) == 0 {
-		return fmt.Errorf("character %s has no animation frames", character.Name)
+		return domain.NewAnimationError(character.Name, "start", "character has no animation frames", nil)
 	}
 
 	// Hide cursor and save position
@@ -38,8 +38,10 @@ func (e *SimpleAnimationEngine) Animate(character *domain.Character, fps int, lo
 	frameDur := time.Second / time.Duration(fps)
 
 	for loop := 0; loop < loops; loop++ {
-		for _, frame := range character.Frames {
-			e.renderFrame(frame)
+		for frameIndex, frame := range character.Frames {
+			if err := e.renderFrame(frame, character.Name, frameIndex); err != nil {
+				return err
+			}
 			time.Sleep(frameDur)
 		}
 	}
@@ -53,13 +55,24 @@ func (e *SimpleAnimationEngine) Animate(character *domain.Character, fps int, lo
 	return nil
 }
 
-// renderFrame renders a single frame in place
-func (e *SimpleAnimationEngine) renderFrame(frame domain.Frame) {
+// renderFrame renders a single frame in place with error handling
+func (e *SimpleAnimationEngine) renderFrame(frame domain.Frame, characterName string, frameIndex int) error {
+	if len(frame.Lines) == 0 {
+		return domain.NewAnimationError(characterName, "frame_display", 
+			fmt.Sprintf("frame %s has no lines", frame.Name), nil)
+	}
+	
 	// Clear and print each line
-	for _, line := range frame.Lines {
+	for lineIndex, line := range frame.Lines {
+		if line == "" {
+			return domain.NewAnimationError(characterName, "frame_display", 
+				fmt.Sprintf("empty line %d in frame %s", lineIndex, frame.Name), nil)
+		}
 		fmt.Printf("\r\x1b[2K%s\n", line)
 	}
 
 	// Move cursor back up to overwrite the same area
 	fmt.Printf("\x1b[%dA\x1b[u", len(frame.Lines))
+	
+	return nil
 }

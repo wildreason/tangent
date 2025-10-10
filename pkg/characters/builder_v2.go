@@ -41,50 +41,63 @@ func NewCharacterBuilderV2(name string, width, height int) *CharacterBuilderV2 {
 	}
 }
 
-// AddFrame adds a new frame to the character specification
+// AddFrame adds a new frame to the character specification with enhanced error handling
 func (b *CharacterBuilderV2) AddFrame(name string, patterns []string) *CharacterBuilderV2 {
 	if name == "" {
-		panic("frame name cannot be empty")
+		panic(domain.NewValidationError("frame_name", name, "frame name cannot be empty"))
 	}
 	if len(patterns) != b.spec.Height {
-		panic(fmt.Sprintf("frame %s has %d patterns, expected %d", name, len(patterns), b.spec.Height))
+		panic(domain.NewValidationError("patterns", len(patterns), 
+			fmt.Sprintf("frame %s has %d patterns, expected %d", name, len(patterns), b.spec.Height)))
+	}
+	
+	// Validate each pattern
+	for i, pattern := range patterns {
+		if pattern == "" {
+			panic(domain.NewValidationError("pattern", i, 
+				fmt.Sprintf("pattern %d in frame %s cannot be empty", i, name)))
+		}
 	}
 	
 	b.spec.AddFrame(name, patterns)
 	return b
 }
 
-// AddFrameFromString adds a frame from a single string pattern (split by newlines)
+// AddFrameFromString adds a frame from a single string pattern (split by newlines) with enhanced error handling
 func (b *CharacterBuilderV2) AddFrameFromString(name, pattern string) *CharacterBuilderV2 {
 	if name == "" {
-		panic("frame name cannot be empty")
+		panic(domain.NewValidationError("frame_name", name, "frame name cannot be empty"))
 	}
 	if pattern == "" {
-		panic("pattern cannot be empty")
+		panic(domain.NewValidationError("pattern", pattern, "pattern cannot be empty"))
 	}
 
 	// Split by newlines to get individual line patterns
 	lines := strings.Split(pattern, "\n")
 	patterns := make([]string, 0, len(lines))
 
-	for _, line := range lines {
+	for i, line := range lines {
 		line = strings.TrimSpace(line)
 		if line != "" {
 			patterns = append(patterns, line)
+		} else if i < len(lines)-1 { // Allow empty lines at the end
+			panic(domain.NewValidationError("pattern", i, 
+				fmt.Sprintf("empty line %d in pattern for frame %s", i, name)))
 		}
 	}
 
 	if len(patterns) != b.spec.Height {
-		panic(fmt.Sprintf("frame %s has %d patterns after splitting, expected %d", name, len(patterns), b.spec.Height))
+		panic(domain.NewValidationError("patterns", len(patterns), 
+			fmt.Sprintf("frame %s has %d patterns after splitting, expected %d", name, len(patterns), b.spec.Height)))
 	}
 
 	return b.AddFrame(name, patterns)
 }
 
-// Build creates the character using the service layer
+// Build creates the character using the service layer with enhanced error handling
 func (b *CharacterBuilderV2) Build() (*domain.Character, error) {
 	if len(b.spec.Frames) == 0 {
-		return nil, fmt.Errorf("character must have at least one frame")
+		return nil, domain.NewValidationError("frames", len(b.spec.Frames), "character must have at least one frame")
 	}
 
 	return b.service.CreateCharacter(*b.spec)

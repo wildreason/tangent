@@ -21,43 +21,65 @@ func NewFileCharacterRepository(baseDir string) domain.CharacterRepository {
 	}
 }
 
-// Save saves a character to a JSON file
+// Save saves a character to a JSON file with enhanced error handling
 func (r *FileCharacterRepository) Save(character *domain.Character) error {
 	if character == nil {
-		return fmt.Errorf("character cannot be nil")
+		return domain.NewValidationError("character", nil, "character cannot be nil")
+	}
+	
+	// Validate character before saving
+	if character.Name == "" {
+		return domain.ErrCharacterNameRequired
+	}
+	
+	if character.Width <= 0 || character.Height <= 0 {
+		return domain.ErrInvalidDimensions
+	}
+	
+	if len(character.Frames) == 0 {
+		return domain.NewValidationError("frames", len(character.Frames), "character must have at least one frame")
 	}
 
 	data, err := json.MarshalIndent(character, "", "  ")
 	if err != nil {
-		return fmt.Errorf("failed to marshal character: %w", err)
+		return domain.NewValidationErrorWithCause("character", character.Name, "failed to marshal character to JSON", err)
 	}
 
 	filename := filepath.Join(r.baseDir, character.Name+".json")
 	if err := os.WriteFile(filename, data, 0644); err != nil {
-		return fmt.Errorf("failed to write character file: %w", err)
+		return domain.NewValidationErrorWithCause("file", filename, "failed to write character file", err)
 	}
 
 	return nil
 }
 
-// Load loads a character from a JSON file
+// Load loads a character from a JSON file with enhanced error handling
 func (r *FileCharacterRepository) Load(id string) (*domain.Character, error) {
 	if id == "" {
-		return nil, fmt.Errorf("character ID cannot be empty")
+		return nil, domain.NewValidationError("id", id, "character ID cannot be empty")
 	}
 
 	filename := filepath.Join(r.baseDir, id+".json")
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil, domain.ErrCharacterNotFound
+			return nil, domain.NewCharacterNotFoundError(id)
 		}
-		return nil, fmt.Errorf("failed to read character file: %w", err)
+		return nil, domain.NewValidationErrorWithCause("file", filename, "failed to read character file", err)
 	}
 
 	var character domain.Character
 	if err := json.Unmarshal(data, &character); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal character: %w", err)
+		return nil, domain.NewValidationErrorWithCause("character", id, "failed to unmarshal character from JSON", err)
+	}
+
+	// Validate loaded character
+	if character.Name == "" {
+		return nil, domain.NewValidationError("character", id, "loaded character has empty name")
+	}
+	
+	if character.Width <= 0 || character.Height <= 0 {
+		return nil, domain.NewValidationError("character", id, "loaded character has invalid dimensions")
 	}
 
 	return &character, nil

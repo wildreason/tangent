@@ -22,7 +22,7 @@ func NewCharacterService(repo domain.CharacterRepository, compiler domain.Patter
 	}
 }
 
-// CreateCharacter creates a new character from a specification
+// CreateCharacter creates a new character from a specification with enhanced error handling
 func (s *CharacterService) CreateCharacter(spec domain.CharacterSpec) (*domain.Character, error) {
 	// Validate character specification
 	if err := s.validateCharacterSpec(spec); err != nil {
@@ -36,11 +36,11 @@ func (s *CharacterService) CreateCharacter(spec domain.CharacterSpec) (*domain.C
 			return nil, fmt.Errorf("invalid frame specification: %w", err)
 		}
 
-		// Compile patterns
+		// Compile patterns with detailed error reporting
 		compiledLines := make([]string, len(frameSpec.Patterns))
 		for j, pattern := range frameSpec.Patterns {
 			if err := s.compiler.Validate(pattern); err != nil {
-				return nil, fmt.Errorf("invalid pattern in frame %s: %w", frameSpec.Name, err)
+				return nil, fmt.Errorf("invalid pattern in frame %s at position %d: %w", frameSpec.Name, j, err)
 			}
 			compiledLines[j] = s.compiler.Compile(pattern)
 		}
