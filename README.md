@@ -378,6 +378,8 @@ go run main.go
 **Your Framework = Render Engine**  
 **Clear separation of concerns**
 
+**Current Version:** v0.1.0-alpha.1
+
 ---
 
 ## Requirements
