@@ -5,14 +5,15 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
 	"github.com/wildreason/tangent/pkg/characters/domain"
-	"github.com/wildreason/tangent/pkg/characters/service"
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
+	"github.com/wildreason/tangent/pkg/characters/service"
 )
 
 // CharacterBuilderV2 provides a fluent API for building characters using the new architecture
 type CharacterBuilderV2 struct {
-	spec   *domain.CharacterSpec
+	spec    *domain.CharacterSpec
 	service *service.CharacterService
 }
 
@@ -36,7 +37,7 @@ func NewCharacterBuilderV2(name string, width, height int) *CharacterBuilderV2 {
 	characterService := service.NewCharacterService(repo, compiler, animationEngine)
 
 	return &CharacterBuilderV2{
-		spec: domain.NewCharacterSpec(name, width, height),
+		spec:    domain.NewCharacterSpec(name, width, height),
 		service: characterService,
 	}
 }
@@ -47,18 +48,18 @@ func (b *CharacterBuilderV2) AddFrame(name string, patterns []string) *Character
 		panic(domain.NewValidationError("frame_name", name, "frame name cannot be empty"))
 	}
 	if len(patterns) != b.spec.Height {
-		panic(domain.NewValidationError("patterns", len(patterns), 
+		panic(domain.NewValidationError("patterns", len(patterns),
 			fmt.Sprintf("frame %s has %d patterns, expected %d", name, len(patterns), b.spec.Height)))
 	}
-	
+
 	// Validate each pattern
 	for i, pattern := range patterns {
 		if pattern == "" {
-			panic(domain.NewValidationError("pattern", i, 
+			panic(domain.NewValidationError("pattern", i,
 				fmt.Sprintf("pattern %d in frame %s cannot be empty", i, name)))
 		}
 	}
-	
+
 	b.spec.AddFrame(name, patterns)
 	return b
 }
@@ -81,13 +82,13 @@ func (b *CharacterBuilderV2) AddFrameFromString(name, pattern string) *Character
 		if line != "" {
 			patterns = append(patterns, line)
 		} else if i < len(lines)-1 { // Allow empty lines at the end
-			panic(domain.NewValidationError("pattern", i, 
+			panic(domain.NewValidationError("pattern", i,
 				fmt.Sprintf("empty line %d in pattern for frame %s", i, name)))
 		}
 	}
 
 	if len(patterns) != b.spec.Height {
-		panic(domain.NewValidationError("patterns", len(patterns), 
+		panic(domain.NewValidationError("patterns", len(patterns),
 			fmt.Sprintf("frame %s has %d patterns after splitting, expected %d", name, len(patterns), b.spec.Height)))
 	}
 

@@ -3,6 +3,7 @@ package characters
 import (
 	"fmt"
 	"strings"
+
 	"github.com/wildreason/tangent/pkg/characters/domain"
 )
 
@@ -17,13 +18,13 @@ func NewErrorHandler() *ErrorHandler {
 // HandleError processes an error and provides user-friendly output with suggestions
 func (h *ErrorHandler) HandleError(context string, err error) {
 	fmt.Printf("✗ %s: %v\n", context, err)
-	
+
 	// Get suggestion based on error type
 	suggestion := domain.GetErrorSuggestion(err)
 	if suggestion != "" {
 		fmt.Printf("  ◢ Tip: %s\n", suggestion)
 	}
-	
+
 	// Provide additional context-specific suggestions
 	h.provideContextualSuggestions(context, err)
 }
@@ -31,7 +32,7 @@ func (h *ErrorHandler) HandleError(context string, err error) {
 // provideContextualSuggestions provides additional suggestions based on context
 func (h *ErrorHandler) provideContextualSuggestions(context string, err error) {
 	contextLower := strings.ToLower(context)
-	
+
 	switch {
 	case strings.Contains(contextLower, "create"):
 		h.suggestCharacterCreation(err)
@@ -112,12 +113,12 @@ func (h *ErrorHandler) suggestGeneral(err error) {
 func FormatError(context string, err error) string {
 	var sb strings.Builder
 	sb.WriteString(fmt.Sprintf("✗ %s: %v\n", context, err))
-	
+
 	suggestion := domain.GetErrorSuggestion(err)
 	if suggestion != "" {
 		sb.WriteString(fmt.Sprintf("  ◢ Tip: %s\n", suggestion))
 	}
-	
+
 	return sb.String()
 }
 

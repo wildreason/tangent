@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/wildreason/tangent/pkg/characters"
+	"github.com/wildreason/tangent/pkg/characters/domain"
 	"github.com/wildreason/tangent/pkg/characters/service"
 )
 
@@ -112,14 +113,22 @@ func createCharacter() {
 	name = strings.TrimSpace(name)
 
 	if name == "" {
-		fmt.Println("✗ Name cannot be empty\n")
+		handleError("Character creation failed", domain.NewValidationError("name", name, "character name cannot be empty"))
 		return
 	}
 
-	// Check if session exists
-	if sessionExists(name) {
-		fmt.Printf("✗ Character '%s' already exists. Use 'Load character project' to continue working on it.\n\n", name)
+	// Check if character already exists using service
+	existingChars, err := characterService.ListCharacters()
+	if err != nil {
+		handleError("Failed to check existing characters", err)
 		return
+	}
+	
+	for _, existingName := range existingChars {
+		if existingName == name {
+			fmt.Printf("✗ Character '%s' already exists. Use 'Load character project' to continue working on it.\n\n", name)
+			return
+		}
 	}
 
 	// Get dimensions
@@ -143,8 +152,13 @@ func loadCharacter() {
 	fmt.Println("╚══════════════════════════════════════════╝")
 	fmt.Println()
 
-	sessions, err := ListSessions()
-	if err != nil || len(sessions) == 0 {
+	sessions, err := characterService.ListCharacters()
+	if err != nil {
+		handleError("Failed to load character list", err)
+		return
+	}
+	
+	if len(sessions) == 0 {
 		fmt.Println("✗ No saved character projects found\n")
 		return
 	}
@@ -167,15 +181,57 @@ func loadCharacter() {
 		sessionName = input
 	}
 
-	session, err := LoadSession(sessionName)
+	// Load character using service
+	character, err := characterService.LoadCharacter(sessionName)
 	if err != nil {
-		fmt.Printf("✗ Failed to load project: %v\n\n", err)
+		handleError("Failed to load character", err)
 		return
 	}
+
+	// Convert to session for UI compatibility
+	session := convertCharacterToSession(character)
 
 	fmt.Printf("✓ Loaded '%s' (%dx%d) with %d frame(s)\n\n", session.Name, session.Width, session.Height, len(session.Frames))
 
 	characterBuilder(session)
+}
+
+// convertCharacterToSession converts a domain.Character to a Session for UI compatibility
+func convertCharacterToSession(character *domain.Character) *Session {
+	session := NewSession(character.Name, character.Width, character.Height)
+	
+	// Convert frames
+	for _, frame := range character.Frames {
+		sessionFrame := Frame{
+			Name:  frame.Name,
+			Lines: frame.Lines,
+		}
+		session.Frames = append(session.Frames, sessionFrame)
+	}
+	
+	return session
+}
+
+// convertSessionToCharacterSpec converts a Session to a domain.CharacterSpec
+func convertSessionToCharacterSpec(session *Session) *domain.CharacterSpec {
+	spec := domain.NewCharacterSpec(session.Name, session.Width, session.Height)
+	
+	for _, frame := range session.Frames {
+		spec.AddFrame(frame.Name, frame.Lines)
+	}
+	
+	return spec
+}
+
+// saveSessionAsCharacter saves a session as a character using the service layer
+func saveSessionAsCharacter(session *Session) error {
+	spec := convertSessionToCharacterSpec(session)
+	character, err := characterService.CreateCharacter(*spec)
+	if err != nil {
+		return err
+	}
+	
+	return characterService.SaveCharacter(character)
 }
 
 func characterBuilder(session *Session) {
@@ -225,12 +281,20 @@ func characterBuilder(session *Session) {
 		case "8":
 			deleteFrame(session)
 		case "9":
-			session.Save()
-			fmt.Println("✓ Progress saved\n")
+			// Save using service layer
+			if err := saveSessionAsCharacter(session); err != nil {
+				handleError("Failed to save character", err)
+			} else {
+				fmt.Println("✓ Progress saved\n")
+			}
 			return
 		case "10":
-			session.Save()
-			fmt.Println("✓ Progress saved. Goodbye!\n")
+			// Save using service layer
+			if err := saveSessionAsCharacter(session); err != nil {
+				handleError("Failed to save character", err)
+			} else {
+				fmt.Println("✓ Progress saved. Goodbye!\n")
+			}
 			os.Exit(0)
 		default:
 			fmt.Println("✗ Invalid option\n")
@@ -505,24 +569,20 @@ func animateCharacter(session *Session) {
 	fmt.Println("╚══════════════════════════════════════════╝")
 	fmt.Println()
 
-	// Build the character from session
-	spec := characters.NewCharacterSpec(session.Name, session.Width, session.Height)
-	for _, frame := range session.Frames {
-		spec = spec.AddFrame(frame.Name, frame.Lines)
-	}
-
-	char, err := spec.Build()
+	// Convert session to character spec and create character using service
+	spec := convertSessionToCharacterSpec(session)
+	character, err := characterService.CreateCharacter(*spec)
 	if err != nil {
-		fmt.Printf("✗ Error building character: %v\n\n", err)
+		handleError("Failed to create character for animation", err)
 		return
 	}
 
 	fmt.Printf("◢ Animating '%s' with %d frames at 5 FPS for 3 cycles\n", session.Name, len(session.Frames))
 	fmt.Println("◢ Press Ctrl+C to stop\n")
 
-	// Animate at 5 FPS for 3 cycles
-	if err := characters.Animate(os.Stdout, char, 5, 3); err != nil {
-		fmt.Printf("\n✗ Animation error: %v\n\n", err)
+	// Animate using service layer
+	if err := characterService.AnimateCharacter(character, 5, 3); err != nil {
+		handleError("Animation failed", err)
 		return
 	}
 

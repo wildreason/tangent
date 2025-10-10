@@ -3,12 +3,13 @@ package characters
 import (
 	"strings"
 	"testing"
+
 	"github.com/wildreason/tangent/pkg/characters/domain"
 )
 
 func TestErrorHandler_HandleError(t *testing.T) {
 	handler := NewErrorHandler()
-	
+
 	tests := []struct {
 		name    string
 		context string
@@ -83,44 +84,44 @@ func TestFormatError(t *testing.T) {
 
 func TestErrorTypeChecks(t *testing.T) {
 	tests := []struct {
-		name     string
-		err      error
-		isValid  bool
+		name       string
+		err        error
+		isValid    bool
 		isNotFound bool
-		isPattern bool
-		isAnim   bool
+		isPattern  bool
+		isAnim     bool
 	}{
 		{
-			name:     "Validation error",
-			err:      domain.ErrCharacterNameRequired,
-			isValid:  true,
+			name:       "Validation error",
+			err:        domain.ErrCharacterNameRequired,
+			isValid:    true,
 			isNotFound: false,
-			isPattern: false,
-			isAnim:   false,
+			isPattern:  false,
+			isAnim:     false,
 		},
 		{
-			name:     "Character not found",
-			err:      domain.NewCharacterNotFoundError("test"),
-			isValid:  false,
+			name:       "Character not found",
+			err:        domain.NewCharacterNotFoundError("test"),
+			isValid:    false,
 			isNotFound: true,
-			isPattern: false,
-			isAnim:   false,
+			isPattern:  false,
+			isAnim:     false,
 		},
 		{
-			name:     "Pattern compilation error",
-			err:      domain.NewPatternCompilationError("FXZ", 1, "invalid", nil),
-			isValid:  false,
+			name:       "Pattern compilation error",
+			err:        domain.NewPatternCompilationError("FXZ", 1, "invalid", nil),
+			isValid:    false,
 			isNotFound: false,
-			isPattern: true,
-			isAnim:   false,
+			isPattern:  true,
+			isAnim:     false,
 		},
 		{
-			name:     "Animation error",
-			err:      domain.NewAnimationError("test", "start", "error", nil),
-			isValid:  false,
+			name:       "Animation error",
+			err:        domain.NewAnimationError("test", "start", "error", nil),
+			isValid:    false,
 			isNotFound: false,
-			isPattern: false,
-			isAnim:   true,
+			isPattern:  false,
+			isAnim:     true,
 		},
 	}
 

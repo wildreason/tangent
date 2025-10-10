@@ -26,16 +26,16 @@ func (r *FileCharacterRepository) Save(character *domain.Character) error {
 	if character == nil {
 		return domain.NewValidationError("character", nil, "character cannot be nil")
 	}
-	
+
 	// Validate character before saving
 	if character.Name == "" {
 		return domain.ErrCharacterNameRequired
 	}
-	
+
 	if character.Width <= 0 || character.Height <= 0 {
 		return domain.ErrInvalidDimensions
 	}
-	
+
 	if len(character.Frames) == 0 {
 		return domain.NewValidationError("frames", len(character.Frames), "character must have at least one frame")
 	}
@@ -77,7 +77,7 @@ func (r *FileCharacterRepository) Load(id string) (*domain.Character, error) {
 	if character.Name == "" {
 		return nil, domain.NewValidationError("character", id, "loaded character has empty name")
 	}
-	
+
 	if character.Width <= 0 || character.Height <= 0 {
 		return nil, domain.NewValidationError("character", id, "loaded character has invalid dimensions")
 	}
