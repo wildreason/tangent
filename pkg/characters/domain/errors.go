@@ -32,10 +32,10 @@ func (e *CharacterNotFoundError) Error() string {
 }
 
 type PatternCompilationError struct {
-	Pattern string
+	Pattern  string
 	Position int
-	Message string
-	Cause   error
+	Message  string
+	Cause    error
 }
 
 func (e *PatternCompilationError) Error() string {
@@ -73,39 +73,39 @@ var (
 		Field:   "name",
 		Message: "character name is required and cannot be empty",
 	}
-	
+
 	ErrCharacterNameInvalid = &ValidationError{
 		Field:   "name",
 		Message: "character name contains invalid characters (only letters, numbers, hyphens, and underscores allowed)",
 	}
-	
+
 	ErrInvalidDimensions = &ValidationError{
 		Field:   "dimensions",
 		Message: "character dimensions must be positive integers (width > 0, height > 0)",
 	}
-	
+
 	ErrEmptyPattern = &ValidationError{
 		Field:   "pattern",
 		Message: "pattern cannot be empty",
 	}
-	
+
 	ErrInvalidFrameCount = &ValidationError{
 		Field:   "frames",
 		Message: "frame count does not match character height",
 	}
-	
+
 	ErrInvalidFrameName = &ValidationError{
 		Field:   "frame_name",
 		Message: "frame name cannot be empty",
 	}
-	
+
 	ErrCharacterNotFound = &CharacterNotFoundError{}
-	
+
 	ErrPatternTooLong = &ValidationError{
 		Field:   "pattern",
 		Message: "pattern exceeds maximum length",
 	}
-	
+
 	ErrInvalidPatternCharacter = &ValidationError{
 		Field:   "pattern",
 		Message: "pattern contains invalid characters",

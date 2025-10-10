@@ -58,14 +58,14 @@ func (e *SimpleAnimationEngine) Animate(character *domain.Character, fps int, lo
 // renderFrame renders a single frame in place with error handling
 func (e *SimpleAnimationEngine) renderFrame(frame domain.Frame, characterName string, frameIndex int) error {
 	if len(frame.Lines) == 0 {
-		return domain.NewAnimationError(characterName, "frame_display", 
+		return domain.NewAnimationError(characterName, "frame_display",
 			fmt.Sprintf("frame %s has no lines", frame.Name), nil)
 	}
-	
+
 	// Clear and print each line
 	for lineIndex, line := range frame.Lines {
 		if line == "" {
-			return domain.NewAnimationError(characterName, "frame_display", 
+			return domain.NewAnimationError(characterName, "frame_display",
 				fmt.Sprintf("empty line %d in frame %s", lineIndex, frame.Name), nil)
 		}
 		fmt.Printf("\r\x1b[2K%s\n", line)
@@ -73,6 +73,6 @@ func (e *SimpleAnimationEngine) renderFrame(frame domain.Frame, characterName st
 
 	// Move cursor back up to overwrite the same area
 	fmt.Printf("\x1b[%dA\x1b[u", len(frame.Lines))
-	
+
 	return nil
 }

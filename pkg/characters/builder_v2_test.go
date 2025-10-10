@@ -2,6 +2,7 @@ package characters
 
 import (
 	"testing"
+
 	"github.com/wildreason/tangent/pkg/characters/domain"
 )
 
