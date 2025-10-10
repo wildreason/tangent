@@ -12,13 +12,35 @@ import (
 	"strings"
 
 	"github.com/wildreason/tangent/pkg/characters"
+	"github.com/wildreason/tangent/pkg/characters/service"
 )
 
 var (
-	version = "dev"
-	commit  = "none"
-	date    = "unknown"
+	version          = "dev"
+	commit           = "none"
+	date             = "unknown"
+	characterService *service.CharacterService
 )
+
+func init() {
+	characterService = characters.NewCharacterService()
+}
+
+// handleError provides user-friendly error handling with helpful suggestions
+func handleError(message string, err error) {
+	fmt.Printf("✗ %s: %v\n", message, err)
+
+	// Provide helpful suggestions
+	if strings.Contains(err.Error(), "name required") {
+		fmt.Println("  ◢ Tip: Character name cannot be empty")
+	} else if strings.Contains(err.Error(), "dimensions must be positive") {
+		fmt.Println("  ◢ Tip: Width and height must be greater than 0")
+	} else if strings.Contains(err.Error(), "invalid pattern") {
+		fmt.Println("  ◢ Tip: Check your pattern characters (F, R, L, 6, 9, etc.)")
+	} else if strings.Contains(err.Error(), "character not found") {
+		fmt.Println("  ◢ Tip: Make sure the character name is correct")
+	}
+}
 
 func main() {
 	// Non-interactive CLI mode

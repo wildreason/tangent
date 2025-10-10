@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 const sessionDir = ".tangent"
@@ -20,23 +19,19 @@ type Frame struct {
 
 // Session represents a character project.
 type Session struct {
-	Name      string    `json:"name"`
-	Width     int       `json:"width"`
-	Height    int       `json:"height"`
-	Frames    []Frame   `json:"frames"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Name   string
+	Width  int
+	Height int
+	Frames []Frame
 }
 
 // NewSession creates a new session.
 func NewSession(name string, width, height int) *Session {
 	return &Session{
-		Name:      name,
-		Width:     width,
-		Height:    height,
-		Frames:    []Frame{},
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Name:   name,
+		Width:  width,
+		Height: height,
+		Frames: []Frame{},
 	}
 }
 
@@ -53,7 +48,6 @@ func (s *Session) Save() error {
 	}
 
 	filePath := filepath.Join(dir, s.Name+".json")
-	s.UpdatedAt = time.Now()
 
 	data, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
