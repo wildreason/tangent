@@ -2,12 +2,22 @@ package domain
 
 import "strings"
 
-// Character represents a terminal character with frames
+// Character represents a terminal character with frames and agent states
 type Character struct {
-	Name   string
-	Width  int
-	Height int
-	Frames []Frame
+	Name        string
+	Personality string           // "efficient", "friendly", "analytical", "creative"
+	Width       int
+	Height      int
+	States      map[string]State // Agent states (plan, think, execute, etc.)
+	Frames      []Frame          // Keep for backward compatibility
+}
+
+// State represents an agent behavioral state
+type State struct {
+	Name        string
+	Description string
+	Frames      []Frame
+	StateType   string // "standard" or "custom"
 }
 
 // Frame represents a single frame of animation

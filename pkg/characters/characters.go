@@ -115,6 +115,7 @@ func ConvertLegacySpecToDomain(legacySpec *CharacterSpec) *domain.CharacterSpec 
 }
 
 // Library retrieves a pre-built character from the built-in library and builds it
+// Deprecated: Use LibraryAgent() for state-based API
 func Library(name string) (*Character, error) {
 	libChar, err := library.Get(name)
 	if err != nil {
@@ -137,6 +138,31 @@ func Library(name string) (*Character, error) {
 
 	// Convert to legacy format for backward compatibility
 	return ConvertDomainToLegacy(domainChar), nil
+}
+
+// LibraryAgent retrieves a pre-built character from the built-in library with state-based API
+func LibraryAgent(name string) (*AgentCharacter, error) {
+	libChar, err := library.Get(name)
+	if err != nil {
+		return nil, err
+	}
+
+	// Build the character using the library patterns
+	spec := NewCharacterSpec(libChar.Name, libChar.Width, libChar.Height)
+	for _, frame := range libChar.Patterns {
+		spec.AddFrame(frame.Name, frame.Lines)
+	}
+
+	// Convert to domain spec and use the new service layer
+	domainSpec := ConvertLegacySpecToDomain(spec)
+	characterService := NewCharacterService()
+	domainChar, err := characterService.CreateCharacter(*domainSpec)
+	if err != nil {
+		return nil, err
+	}
+
+	// Wrap in AgentCharacter for state-based API
+	return NewAgentCharacter(domainChar), nil
 }
 
 // ListLibrary returns all available library character names

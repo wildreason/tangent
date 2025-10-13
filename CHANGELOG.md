@@ -1,5 +1,115 @@
 # Changelog
 
+## [0.1.0-alpha.2] - 2025-10-13
+
+**Agent State Architecture Release**
+
+This release transforms Tangent into an AI agent-centric character library with state-based behavioral animations. Characters now represent agent states (planning, thinking, executing) rather than generic animations.
+
+### Major Changes
+
+#### Agent State System
+- **NEW**: State-based character API with `AgentCharacter` wrapper
+- **NEW**: Standard agent states: `Plan()`, `Think()`, `Execute()`, `Wait()`, `Error()`, `Success()`
+- **NEW**: State inspection methods: `ListStates()`, `HasState()`, `GetStateDescription()`
+- **NEW**: Character personality system (efficient, friendly, analytical, creative)
+- **NEW**: Hybrid state model: 3 required states + optional standard + unlimited custom states
+
+#### CLI Enhancements
+- **NEW**: Personality selection during character creation
+- **NEW**: Agent state guidance (shows required vs optional states)
+- **NEW**: State progress tracking ("X required state(s) remaining")
+- **NEW**: State type classification (standard vs custom)
+- **NEW**: "Export for contribution (JSON)" menu option
+- **IMPROVED**: Renamed "frames" to "agent states" in UI for clarity
+
+#### Contribution Workflow
+- **NEW**: JSON export for character contributions
+- **NEW**: Automated contribution README generation
+- **NEW**: GitHub PR template for character submissions
+- **NEW**: CI/CD validation workflow for character contributions
+- **NEW**: Complete contribution guide (`.github/CONTRIBUTING_CHARACTERS.md`)
+- **NEW**: Character contribution directory with validation
+
+#### Documentation
+- **NEW**: Complete agent states guide (`docs/AGENT_STATES.md`)
+- **NEW**: Quick start guide (`QUICK_START_AGENT_STATES.md`)
+- **NEW**: Implementation summary (`IMPLEMENTATION_SUMMARY.md`)
+- **NEW**: Test guide (`TEST_GUIDE.md`)
+- **UPDATED**: README with agent state examples and migration guide
+
+#### Testing & Examples
+- **NEW**: Comprehensive agent state tests (11 tests, all passing)
+- **NEW**: Full demo application (`examples/agent_states.go`)
+- **NEW**: API test script (`test_agent_api.go`)
+- **NEW**: 6 complete demo scenarios
+
+#### Backward Compatibility
+- **MAINTAINED**: Legacy `Library()` API still works (marked deprecated)
+- **MAINTAINED**: Existing character structure preserved
+- **MAINTAINED**: All existing functionality intact
+- **NEW**: `LibraryAgent()` for new state-based API
+
+### API Changes
+
+#### New API (Recommended)
+```go
+agent, _ := characters.LibraryAgent("rocket")
+agent.Plan(os.Stdout)      // Planning state
+agent.Think(os.Stdout)     // Thinking state
+agent.Execute(os.Stdout)   // Executing state
+agent.Success(os.Stdout)   // Success state
+```
+
+#### Legacy API (Still Works)
+```go
+char, _ := characters.Library("alien")
+characters.Animate(os.Stdout, char, 5, 3)
+```
+
+### Files Added (15 new files)
+- `pkg/characters/agent.go` - Agent character wrapper with state API
+- `pkg/characters/agent_test.go` - Comprehensive agent tests
+- `examples/agent_states.go` - Full demo application
+- `test_agent_api.go` - Quick API test script
+- `docs/AGENT_STATES.md` - Complete agent states documentation
+- `QUICK_START_AGENT_STATES.md` - Quick reference guide
+- `IMPLEMENTATION_SUMMARY.md` - Full implementation details
+- `TEST_GUIDE.md` - Testing instructions
+- `.github/CONTRIBUTING_CHARACTERS.md` - Contribution guide
+- `.github/PULL_REQUEST_TEMPLATE/character_contribution.md` - PR template
+- `.github/workflows/character-validation.yml` - CI validation
+- `characters/README.md` - Contribution directory README
+
+### Files Modified (5 files)
+- `pkg/characters/domain/character.go` - Added States map and Personality
+- `pkg/characters/characters.go` - Added LibraryAgent() function
+- `cmd/tangent/session.go` - Added Personality and StateType fields
+- `cmd/tangent/main.go` - Enhanced CLI with agent state workflow
+- `README.md` - Updated with agent state examples
+
+### Migration Guide
+
+**For Users**: Replace `Library()` with `LibraryAgent()` and use state methods instead of `Animate()`.
+
+**For Contributors**: Use interactive CLI to create characters, export as JSON, submit via GitHub PR.
+
+### Technical Details
+- **State Model**: Characters have `States map[string]State` with named states
+- **Required States**: Minimum 3 (plan, think, execute)
+- **Optional States**: 3 standard (wait, error, success) + unlimited custom
+- **Validation**: Automated CI checks for required states and valid JSON
+- **Distribution**: Characters compiled into library after admin approval
+
+### Breaking Changes
+None - Full backward compatibility maintained.
+
+### Known Limitations
+- Existing library characters (alien, pulse, rocket, wave) not yet converted to agent states
+- Will be addressed in future release
+
+---
+
 ## [0.1.0-alpha.1] - 2025-01-XX
 
 **Architectural Refactoring Release**

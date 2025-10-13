@@ -1,18 +1,35 @@
 # Tangent
 
-**Terminal Character Library for Go**
+**Terminal Character Library for AI Agents**
 
-Simple character library with one-line access to animated Unicode block characters. Perfect for CLI tools, TUIs, and terminal applications.
+Create expressive terminal characters for AI agents with state-based animations. Characters represent agent behaviors like planning, thinking, and executing through visual states.
 
 ---
 
 ## Quick Start
 
-**Get a character and use it immediately:**
+### Agent State API (Recommended)
+
+**Use characters with agent states:**
 
 ```go
 import "github.com/wildreason/tangent/pkg/characters"
 
+// Get character with agent state API
+agent, _ := characters.LibraryAgent("rocket")
+
+// Use agent states
+agent.Plan(os.Stdout)      // Planning animation
+agent.Think(os.Stdout)     // Thinking animation
+agent.Execute(os.Stdout)   // Execution animation
+agent.Success(os.Stdout)   // Success animation
+```
+
+### Legacy API
+
+**Simple animation (backward compatible):**
+
+```go
 // Get pre-built character
 alien, _ := characters.Library("alien")
 
@@ -21,6 +38,33 @@ characters.Animate(os.Stdout, alien, 5, 3)  // Done!
 ```
 
 **That's it!** No configuration, no setup, no complexity.
+
+---
+
+## Agent States
+
+Characters support agent behavioral states:
+
+- **plan** - Agent analyzing and planning
+- **think** - Agent processing information
+- **execute** - Agent performing actions
+- **wait** - Agent waiting for input
+- **error** - Agent handling errors
+- **success** - Agent celebrating success
+
+**Example workflow:**
+
+```go
+agent, _ := characters.LibraryAgent("robot")
+
+agent.Wait(os.Stdout)      // Waiting for task
+agent.Plan(os.Stdout)      // Analyzing task
+agent.Think(os.Stdout)     // Processing solution
+agent.Execute(os.Stdout)   // Performing action
+agent.Success(os.Stdout)   // Task complete!
+```
+
+See [Agent States Documentation](docs/AGENT_STATES.md) for complete guide.
 
 ---
 

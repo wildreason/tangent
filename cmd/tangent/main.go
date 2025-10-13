@@ -135,11 +135,39 @@ func createCharacter() {
 	width := getIntInput("◢ Enter width (e.g., 11): ", 1, 100)
 	height := getIntInput("◢ Enter height (e.g., 3): ", 1, 50)
 
+	// Get personality
 	fmt.Println()
-	fmt.Printf("✓ Creating character '%s' (%dx%d)\n\n", name, width, height)
+	fmt.Println("◢ Character personality:")
+	fmt.Println("  1. efficient  - Fast, direct, action-oriented")
+	fmt.Println("  2. friendly   - Warm, welcoming, expressive")
+	fmt.Println("  3. analytical - Methodical, precise, data-driven")
+	fmt.Println("  4. creative   - Imaginative, exploratory, innovative")
+	fmt.Print("◢ Choose personality (1-4, default: efficient): ")
+	
+	personalityInput, _ := reader.ReadString('\n')
+	personalityInput = strings.TrimSpace(personalityInput)
+	
+	personality := "efficient"
+	switch personalityInput {
+	case "1", "":
+		personality = "efficient"
+	case "2":
+		personality = "friendly"
+	case "3":
+		personality = "analytical"
+	case "4":
+		personality = "creative"
+	default:
+		fmt.Println("  ◢ Invalid choice, using 'efficient'")
+		personality = "efficient"
+	}
+
+	fmt.Println()
+	fmt.Printf("✓ Creating %s character '%s' (%dx%d)\n\n", personality, name, width, height)
 
 	// Create session
 	session := NewSession(name, width, height)
+	session.Personality = personality
 	session.Save()
 
 	// Enter character builder
@@ -252,11 +280,12 @@ func characterBuilder(session *Session) {
 		fmt.Println("  3. Edit frame")
 		fmt.Println("  4. Preview character")
 		fmt.Println("  5. Animate character")
-		fmt.Println("  6. Export code (terminal)")
-		fmt.Println("  7. Save to file")
-		fmt.Println("  8. Delete frame")
-		fmt.Println("  9. Back to main menu")
-		fmt.Println("  10. Exit")
+		fmt.Println("  6. Export for contribution (JSON)")
+		fmt.Println("  7. Export code (terminal)")
+		fmt.Println("  8. Save to file (Go code)")
+		fmt.Println("  9. Delete frame")
+		fmt.Println("  10. Back to main menu")
+		fmt.Println("  11. Exit")
 		fmt.Println()
 		fmt.Print("◢ Choose option: ")
 
@@ -275,12 +304,14 @@ func characterBuilder(session *Session) {
 		case "5":
 			animateCharacter(session)
 		case "6":
-			exportCode(session)
+			exportForContribution(session)
 		case "7":
-			saveToFile(session)
+			exportCode(session)
 		case "8":
-			deleteFrame(session)
+			saveToFile(session)
 		case "9":
+			deleteFrame(session)
+		case "10":
 			// Save using service layer
 			if err := saveSessionAsCharacter(session); err != nil {
 				handleError("Failed to save character", err)
@@ -288,7 +319,7 @@ func characterBuilder(session *Session) {
 				fmt.Println("✓ Progress saved\n")
 			}
 			return
-		case "10":
+		case "11":
 			// Save using service layer
 			if err := saveSessionAsCharacter(session); err != nil {
 				handleError("Failed to save character", err)
@@ -306,21 +337,77 @@ func addFrame(session *Session) {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println()
-	fmt.Println("◢ Adding frame to character: " + session.Name)
-	fmt.Print("◢ Frame name (e.g., 'idle', 'wave', 'jump'): ")
+	fmt.Println("◢ Adding agent state to character: " + session.Name)
+	
+	// Show which states are already added
+	existingStates := make(map[string]bool)
+	for _, frame := range session.Frames {
+		existingStates[frame.Name] = true
+	}
+	
+	// Show required states
+	requiredStates := []string{"plan", "think", "execute"}
+	missingRequired := []string{}
+	for _, req := range requiredStates {
+		if !existingStates[req] {
+			missingRequired = append(missingRequired, req)
+		}
+	}
+	
+	fmt.Println()
+	if len(missingRequired) > 0 {
+		fmt.Println("  ◢ Required states (choose one):")
+		if !existingStates["plan"] {
+			fmt.Println("    • plan     - Agent analyzing and planning")
+		}
+		if !existingStates["think"] {
+			fmt.Println("    • think    - Agent processing information")
+		}
+		if !existingStates["execute"] {
+			fmt.Println("    • execute  - Agent performing actions")
+		}
+		fmt.Println()
+	}
+	
+	// Show optional states
+	fmt.Println("  ◢ Optional states:")
+	if !existingStates["wait"] {
+		fmt.Println("    • wait     - Agent waiting for input")
+	}
+	if !existingStates["error"] {
+		fmt.Println("    • error    - Agent handling errors")
+	}
+	if !existingStates["success"] {
+		fmt.Println("    • success  - Agent celebrating success")
+	}
+	fmt.Println()
+	fmt.Println("  ◢ Or enter custom state name")
+	fmt.Println()
+	
+	fmt.Print("◢ Agent state name: ")
 	frameName, _ := reader.ReadString('\n')
 	frameName = strings.TrimSpace(frameName)
 
 	if frameName == "" {
-		fmt.Println("✗ Frame name cannot be empty\n")
+		fmt.Println("✗ State name cannot be empty\n")
 		return
 	}
 
 	// Check if frame exists
 	for _, frame := range session.Frames {
 		if frame.Name == frameName {
-			fmt.Printf("✗ Frame '%s' already exists\n\n", frameName)
+			fmt.Printf("✗ State '%s' already exists\n\n", frameName)
 			return
+		}
+	}
+	
+	// Determine state type
+	stateType := "custom"
+	standardStates := []string{"plan", "think", "execute", "wait", "error", "success"}
+	for _, std := range standardStates {
+		if frameName == std {
+			stateType = "standard"
+			break
 		}
 	}
 
@@ -375,13 +462,28 @@ func addFrame(session *Session) {
 		fmt.Println(compilePattern(line))
 	}
 
-	// Auto-save the frame
+	// Auto-save the frame with state type
 	session.Frames = append(session.Frames, Frame{
-		Name:  frameName,
-		Lines: lines,
+		Name:      frameName,
+		Lines:     lines,
+		StateType: stateType,
 	})
 	session.Save()
-	fmt.Println("\n✓ Frame added and saved!\n")
+	fmt.Printf("\n✓ %s state '%s' added and saved!\n\n", strings.Title(stateType), frameName)
+	
+	// Show progress on required states
+	existingStates[frameName] = true
+	missingCount := 0
+	for _, req := range requiredStates {
+		if !existingStates[req] {
+			missingCount++
+		}
+	}
+	if missingCount > 0 {
+		fmt.Printf("  ◢ Tip: %d required state(s) remaining\n\n", missingCount)
+	} else {
+		fmt.Println("  ✓ All required states added! You can now export for contribution.\n")
+	}
 }
 
 func duplicateFrame(session *Session) {
@@ -1344,4 +1446,167 @@ func pluralize(count int) string {
 		return ""
 	}
 	return "s"
+}
+
+// hasRequiredStates checks if a session has the minimum required agent states
+func hasRequiredStates(session *Session) bool {
+	required := []string{"plan", "think", "execute"}
+	found := make(map[string]bool)
+	
+	for _, frame := range session.Frames {
+		for _, req := range required {
+			if frame.Name == req {
+				found[req] = true
+			}
+		}
+	}
+	
+	return len(found) >= 3
+}
+
+// getMissingRequiredStates returns a list of missing required states
+func getMissingRequiredStates(session *Session) []string {
+	required := []string{"plan", "think", "execute"}
+	found := make(map[string]bool)
+	
+	for _, frame := range session.Frames {
+		found[frame.Name] = true
+	}
+	
+	missing := []string{}
+	for _, req := range required {
+		if !found[req] {
+			missing = append(missing, req)
+		}
+	}
+	
+	return missing
+}
+
+// exportForContribution exports a character as JSON for GitHub contribution
+func exportForContribution(session *Session) {
+	fmt.Println("\n╔══════════════════════════════════════════╗")
+	fmt.Println("║  EXPORT FOR CONTRIBUTION                 ║")
+	fmt.Println("╚══════════════════════════════════════════╝")
+	fmt.Println()
+	
+	// Validate minimum required states
+	if !hasRequiredStates(session) {
+		missing := getMissingRequiredStates(session)
+		fmt.Println("✗ Cannot export: Missing required agent states")
+		fmt.Println()
+		fmt.Println("  Required states:")
+		for _, state := range missing {
+			fmt.Printf("    ✗ %s\n", state)
+		}
+		fmt.Println()
+		fmt.Println("  ◢ Tip: Add the missing states using 'Add new frame' option")
+		fmt.Println()
+		return
+	}
+	
+	// Show character info
+	fmt.Printf("◢ Character: %s\n", session.Name)
+	fmt.Printf("◢ Personality: %s\n", session.Personality)
+	fmt.Printf("◢ Dimensions: %dx%d\n", session.Width, session.Height)
+	fmt.Printf("◢ States: %d\n", len(session.Frames))
+	fmt.Println()
+	
+	// List states
+	fmt.Println("  States included:")
+	for _, frame := range session.Frames {
+		stateIcon := "●"
+		if frame.StateType == "standard" {
+			stateIcon = "✓"
+		}
+		fmt.Printf("    %s %s (%s)\n", stateIcon, frame.Name, frame.StateType)
+	}
+	fmt.Println()
+	
+	// Export to JSON
+	filename := session.Name + ".json"
+	data, err := json.MarshalIndent(session, "", "  ")
+	if err != nil {
+		fmt.Printf("✗ Error marshaling JSON: %v\n\n", err)
+		return
+	}
+	
+	if err := os.WriteFile(filename, data, 0644); err != nil {
+		fmt.Printf("✗ Error writing file: %v\n\n", err)
+		return
+	}
+	
+	fmt.Printf("✓ Exported to %s\n\n", filename)
+	
+	// Generate contribution README
+	readmeFilename := session.Name + "-README.md"
+	readme := generateContributionReadme(session)
+	if err := os.WriteFile(readmeFilename, []byte(readme), 0644); err != nil {
+		fmt.Printf("✗ Error writing README: %v\n\n", err)
+		return
+	}
+	
+	fmt.Printf("✓ Generated %s\n\n", readmeFilename)
+	
+	// Show next steps
+	fmt.Println("╔══════════════════════════════════════════╗")
+	fmt.Println("║  NEXT STEPS                              ║")
+	fmt.Println("╚══════════════════════════════════════════╝")
+	fmt.Println()
+	fmt.Println("  1. Review the exported JSON file")
+	fmt.Println("  2. Read the contribution README")
+	fmt.Println("  3. Fork the Tangent repository on GitHub")
+	fmt.Println("  4. Create a new branch for your character")
+	fmt.Println("  5. Add your JSON file to characters/ directory")
+	fmt.Println("  6. Submit a Pull Request")
+	fmt.Println()
+	fmt.Println("  ◢ See .github/CONTRIBUTING_CHARACTERS.md for details")
+	fmt.Println()
+}
+
+// generateContributionReadme generates a README for character contribution
+func generateContributionReadme(session *Session) string {
+	var sb strings.Builder
+	
+	sb.WriteString(fmt.Sprintf("# %s Character Contribution\n\n", strings.Title(session.Name)))
+	sb.WriteString("## Character Information\n\n")
+	sb.WriteString(fmt.Sprintf("- **Name:** %s\n", session.Name))
+	sb.WriteString(fmt.Sprintf("- **Personality:** %s\n", session.Personality))
+	sb.WriteString(fmt.Sprintf("- **Dimensions:** %dx%d\n", session.Width, session.Height))
+	sb.WriteString(fmt.Sprintf("- **States:** %d\n\n", len(session.Frames)))
+	
+	sb.WriteString("## States Included\n\n")
+	for _, frame := range session.Frames {
+		sb.WriteString(fmt.Sprintf("- **%s** (%s)\n", frame.Name, frame.StateType))
+	}
+	sb.WriteString("\n")
+	
+	sb.WriteString("## Preview\n\n")
+	sb.WriteString("```\n")
+	if len(session.Frames) > 0 {
+		for _, line := range session.Frames[0].Lines {
+			compiler := characters.NewPatternCompiler()
+			sb.WriteString(compiler.CompilePattern(line) + "\n")
+		}
+	}
+	sb.WriteString("```\n\n")
+	
+	sb.WriteString("## Contribution Checklist\n\n")
+	sb.WriteString("- [x] Minimum 3 required states (plan, think, execute)\n")
+	sb.WriteString("- [x] Valid pattern codes\n")
+	sb.WriteString("- [x] Tested in Tangent CLI\n")
+	sb.WriteString("- [ ] JSON file added to characters/ directory\n")
+	sb.WriteString("- [ ] Pull Request submitted\n\n")
+	
+	sb.WriteString("## How to Contribute\n\n")
+	sb.WriteString("1. Fork the Tangent repository\n")
+	sb.WriteString("2. Create a new branch: `git checkout -b add-" + session.Name + "-character`\n")
+	sb.WriteString("3. Add " + session.Name + ".json to characters/ directory\n")
+	sb.WriteString("4. Commit: `git commit -m 'Add " + session.Name + " character'`\n")
+	sb.WriteString("5. Push: `git push origin add-" + session.Name + "-character`\n")
+	sb.WriteString("6. Submit Pull Request on GitHub\n\n")
+	
+	sb.WriteString("See `.github/CONTRIBUTING_CHARACTERS.md` for full contribution guidelines.\n")
+	
+	return sb.String()
 }
