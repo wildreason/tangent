@@ -13,16 +13,18 @@ const sessionDir = ".tangent"
 
 // Frame represents a single animation frame.
 type Frame struct {
-	Name  string   `json:"name"`
-	Lines []string `json:"lines"`
+	Name      string   `json:"name"`
+	Lines     []string `json:"lines"`
+	StateType string   `json:"state_type"` // "standard" or "custom"
 }
 
 // Session represents a character project.
 type Session struct {
-	Name   string
-	Width  int
-	Height int
-	Frames []Frame
+	Name        string  `json:"name"`
+	Personality string  `json:"personality"` // "efficient", "friendly", "analytical", "creative"
+	Width       int     `json:"width"`
+	Height      int     `json:"height"`
+	Frames      []Frame `json:"frames"`
 }
 
 // NewSession creates a new session.

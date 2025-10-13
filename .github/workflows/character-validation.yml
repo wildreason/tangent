@@ -1,0 +1,165 @@
+name: Validate Character Contribution
+
+on:
+  pull_request:
+    paths:
+      - 'characters/*.json'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+      
+      - name: Validate JSON structure
+        run: |
+          echo "Validating character JSON files..."
+          for file in characters/*.json; do
+            if [ -f "$file" ]; then
+              echo "Checking $file..."
+              
+              # Check if file is valid JSON
+              if ! jq empty "$file" 2>/dev/null; then
+                echo "❌ ERROR: $file is not valid JSON"
+                exit 1
+              fi
+              
+              # Extract character info
+              name=$(jq -r '.name' "$file")
+              personality=$(jq -r '.personality' "$file")
+              width=$(jq -r '.width' "$file")
+              height=$(jq -r '.height' "$file")
+              frames=$(jq '.frames | length' "$file")
+              
+              echo "  Name: $name"
+              echo "  Personality: $personality"
+              echo "  Dimensions: ${width}x${height}"
+              echo "  States: $frames"
+              
+              # Validate required fields
+              if [ "$name" = "null" ] || [ -z "$name" ]; then
+                echo "❌ ERROR: Character name is required"
+                exit 1
+              fi
+              
+              if [ "$personality" = "null" ] || [ -z "$personality" ]; then
+                echo "❌ ERROR: Personality is required"
+                exit 1
+              fi
+              
+              # Validate dimensions
+              if [ "$width" -lt 5 ] || [ "$width" -gt 20 ]; then
+                echo "❌ ERROR: Width must be between 5 and 20 (got $width)"
+                exit 1
+              fi
+              
+              if [ "$height" -lt 3 ] || [ "$height" -gt 10 ]; then
+                echo "❌ ERROR: Height must be between 3 and 10 (got $height)"
+                exit 1
+              fi
+              
+              # Check for required states
+              has_plan=$(jq '.frames[] | select(.name == "plan")' "$file")
+              has_think=$(jq '.frames[] | select(.name == "think")' "$file")
+              has_execute=$(jq '.frames[] | select(.name == "execute")' "$file")
+              
+              if [ -z "$has_plan" ]; then
+                echo "❌ ERROR: Required state 'plan' is missing"
+                exit 1
+              fi
+              
+              if [ -z "$has_think" ]; then
+                echo "❌ ERROR: Required state 'think' is missing"
+                exit 1
+              fi
+              
+              if [ -z "$has_execute" ]; then
+                echo "❌ ERROR: Required state 'execute' is missing"
+                exit 1
+              fi
+              
+              # Validate frame structure
+              jq -c '.frames[]' "$file" | while read frame; do
+                frame_name=$(echo "$frame" | jq -r '.name')
+                lines=$(echo "$frame" | jq '.lines | length')
+                state_type=$(echo "$frame" | jq -r '.state_type')
+                
+                if [ "$lines" -ne "$height" ]; then
+                  echo "❌ ERROR: Frame '$frame_name' has $lines lines, expected $height"
+                  exit 1
+                fi
+                
+                if [ "$state_type" != "standard" ] && [ "$state_type" != "custom" ]; then
+                  echo "❌ ERROR: Frame '$frame_name' has invalid state_type: $state_type"
+                  exit 1
+                fi
+                
+                # Validate line widths
+                echo "$frame" | jq -r '.lines[]' | while read line; do
+                  line_width=${#line}
+                  if [ "$line_width" -ne "$width" ]; then
+                    echo "❌ ERROR: Frame '$frame_name' has line with width $line_width, expected $width"
+                    exit 1
+                  fi
+                done
+              done
+              
+              echo "✅ $file is valid"
+              echo ""
+            fi
+          done
+          
+          echo "✅ All character files validated successfully!"
+      
+      - name: Check for duplicate names
+        run: |
+          echo "Checking for duplicate character names..."
+          
+          # Get all character names from JSON files
+          names=$(jq -r '.name' characters/*.json 2>/dev/null | sort)
+          
+          # Check for duplicates
+          duplicates=$(echo "$names" | uniq -d)
+          
+          if [ -n "$duplicates" ]; then
+            echo "❌ ERROR: Duplicate character names found:"
+            echo "$duplicates"
+            exit 1
+          fi
+          
+          echo "✅ No duplicate names found"
+      
+      - name: Generate validation report
+        if: always()
+        run: |
+          echo "## Character Validation Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          for file in characters/*.json; do
+            if [ -f "$file" ]; then
+              name=$(jq -r '.name' "$file")
+              personality=$(jq -r '.personality' "$file")
+              width=$(jq -r '.width' "$file")
+              height=$(jq -r '.height' "$file")
+              frames=$(jq '.frames | length' "$file")
+              
+              echo "### Character: $name" >> $GITHUB_STEP_SUMMARY
+              echo "- **Personality:** $personality" >> $GITHUB_STEP_SUMMARY
+              echo "- **Dimensions:** ${width}x${height}" >> $GITHUB_STEP_SUMMARY
+              echo "- **States:** $frames" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              
+              # List states
+              echo "**States:**" >> $GITHUB_STEP_SUMMARY
+              jq -r '.frames[] | "- \(.name) (\(.state_type))"' "$file" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
