@@ -76,39 +76,12 @@ func createCharacter() {
 	width := getIntInput("◢ Enter width (e.g., 11): ", 1, 100)
 	height := getIntInput("◢ Enter height (e.g., 3): ", 1, 50)
 
-	// Get personality
 	fmt.Println()
-	fmt.Println("◢ Character personality:")
-	fmt.Println("  1. efficient  - Fast, direct, action-oriented")
-	fmt.Println("  2. friendly   - Warm, welcoming, expressive")
-	fmt.Println("  3. analytical - Methodical, precise, data-driven")
-	fmt.Println("  4. creative   - Imaginative, exploratory, innovative")
-	fmt.Print("◢ Choose personality (1-4, default: efficient): ")
-
-	personalityInput, _ := reader.ReadString('\n')
-	personalityInput = strings.TrimSpace(personalityInput)
-
-	personality := "efficient"
-	switch personalityInput {
-	case "1", "":
-		personality = "efficient"
-	case "2":
-		personality = "friendly"
-	case "3":
-		personality = "analytical"
-	case "4":
-		personality = "creative"
-	default:
-		fmt.Println("  ◢ Invalid choice, using 'efficient'")
-		personality = "efficient"
-	}
-
-	fmt.Println()
-	fmt.Printf("✓ Creating %s character '%s' (%dx%d)\n\n", personality, name, width, height)
+	fmt.Printf("✓ Creating character '%s' (%dx%d)\n", name, width, height)
+	fmt.Printf("✓ Character '%s' is starting\n\n", name)
 
 	// Create session
 	session := NewSession(name, width, height)
-	session.Personality = personality
 	session.Save()
 
 	// Enter character builder
@@ -121,7 +94,6 @@ func convertAgentToSession(agent *characters.AgentCharacter) *Session {
 	domainChar := agent.GetCharacter()
 
 	session := NewSession(domainChar.Name, domainChar.Width, domainChar.Height)
-	session.Personality = domainChar.Personality
 
 	// Convert base frame
 	if len(domainChar.BaseFrame.Lines) > 0 {
@@ -217,13 +189,9 @@ func characterBuilder(session *Session) {
 
 		fmt.Println("  1. Create base character")
 		fmt.Println("  2. Add agent state")
-		fmt.Println("  3. Edit agent state")
-		fmt.Println("  4. Preview base character")
-		fmt.Println("  5. Preview state animation")
-		fmt.Println("  6. Animate all states")
-		fmt.Println("  7. Export for contribution (JSON)")
-		fmt.Println("  8. Back to main menu")
-		fmt.Println("  9. Exit")
+		fmt.Println("  3. Animate all states")
+		fmt.Println("  4. Export for contribution (JSON)")
+		fmt.Println("  5. Exit")
 		fmt.Println()
 		fmt.Print("◢ Choose option: ")
 
@@ -236,24 +204,10 @@ func characterBuilder(session *Session) {
 		case "2":
 			addAgentStateWithBase(session)
 		case "3":
-			editAgentState(session)
-		case "4":
-			previewBaseCharacter(session)
-		case "5":
-			previewStateAnimation(session)
-		case "6":
 			previewAllStates(session)
-		case "7":
+		case "4":
 			exportForContribution(session)
-		case "8":
-			// Save session
-			if err := session.Save(); err != nil {
-				handleError("Failed to save session", err)
-			} else {
-				fmt.Println("✓ Progress saved\n")
-			}
-			return
-		case "9":
+		case "5":
 			// Save session
 			if err := session.Save(); err != nil {
 				handleError("Failed to save session", err)
@@ -1046,42 +1000,48 @@ func adminRegister(jsonPath string) {
 		}
 	}
 
-	// Generate library file
-	libraryFile := fmt.Sprintf("pkg/characters/library/%s.go", charData.Name)
+		// Generate library file
+		libraryFile := fmt.Sprintf("pkg/characters/library/%s.go", charData.Name)
 
-	// Create patterns array
-	patterns := []struct {
-		Name  string
-		Lines []string
-	}{
-		{
-			Name:  "base",
-			Lines: charData.BaseFrame.Lines,
-		},
-	}
-
-	// Add states - preserve individual frames for proper animation
-	for _, state := range charData.States {
-		for i, frame := range state.Frames {
-			// Create individual pattern for each frame
-			patternName := state.Name
-			if len(state.Frames) > 1 {
-				// Add frame number if multiple frames exist
-				patternName = fmt.Sprintf("%s_%d", state.Name, i+1)
-			}
-
-			patterns = append(patterns, struct {
-				Name  string
-				Lines []string
-			}{
-				Name:  patternName,
-				Lines: frame.Lines,
-			})
+		// Use default personality if not provided
+		personality := charData.Personality
+		if personality == "" {
+			personality = "efficient"
 		}
-	}
 
-	// Generate Go code
-	code := generateLibraryCode(charData.Name, charData.Personality, charData.Width, charData.Height, patterns)
+		// Create patterns array
+		patterns := []struct {
+			Name  string
+			Lines []string
+		}{
+			{
+				Name:  "base",
+				Lines: charData.BaseFrame.Lines,
+			},
+		}
+
+		// Add states - preserve individual frames for proper animation
+		for _, state := range charData.States {
+			for i, frame := range state.Frames {
+				// Create individual pattern for each frame
+				patternName := state.Name
+				if len(state.Frames) > 1 {
+					// Add frame number if multiple frames exist
+					patternName = fmt.Sprintf("%s_%d", state.Name, i+1)
+				}
+
+				patterns = append(patterns, struct {
+					Name  string
+					Lines []string
+				}{
+					Name:  patternName,
+					Lines: frame.Lines,
+				})
+			}
+		}
+
+		// Generate Go code
+		code := generateLibraryCode(charData.Name, personality, charData.Width, charData.Height, patterns)
 
 	// Write file
 	if err := os.WriteFile(libraryFile, []byte(code), 0644); err != nil {
@@ -1336,7 +1296,6 @@ func handleDemo() {
 	fmt.Println("✅ Demo complete!")
 }
 
-
 func pluralize(count int) string {
 	if count == 1 {
 		return ""
@@ -1419,19 +1378,18 @@ func exportForContribution(session *Session) {
 
 	// Show character info
 	fmt.Printf("◢ Character: %s\n", session.Name)
-	fmt.Printf("◢ Personality: %s\n", session.Personality)
 	fmt.Printf("◢ Dimensions: %dx%d\n", session.Width, session.Height)
-	fmt.Printf("◢ States: %d\n", len(session.Frames))
+	fmt.Printf("◢ States: %d\n", len(session.States))
 	fmt.Println()
 
 	// List states
 	fmt.Println("  States included:")
-	for _, frame := range session.Frames {
+	for _, state := range session.States {
 		stateIcon := "●"
-		if frame.StateType == "standard" {
+		if state.StateType == "standard" {
 			stateIcon = "✓"
 		}
-		fmt.Printf("    %s %s (%s)\n", stateIcon, frame.Name, frame.StateType)
+		fmt.Printf("    %s %s (%s)\n", stateIcon, state.Name, state.StateType)
 	}
 	fmt.Println()
 
@@ -1483,20 +1441,19 @@ func generateContributionReadme(session *Session) string {
 	sb.WriteString(fmt.Sprintf("# %s Character Contribution\n\n", strings.Title(session.Name)))
 	sb.WriteString("## Character Information\n\n")
 	sb.WriteString(fmt.Sprintf("- **Name:** %s\n", session.Name))
-	sb.WriteString(fmt.Sprintf("- **Personality:** %s\n", session.Personality))
 	sb.WriteString(fmt.Sprintf("- **Dimensions:** %dx%d\n", session.Width, session.Height))
-	sb.WriteString(fmt.Sprintf("- **States:** %d\n\n", len(session.Frames)))
+	sb.WriteString(fmt.Sprintf("- **States:** %d\n\n", len(session.States)))
 
 	sb.WriteString("## States Included\n\n")
-	for _, frame := range session.Frames {
-		sb.WriteString(fmt.Sprintf("- **%s** (%s)\n", frame.Name, frame.StateType))
+	for _, state := range session.States {
+		sb.WriteString(fmt.Sprintf("- **%s** (%s)\n", state.Name, state.StateType))
 	}
 	sb.WriteString("\n")
 
 	sb.WriteString("## Preview\n\n")
 	sb.WriteString("```\n")
-	if len(session.Frames) > 0 {
-		for _, line := range session.Frames[0].Lines {
+	if len(session.BaseFrame.Lines) > 0 {
+		for _, line := range session.BaseFrame.Lines {
 			compiler := infrastructure.NewPatternCompiler()
 			sb.WriteString(compiler.Compile(line) + "\n")
 		}
