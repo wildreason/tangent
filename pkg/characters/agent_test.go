@@ -302,3 +302,5 @@ func TestAgentCharacter_NilCharacter(t *testing.T) {
 	}
 }
 
+
+
