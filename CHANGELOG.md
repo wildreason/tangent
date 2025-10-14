@@ -1,5 +1,60 @@
 # Changelog
 
+## [0.1.0-alpha.3] - 2025-10-14
+
+**API Contract Unification & Planet Series MVP**
+
+This release unifies the API contract across CLI, documentation, and code, establishing a clean, consistent system for agent state management. Introduces the Planet Series character library with 8 professional agent characters.
+
+### Major Changes
+
+#### API Contract Unification
+- **FIXED**: Unified state names across CLI and API (`plan`, `think`, `execute`)
+- **FIXED**: Removed inconsistent "search" state, replaced with "execute"
+- **FIXED**: All documentation now shows consistent state names
+- **FIXED**: CLI creates characters that work perfectly with API
+- **IMPROVED**: Perfect alignment between CLI creation and API usage
+
+#### Planet Series Character Library
+- **NEW**: 8 Planet Series characters: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune
+- **NEW**: Each character has distinct personality (efficient, friendly, balanced, etc.)
+- **NEW**: All characters include required states: `plan`, `think`, `execute`
+- **NEW**: Optional states: `wait`, `error`, `success`
+- **NEW**: Professional, cohesive character library
+
+#### Documentation Overhaul
+- **UPDATED**: README.md with Planet Series characters and unified API
+- **UPDATED**: QUICK_START_AGENT_STATES.md with correct state names
+- **UPDATED**: NOTES.md with unified workflow and Planet Series info
+- **UPDATED**: All examples use Planet Series characters
+- **UPDATED**: Architecture diagrams reflect new system
+
+#### Breaking Changes (Intentional)
+- **REMOVED**: Old character references (alien, robot, pulse, wave, rocket) from documentation
+- **CHANGED**: Required states from mixed naming to strict `plan`, `think`, `execute`
+- **FOCUSED**: Planet Series only for v0.1.0 release (clean MVP boundaries)
+
+### Technical Improvements
+- **FIXED**: CLI validation functions check correct required states
+- **FIXED**: Export validation uses unified state names
+- **IMPROVED**: State descriptions consistent across all interfaces
+- **IMPROVED**: Binary rebuilt with all changes
+
+### Migration Notes
+- **No backward compatibility needed** (no users yet)
+- **Clean slate** for Planet Series development
+- **Unified contract** ensures CLI-created characters work with API
+- **Professional foundation** for future character development
+
+### Next Steps
+1. Design Mercury character (base + 3 states)
+2. Design remaining 7 Planet Series characters
+3. Implement character library files
+4. Test complete workflow for each character
+5. Release v0.1.0 (stable)
+
+---
+
 ## [0.1.0-alpha.2] - 2025-10-13
 
 **Agent State Architecture Release**
