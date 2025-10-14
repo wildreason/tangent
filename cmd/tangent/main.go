@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -27,15 +26,14 @@ func handleError(message string, err error) {
 }
 
 func main() {
-	// Non-interactive CLI mode
+	// Handle subcommands
 	if len(os.Args) > 1 {
 		handleCLI()
 		return
 	}
 
-	// Interactive mode
-	showBanner()
-	mainMenu()
+	// No arguments - show usage
+	printUsage()
 }
 
 func showBanner() {
@@ -45,51 +43,6 @@ func showBanner() {
 	fmt.Printf("║  %-40s ║\n", version)
 	fmt.Println("╚══════════════════════════════════════════╝")
 	fmt.Println()
-}
-
-func mainMenu() {
-	reader := bufio.NewReader(os.Stdin)
-
-	for {
-		fmt.Println("▢ MAIN MENU")
-		fmt.Println("  1. Create new character")
-		fmt.Println("  2. Load character project")
-		fmt.Println("  3. Browse library characters")
-		fmt.Println("  4. Preview library character")
-		fmt.Println("  5. View palette")
-		fmt.Println("  6. Exit")
-		fmt.Println()
-		fmt.Print("◢ Choose option (1-6): ")
-
-		input, err := reader.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				fmt.Println("\n✓ Goodbye!")
-				return
-			}
-			fmt.Printf("\n✗ Error reading input: %v\n", err)
-			return
-		}
-		choice := strings.TrimSpace(input)
-
-		switch choice {
-		case "1":
-			createCharacter()
-		case "2":
-			loadCharacter()
-		case "3":
-			browseLibrary()
-		case "4":
-			previewLibrary()
-		case "5":
-			showPalette()
-		case "6":
-			fmt.Println("\n✓ Thanks for using Tangent!")
-			os.Exit(0)
-		default:
-			fmt.Println("✗ Invalid option. Please choose 1-6.\n")
-		}
-	}
 }
 
 func createCharacter() {
@@ -162,62 +115,45 @@ func createCharacter() {
 	characterBuilder(session)
 }
 
-func loadCharacter() {
-	fmt.Println("\n╔══════════════════════════════════════════╗")
-	fmt.Println("║  LOAD CHARACTER PROJECT                  ║")
-	fmt.Println("╚══════════════════════════════════════════╝")
-	fmt.Println()
-
-	// List available library characters
-	availableChars := characters.ListLibrary()
-
-	if len(availableChars) == 0 {
-		fmt.Println("✗ No library characters found\n")
-		return
-	}
-
-	fmt.Println("▢ Available Library Characters:")
-	for i, name := range availableChars {
-		fmt.Printf("  %d. %s\n", i+1, name)
-	}
-	fmt.Println()
-
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("◢ Choose project (number or name): ")
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(input)
-
-	var sessionName string
-	if num, err := strconv.Atoi(input); err == nil && num > 0 && num <= len(availableChars) {
-		sessionName = availableChars[num-1]
-	} else {
-		sessionName = input
-	}
-
-	// Load character using service
-	// Load character from library
-	agent, err := characters.LibraryAgent(sessionName)
-	if err != nil {
-		handleError("Failed to load character from library", err)
-		return
-	}
-
-	// Convert to session for UI compatibility
-	session := convertAgentToSession(agent)
-
-	fmt.Printf("✓ Loaded '%s' (%dx%d) with %d frame(s)\n\n", session.Name, session.Width, session.Height, len(session.Frames))
-
-	characterBuilder(session)
-}
-
 // convertAgentToSession converts an AgentCharacter to a Session for UI compatibility
 func convertAgentToSession(agent *characters.AgentCharacter) *Session {
 	// Get the underlying domain character
 	domainChar := agent.GetCharacter()
 
 	session := NewSession(domainChar.Name, domainChar.Width, domainChar.Height)
+	session.Personality = domainChar.Personality
 
-	// Convert frames
+	// Convert base frame
+	if len(domainChar.BaseFrame.Lines) > 0 {
+		session.BaseFrame = Frame{
+			Name:  domainChar.BaseFrame.Name,
+			Lines: domainChar.BaseFrame.Lines,
+		}
+	}
+
+	// Convert states
+	for _, state := range domainChar.States {
+		stateSession := StateSession{
+			Name:           state.Name,
+			Description:    state.Description,
+			StateType:      state.StateType,
+			AnimationFPS:   state.AnimationFPS,
+			AnimationLoops: state.AnimationLoops,
+		}
+
+		// Convert state frames
+		for _, frame := range state.Frames {
+			stateFrame := Frame{
+				Name:  frame.Name,
+				Lines: frame.Lines,
+			}
+			stateSession.Frames = append(stateSession.Frames, stateFrame)
+		}
+
+		session.States = append(session.States, stateSession)
+	}
+
+	// Convert legacy frames for backward compatibility
 	for _, frame := range domainChar.Frames {
 		sessionFrame := Frame{
 			Name:  frame.Name,
@@ -410,7 +346,7 @@ func addFrame(session *Session) {
 	}
 
 	fmt.Println()
-	showPalette()
+	fmt.Println("Pattern codes: F=█ T=▀ B=▄ L=▌ R=▐ 1-8=quads .=#:=shades _=space X=mirror")
 	fmt.Println()
 
 	lines := make([]string, session.Height)
@@ -877,113 +813,6 @@ func deleteFrame(session *Session) {
 	}
 }
 
-func browseLibrary() {
-	fmt.Println("\n╔══════════════════════════════════════════╗")
-	fmt.Println("║  LIBRARY CHARACTERS                      ║")
-	fmt.Println("╚══════════════════════════════════════════╝")
-	fmt.Println()
-
-	names := characters.ListLibrary()
-	if len(names) == 0 {
-		fmt.Println("✗ No library characters available\n")
-		return
-	}
-
-	for _, name := range names {
-		description, _ := characters.LibraryInfo(name)
-		fmt.Printf("◆ %s\n", name)
-		fmt.Printf("  %s\n", description)
-		fmt.Println()
-	}
-}
-
-func previewLibrary() {
-	fmt.Println("\n╔══════════════════════════════════════════╗")
-	fmt.Println("║  PREVIEW LIBRARY CHARACTER               ║")
-	fmt.Println("╚══════════════════════════════════════════╝")
-	fmt.Println()
-
-	names := characters.ListLibrary()
-	if len(names) == 0 {
-		fmt.Println("✗ No library characters available\n")
-		return
-	}
-
-	fmt.Println("▢ Available:")
-	for i, name := range names {
-		fmt.Printf("  %d. %s\n", i+1, name)
-	}
-	fmt.Println()
-
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("◢ Choose character: ")
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(input)
-
-	charName := input
-	if num, err := strconv.Atoi(input); err == nil && num > 0 && num <= len(names) {
-		charName = names[num-1]
-	}
-
-	agent, err := characters.LibraryAgent(charName)
-	if err != nil {
-		fmt.Printf("✗ Failed to load: %v\n\n", err)
-		return
-	}
-
-	fmt.Printf("\n▢ Character: %s\n", charName)
-	agent.ShowBase(os.Stdout)
-	fmt.Println()
-
-	fmt.Print("◢ Animate it? (y/n): ")
-	animate, _ := reader.ReadString('\n')
-	if strings.ToLower(strings.TrimSpace(animate)) == "y" {
-		agent.AnimateState(os.Stdout, "idle", 4, 2)
-	}
-	fmt.Println()
-}
-
-func showPalette() {
-	fmt.Println("╔══════════════════════════════════════════╗")
-	fmt.Println("║  BLOCK PALETTE                           ║")
-	fmt.Println("╚══════════════════════════════════════════╝")
-	fmt.Println()
-	fmt.Println("  Basic Blocks:")
-	fmt.Println("    F = █  (Full)")
-	fmt.Println("    T = ▀  (Top half)")
-	fmt.Println("    B = ▄  (Bottom half)")
-	fmt.Println("    L = ▌  (Left half)")
-	fmt.Println("    R = ▐  (Right half)")
-	fmt.Println()
-	fmt.Println("  Shading:")
-	fmt.Println("    . = ░  (Light)")
-	fmt.Println("    : = ▒  (Medium)")
-	fmt.Println("    # = ▓  (Dark)")
-	fmt.Println()
-	fmt.Println("  Quadrants (1-4):")
-	fmt.Println("    1 = ▘  (Upper Left)     ↔ reverse of 8")
-	fmt.Println("    2 = ▝  (Upper Right)    ↔ reverse of 7")
-	fmt.Println("    3 = ▖  (Lower Left)     ↔ reverse of 6")
-	fmt.Println("    4 = ▗  (Lower Right)    ↔ reverse of 5")
-	fmt.Println()
-	fmt.Println("  Three-Quadrants (5-8):")
-	fmt.Println("    5 = ▛  (UL+UR+LL)       ↔ reverse of 4")
-	fmt.Println("    6 = ▜  (UL+UR+LR)       ↔ reverse of 3")
-	fmt.Println("    7 = ▙  (UL+LL+LR)       ↔ reverse of 2")
-	fmt.Println("    8 = ▟  (UR+LL+LR)       ↔ reverse of 1")
-	fmt.Println()
-	fmt.Println("  Diagonals:")
-	fmt.Println("    \\ = ▚  (Backward diagonal)")
-	fmt.Println("    / = ▞  (Forward diagonal)")
-	fmt.Println()
-	fmt.Println("  Special:")
-	fmt.Println("    _ = Space")
-	fmt.Println("    X = Mirror marker")
-	fmt.Println()
-	fmt.Println("  ◢ Tip: Use X to auto-mirror")
-	fmt.Println("         Example: __R5FX → __R5F5R__")
-}
-
 func getIntInput(prompt string, min, max int) int {
 	reader := bufio.NewReader(os.Stdin)
 	for {
@@ -1047,8 +876,13 @@ func handleCLI() {
 	command := os.Args[1]
 
 	switch command {
-	case "gallery":
+	case "create":
+		showBanner()
+		createCharacter()
+	case "browse":
 		handleGallery()
+	case "demo":
+		handleDemo()
 	case "admin":
 		handleAdminCLI()
 	case "version", "--version", "-v":
@@ -1066,11 +900,17 @@ func printUsage() {
 	fmt.Println("Tangent - Terminal Agent Designer")
 	fmt.Println()
 	fmt.Println("USAGE:")
-	fmt.Println("  tangent                           Start interactive builder")
-	fmt.Println("  tangent gallery                   Browse library characters")
-	fmt.Println("  tangent admin <command>           Admin commands (see below)")
+	fmt.Println("  tangent create                    Start interactive character builder")
+	fmt.Println("  tangent browse                    Browse library characters")
+	fmt.Println("  tangent demo <name> [options]     Animate character for testing")
+	fmt.Println("  tangent admin <command>           Admin commands")
 	fmt.Println("  tangent version                   Show version information")
 	fmt.Println("  tangent help                      Show this help message")
+	fmt.Println()
+	fmt.Println("DEMO OPTIONS:")
+	fmt.Println("  --state <name>                    Animate specific state (plan|think|execute)")
+	fmt.Println("  --fps <N>                         Override animation FPS")
+	fmt.Println("  --loops <N>                       Override animation loops")
 	fmt.Println()
 	fmt.Println("ADMIN COMMANDS:")
 	fmt.Println("  tangent admin register <json>     Register character to library")
@@ -1078,13 +918,18 @@ func printUsage() {
 	fmt.Println()
 	fmt.Println("EXAMPLES:")
 	fmt.Println("  # Create character (interactive)")
-	fmt.Println("  tangent")
+	fmt.Println("  tangent create")
 	fmt.Println()
 	fmt.Println("  # Browse library")
-	fmt.Println("  tangent gallery")
+	fmt.Println("  tangent browse")
+	fmt.Println()
+	fmt.Println("  # Test character animations")
+	fmt.Println("  tangent demo alex")
+	fmt.Println("  tangent demo alex --state plan")
+	fmt.Println("  tangent demo alex --fps 10 --loops 2")
 	fmt.Println()
 	fmt.Println("  # Admin: Register character")
-	fmt.Println("  tangent admin register egon.json")
+	fmt.Println("  tangent admin register alex.json")
 	fmt.Println()
 	fmt.Println("For full documentation: https://github.com/wildreason/tangent")
 }
@@ -1202,20 +1047,24 @@ func adminRegister(jsonPath string) {
 		},
 	}
 
-	// Add states
+	// Add states - preserve individual frames for proper animation
 	for _, state := range charData.States {
-		// Flatten all frames from this state into one pattern
-		var allLines []string
-		for _, frame := range state.Frames {
-			allLines = append(allLines, frame.Lines...)
+		for i, frame := range state.Frames {
+			// Create individual pattern for each frame
+			patternName := state.Name
+			if len(state.Frames) > 1 {
+				// Add frame number if multiple frames exist
+				patternName = fmt.Sprintf("%s_%d", state.Name, i+1)
+			}
+
+			patterns = append(patterns, struct {
+				Name  string
+				Lines []string
+			}{
+				Name:  patternName,
+				Lines: frame.Lines,
+			})
 		}
-		patterns = append(patterns, struct {
-			Name  string
-			Lines []string
-		}{
-			Name:  state.Name,
-			Lines: allLines,
-		})
 	}
 
 	// Generate Go code
@@ -1288,11 +1137,19 @@ func adminValidate(jsonPath string) {
 		valid = false
 	}
 
-	// Check required states
+	// Check required states and minimum frames
 	requiredStates := []string{"plan", "think", "execute"}
 	stateNames := make(map[string]bool)
+	minFrames := 3
+
 	for _, state := range charData.States {
 		stateNames[state.Name] = true
+
+		// Check minimum frames per state
+		if len(state.Frames) < minFrames {
+			fmt.Printf("❌ State '%s' has %d frames; minimum is %d\n", state.Name, len(state.Frames), minFrames)
+			valid = false
+		}
 	}
 
 	for _, required := range requiredStates {
@@ -1346,6 +1203,124 @@ func generateLibraryCode(name, personality string, width, height int, patterns [
 	sb.WriteString("}\n")
 
 	return sb.String()
+}
+
+func handleDemo() {
+	if len(os.Args) < 3 {
+		fmt.Println("Error: missing character name")
+		fmt.Println("Usage: tangent demo <name> [--state plan|think|execute] [--fps N] [--loops N]")
+		os.Exit(1)
+	}
+
+	characterName := os.Args[2]
+
+	// Parse optional flags
+	var targetState string
+	var overrideFPS int
+	var overrideLoops int
+
+	for i := 3; i < len(os.Args); i++ {
+		switch os.Args[i] {
+		case "--state":
+			if i+1 < len(os.Args) {
+				targetState = os.Args[i+1]
+				i++
+			}
+		case "--fps":
+			if i+1 < len(os.Args) {
+				if fps, err := strconv.Atoi(os.Args[i+1]); err == nil {
+					overrideFPS = fps
+				}
+				i++
+			}
+		case "--loops":
+			if i+1 < len(os.Args) {
+				if loops, err := strconv.Atoi(os.Args[i+1]); err == nil {
+					overrideLoops = loops
+				}
+				i++
+			}
+		}
+	}
+
+	// Load character
+	agent, err := characters.LibraryAgent(characterName)
+	if err != nil {
+		fmt.Printf("Error: character '%s' not found\n", characterName)
+		fmt.Println("Available characters:")
+		names := characters.ListLibrary()
+		for _, name := range names {
+			fmt.Printf("  %s\n", name)
+		}
+		os.Exit(1)
+	}
+
+	char := agent.GetCharacter()
+	fmt.Printf("Demo: %s (%dx%d)\n\n", char.Name, char.Width, char.Height)
+
+	if targetState != "" {
+		// Animate specific state
+		state, exists := char.States[targetState]
+		if !exists {
+			fmt.Printf("Error: state '%s' not found\n", targetState)
+			fmt.Println("Available states:")
+			for name := range char.States {
+				fmt.Printf("  %s\n", name)
+			}
+			os.Exit(1)
+		}
+
+		fps := state.AnimationFPS
+		loops := state.AnimationLoops
+		if overrideFPS > 0 {
+			fps = overrideFPS
+		}
+		if overrideLoops > 0 {
+			loops = overrideLoops
+		}
+
+		fmt.Printf("🔹 Animating '%s' (%d frames) at %d FPS for %d loops\n", targetState, len(state.Frames), fps, loops)
+		agent.AnimateState(os.Stdout, targetState, fps, loops)
+		fmt.Println()
+	} else {
+		// Show base character first
+		fmt.Println("🔹 Base Character:")
+		agent.ShowBase(os.Stdout)
+		fmt.Println()
+
+		// Animate all states in stable order
+		stateNames := make([]string, 0, len(char.States))
+		for name := range char.States {
+			stateNames = append(stateNames, name)
+		}
+
+		// Sort for consistent order
+		for i := 0; i < len(stateNames); i++ {
+			for j := i + 1; j < len(stateNames); j++ {
+				if stateNames[i] > stateNames[j] {
+					stateNames[i], stateNames[j] = stateNames[j], stateNames[i]
+				}
+			}
+		}
+
+		for _, stateName := range stateNames {
+			state := char.States[stateName]
+			fps := state.AnimationFPS
+			loops := state.AnimationLoops
+			if overrideFPS > 0 {
+				fps = overrideFPS
+			}
+			if overrideLoops > 0 {
+				loops = overrideLoops
+			}
+
+			fmt.Printf("🔹 Animating '%s' (%d frames) at %d FPS for %d loops\n", stateName, len(state.Frames), fps, loops)
+			agent.AnimateState(os.Stdout, stateName, fps, loops)
+			fmt.Println()
+		}
+	}
+
+	fmt.Println("✅ Demo complete!")
 }
 
 func handleGallery() {
@@ -1626,8 +1601,7 @@ func createBaseCharacter(session *Session) {
 	fmt.Printf("◢ Designing %s's base (idle) state\n", session.Name)
 	fmt.Println("  This is the immutable foundation for all states")
 	fmt.Println()
-
-	showPalette()
+	fmt.Println("Pattern codes: F=█ T=▀ B=▄ L=▌ R=▐ 1-8=quads .=#:=shades _=space X=mirror")
 	fmt.Println()
 
 	lines := make([]string, session.Height)
@@ -1830,7 +1804,7 @@ func addAgentStateWithBase(session *Session) {
 			fmt.Println("  Creating from scratch:\n")
 		}
 
-		showPalette()
+		fmt.Println("Pattern codes: F=█ T=▀ B=▄ L=▌ R=▐ 1-8=quads .=#:=shades _=space X=mirror")
 		fmt.Println()
 
 		// Input lines
