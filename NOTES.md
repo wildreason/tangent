@@ -221,3 +221,54 @@ Each character:
 - Legacy `Frames []Frame` preserved
 - New workflow only for new characters
 - Export includes both structures
+
+## Building
+
+For development builds with proper version tracking:
+
+```bash
+make build
+# or
+./scripts/build.sh
+```
+
+Version will show: `v0.1.0-alpha.2-3-gabc1234-dirty`
+
+- `v0.1.0-alpha.2` - Last git tag
+- `3` - Commits ahead of tag
+- `gabc1234` - Commit hash
+- `dirty` - Uncommitted changes present
+
+This provides complete traceability:
+- Which release we're building towards
+- How many commits ahead
+- Exact commit hash
+- Whether there are uncommitted changes
+
+### Quick Build & Test
+
+```bash
+# Clean build
+make clean
+make build
+
+# Check version
+./tangent version
+
+# Should show: tangent v0.1.0-alpha.2-N-g<hash>[-dirty] (commit: <hash>, built: <date>)
+```
+
+## Release Process
+
+### Development Builds
+- Use `make build` for local testing
+- Version shows commit count and dirty status
+- Example: `v0.1.1-11-gc80a59a-dirty`
+
+### Production Releases
+- Use `make release` to create tagged release
+- GitHub Actions automatically builds and publishes
+- Version shows clean tag only
+- Example: `v0.1.2`
+
+**See [RELEASE.md](RELEASE.md) for complete release guide.**
