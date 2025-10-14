@@ -3,6 +3,9 @@ package characters
 import (
 	"fmt"
 	"strings"
+
+	"github.com/wildreason/tangent/pkg/characters/domain"
+	"github.com/wildreason/tangent/pkg/characters/infrastructure"
 )
 
 // CharacterSpec defines a character using simple text patterns
@@ -54,17 +57,36 @@ func (cs *CharacterSpec) AddFrameFromString(name, pattern string) *CharacterSpec
 	return cs.AddFrame(name, patterns)
 }
 
-// Build compiles the character specification into a Character
-func (cs *CharacterSpec) Build() (*Character, error) {
-	compiler := NewPatternCompiler()
+// Build compiles the character specification into a domain.Character
+func (cs *CharacterSpec) Build() (*domain.Character, error) {
+	compiler := infrastructure.NewPatternCompiler()
 
-	// Convert frame patterns to the format expected by CompileCharacter
-	framePatterns := make([][]string, len(cs.Frames))
+	// Convert frame patterns to domain frames
+	frames := make([]domain.Frame, len(cs.Frames))
 	for i, frame := range cs.Frames {
-		framePatterns[i] = frame.Patterns
+		// Compile patterns to actual character lines
+		lines := make([]string, len(frame.Patterns))
+		for j, pattern := range frame.Patterns {
+			compiled := compiler.Compile(pattern)
+			lines[j] = compiled
+		}
+
+		frames[i] = domain.Frame{
+			Name:  frame.Name,
+			Lines: lines,
+		}
 	}
 
-	return compiler.CompileCharacter(cs.Name, cs.Width, cs.Height, framePatterns)
+	// Create domain character
+	character := &domain.Character{
+		Name:   cs.Name,
+		Width:  cs.Width,
+		Height: cs.Height,
+		Frames: frames,
+		States: make(map[string]domain.State),
+	}
+
+	return character, nil
 }
 
 // String returns a string representation of the character specification
