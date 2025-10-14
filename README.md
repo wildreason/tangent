@@ -16,7 +16,7 @@ Create expressive terminal characters for AI agents with state-based animations.
 import "github.com/wildreason/tangent/pkg/characters"
 
 // Get character with agent state API
-agent, _ := characters.LibraryAgent("rocket")
+agent, _ := characters.LibraryAgent("mercury")
 
 // Use agent states
 agent.Plan(os.Stdout)      // Planning animation
@@ -30,11 +30,11 @@ agent.Success(os.Stdout)   // Success animation
 **Simple animation (backward compatible):**
 
 ```go
-// Get pre-built character
-alien, _ := characters.Library("alien")
+// Get pre-built character (legacy API)
+mercury, _ := characters.Library("mercury")
 
 // Use it immediately
-characters.Animate(os.Stdout, alien, 5, 3)  // Done!
+characters.Animate(os.Stdout, mercury, 5, 3)  // Done!
 ```
 
 **That's it!** No configuration, no setup, no complexity.
@@ -55,7 +55,7 @@ Characters support agent behavioral states:
 **Example workflow:**
 
 ```go
-agent, _ := characters.LibraryAgent("robot")
+agent, _ := characters.LibraryAgent("mercury")
 
 agent.Wait(os.Stdout)      // Waiting for task
 agent.Plan(os.Stdout)      // Analyzing task
@@ -72,9 +72,9 @@ See [Agent States Documentation](docs/AGENT_STATES.md) for complete guide.
 
 ### 1. Get Library Character
 ```go
-alien, _ := characters.Library("alien")
-robot, _ := characters.Library("robot")
-pulse, _ := characters.Library("pulse")
+mercury, _ := characters.LibraryAgent("mercury")
+venus, _ := characters.LibraryAgent("venus")
+earth, _ := characters.LibraryAgent("earth")
 ```
 
 ### 2. Create Custom Character
@@ -86,25 +86,34 @@ robot := characters.NewCharacterSpec("my-robot", 8, 4).
 
 ### 3. Use Character
 ```go
-characters.Animate(os.Stdout, alien, 5, 3)  // Animated
-characters.ShowIdle(os.Stdout, robot)       // Static
+mercury.Plan(os.Stdout)      // Agent state
+mercury.Think(os.Stdout)     // Agent state
+mercury.Execute(os.Stdout)   // Agent state
 ```
 
 ---
 
 ## Library Characters
 
-Pre-built, ready-to-use characters:
+**Planet Series** - Professional agent characters with state-based animations:
 
-| Character | Type | Use Case | Example |
-|-----------|------|----------|---------|
-| **alien** | Animated (3 frames) | General purpose | `characters.Library("alien")` |
-| **robot** | Static (1 frame) | Static display | `characters.Library("robot")` |
-| **pulse** | Animated (3 frames) | Loading indicator | `characters.Library("pulse")` |
-| **wave** | Animated (5 frames) | Progress indicator | `characters.Library("wave")` |
-| **rocket** | Animated (4 frames) | Launch sequence | `characters.Library("rocket")` |
+| Character | Personality | Use Case | Example |
+|-----------|-------------|----------|---------|
+| **mercury** | Efficient | Fast, direct agent | `characters.LibraryAgent("mercury")` |
+| **venus** | Friendly | Warm, welcoming agent | `characters.LibraryAgent("venus")` |
+| **earth** | Balanced | Versatile, all-purpose agent | `characters.LibraryAgent("earth")` |
+| **mars** | Action-oriented | Dynamic, energetic agent | `characters.LibraryAgent("mars")` |
+| **jupiter** | Powerful | Large-scale, commanding agent | `characters.LibraryAgent("jupiter")` |
+| **saturn** | Analytical | Methodical, precise agent | `characters.LibraryAgent("saturn")` |
+| **uranus** | Creative | Innovative, exploratory agent | `characters.LibraryAgent("uranus")` |
+| **neptune** | Calm | Smooth, flowing agent | `characters.LibraryAgent("neptune")` |
 
-**Browse all characters:**
+**All characters include:**
+- Base (idle) state
+- Required states: `plan`, `think`, `execute`
+- Optional states: `wait`, `error`, `success`
+
+**Browse characters:**
 ```bash
 tangent gallery  # CLI playground
 ```
@@ -128,22 +137,22 @@ go mod tidy  # That's it!
 
 ## Use Cases
 
-### Simple CLI Tools
+### AI Agent Applications
 ```go
-// Loading indicator
-pulse, _ := characters.Library("pulse")
-characters.Animate(os.Stdout, pulse, 8, 5)
-
-// Success message
-robot, _ := characters.Library("robot")
-characters.ShowIdle(os.Stdout, robot)
+// Agent workflow
+mercury, _ := characters.LibraryAgent("mercury")
+mercury.Plan(os.Stdout)
+mercury.Think(os.Stdout)
+mercury.Execute(os.Stdout)
+mercury.Success(os.Stdout)
 ```
 
 ### TUI Applications
 ```go
-// Extract frames for your TUI framework
-alien, _ := characters.Library("alien")
-for _, frame := range alien.Frames {
+// Extract state frames for your TUI framework
+mercury, _ := characters.LibraryAgent("mercury")
+state := mercury.GetCharacter().States["plan"]
+for _, frame := range state.Frames {
     // Use frame.Lines in your TUI
     fmt.Println(frame.Lines)
 }
@@ -198,12 +207,12 @@ tangent patterns   # Pattern reference guide
 ```
 ┌─────────────────────────────────────────────────┐
 │ Your Application                                │
-│ • characters.Library("alien")                   │
-│ • characters.Animate(os.Stdout, alien, 5, 3)   │
+│ • characters.LibraryAgent("mercury")            │
+│ • agent.Plan() / Think() / Execute()            │
 ├─────────────────────────────────────────────────┤
 │ Tangent Core                                    │
-│ • Character library                             │
-│ • Pattern compiler                              │
+│ • Planet Series characters                      │
+│ • State-based API                               │
 │ • Animation engine                              │
 └─────────────────────────────────────────────────┘
 ```
@@ -234,11 +243,13 @@ import (
 )
 
 func main() {
-    // Get character
-    alien, _ := characters.Library("alien")
+    // Get character with agent states
+    mercury, _ := characters.LibraryAgent("mercury")
     
-    // Use it
-    characters.Animate(os.Stdout, alien, 5, 3)
+    // Use agent states
+    mercury.Plan(os.Stdout)
+    mercury.Think(os.Stdout)
+    mercury.Execute(os.Stdout)
 }
 ```
 
@@ -252,13 +263,14 @@ import (
 )
 
 func main() {
-    // Create custom character
-    robot := characters.NewCharacterSpec("my-robot", 8, 4).
-        AddFrame("idle", []string{"FRF", "LRL", "FRF", "LRL"}).
-        Build()
+    // Create custom character with CLI
+    // tangent -> Create new character -> Design states
     
-    // Use it
-    characters.ShowIdle(os.Stdout, robot)
+    // Or use Planet Series characters
+    venus, _ := characters.LibraryAgent("venus")
+    venus.Plan(os.Stdout)
+    venus.Execute(os.Stdout)
+    venus.Success(os.Stdout)
 }
 ```
 

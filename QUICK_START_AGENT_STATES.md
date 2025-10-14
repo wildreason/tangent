@@ -106,6 +106,8 @@ git push origin add-your-character
 ### Custom States
 Add any custom states for unique behaviors!
 
+**Note:** All Planet Series characters include the 3 required states plus optional states.
+
 ## Pattern Codes
 
 ```
