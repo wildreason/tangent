@@ -2,6 +2,7 @@ package characters
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/wildreason/tangent/pkg/characters/domain"
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
@@ -102,14 +103,63 @@ func LibraryAgent(name string) (*AgentCharacter, error) {
 		}
 	}
 
+	// Separate base frame from state frames
+	var baseFrame domain.Frame
+	states := make(map[string]domain.State)
+
+	// Find base frame (first frame named "base" or first frame if no "base")
+	baseFrameFound := false
+	for _, frame := range frames {
+		if frame.Name == "base" {
+			baseFrame = frame
+			baseFrameFound = true
+			break
+		}
+	}
+
+	// If no "base" frame found, use the first frame as base
+	if !baseFrameFound && len(frames) > 0 {
+		baseFrame = frames[0]
+	}
+
+	// Group remaining frames by state name
+	stateFrames := make(map[string][]domain.Frame)
+	for _, frame := range frames {
+		if frame.Name != "base" && frame.Name != baseFrame.Name {
+			// Extract state name from pattern name
+			stateName := frame.Name
+			if strings.Contains(frame.Name, "_") {
+				// Handle patterns like "plan_1", "think_2" -> "plan", "think"
+				parts := strings.Split(frame.Name, "_")
+				if len(parts) >= 2 {
+					stateName = parts[0]
+				}
+			}
+			stateFrames[stateName] = append(stateFrames[stateName], frame)
+		}
+	}
+
+	// Create states from grouped frames
+	for stateName, stateFramesList := range stateFrames {
+		states[stateName] = domain.State{
+			Name:           stateName,
+			Description:    fmt.Sprintf("%s state", stateName),
+			Frames:         stateFramesList,
+			StateType:      "standard",
+			AnimationFPS:   5,
+			AnimationLoops: 1,
+		}
+	}
+
 	// Create domain character
 	domainChar := &domain.Character{
 		Name:        libChar.Name,
 		Personality: "efficient", // Default personality for library characters
 		Width:       libChar.Width,
 		Height:      libChar.Height,
-		Frames:      frames,
-		States:      make(map[string]domain.State),
+		BaseFrame:   baseFrame,
+		States:      states,
+		Frames:      frames, // Keep for backward compatibility
 	}
 
 	// Wrap in AgentCharacter for state-based API
