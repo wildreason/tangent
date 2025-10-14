@@ -186,14 +186,14 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 		return fmt.Errorf("state %q has no frames", stateName)
 	}
 
-	// Use state's FPS and loops if specified, otherwise use provided values
-	stateFPS := fps
-	if state.AnimationFPS > 0 {
-		stateFPS = state.AnimationFPS
+	// Use provided values if specified, otherwise use state's default values
+	stateFPS := state.AnimationFPS
+	if fps > 0 {
+		stateFPS = fps
 	}
-	stateLoops := loops
-	if state.AnimationLoops > 0 {
-		stateLoops = state.AnimationLoops
+	stateLoops := state.AnimationLoops
+	if loops > 0 {
+		stateLoops = loops
 	}
 
 	// Animate the state frames
