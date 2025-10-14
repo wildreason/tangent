@@ -5,7 +5,7 @@ import "strings"
 // Character represents a terminal character with frames and agent states
 type Character struct {
 	Name        string
-	Personality string // "efficient", "friendly", "analytical", "creative"
+	Personality string // Optional: "efficient", "friendly", "analytical", "creative"
 	Width       int
 	Height      int
 	BaseFrame   Frame            // Idle/immutable base character

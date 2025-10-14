@@ -31,7 +31,6 @@ type StateSession struct {
 // Session represents a character project.
 type Session struct {
 	Name        string         `json:"name"`
-	Personality string         `json:"personality,omitempty"`
 	Width       int            `json:"width"`
 	Height      int            `json:"height"`
 	BaseFrame   Frame          `json:"base_frame"`

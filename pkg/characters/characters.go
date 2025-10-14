@@ -154,7 +154,7 @@ func LibraryAgent(name string) (*AgentCharacter, error) {
 	// Create domain character
 	domainChar := &domain.Character{
 		Name:        libChar.Name,
-		Personality: "efficient", // Default personality for library characters
+		Personality: "", // No personality for library characters
 		Width:       libChar.Width,
 		Height:      libChar.Height,
 		BaseFrame:   baseFrame,
