@@ -62,3 +62,5 @@ What scenarios or agent behaviors is this character designed for?
 
 **Note:** Automated validation will check your character JSON. Please wait for checks to complete before requesting review.
 
+
+

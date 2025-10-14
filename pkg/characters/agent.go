@@ -13,12 +13,14 @@ import (
 // AgentCharacter wraps a Character with state-based API methods for AI agents
 type AgentCharacter struct {
 	character *domain.Character
+	animator  domain.AnimationEngine
 }
 
 // NewAgentCharacter creates a new AgentCharacter wrapper
 func NewAgentCharacter(character *domain.Character) *AgentCharacter {
 	return &AgentCharacter{
 		character: character,
+		animator:  nil, // Will be created on demand
 	}
 }
 
@@ -77,7 +79,7 @@ func (a *AgentCharacter) ShowState(writer io.Writer, stateName string) error {
 		for _, line := range frame.Lines {
 			fmt.Fprintln(writer, line)
 		}
-		
+
 		// Brief pause between frames if multiple frames in state
 		if len(state.Frames) > 1 {
 			time.Sleep(200 * time.Millisecond)
@@ -147,3 +149,79 @@ func (a *AgentCharacter) GetStateDescription(stateName string) (string, error) {
 	return state.Description, nil
 }
 
+// ShowBase displays the base (idle) character
+func (a *AgentCharacter) ShowBase(writer io.Writer) error {
+	if a.character == nil {
+		return fmt.Errorf("agent character is nil")
+	}
+
+	if len(a.character.BaseFrame.Lines) == 0 {
+		return fmt.Errorf("character %s has no base frame defined", a.character.Name)
+	}
+
+	for _, line := range a.character.BaseFrame.Lines {
+		fmt.Fprintln(writer, line)
+	}
+
+	return nil
+}
+
+// AnimateState animates a specific state with proper frame animation
+func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps int, loops int) error {
+	if a.character == nil {
+		return fmt.Errorf("agent character is nil")
+	}
+
+	if a.character.States == nil || len(a.character.States) == 0 {
+		return fmt.Errorf("character %s has no states defined", a.character.Name)
+	}
+
+	state, exists := a.character.States[stateName]
+	if !exists {
+		return fmt.Errorf("state %q not found for character %s (available: %s)",
+			stateName, a.character.Name, strings.Join(a.ListStates(), ", "))
+	}
+
+	if len(state.Frames) == 0 {
+		return fmt.Errorf("state %q has no frames", stateName)
+	}
+
+	// Use state's FPS and loops if specified, otherwise use provided values
+	stateFPS := fps
+	if state.AnimationFPS > 0 {
+		stateFPS = state.AnimationFPS
+	}
+	stateLoops := loops
+	if state.AnimationLoops > 0 {
+		stateLoops = state.AnimationLoops
+	}
+
+	// Animate the state frames
+	frameDur := time.Second / time.Duration(stateFPS)
+
+	// Hide cursor
+	fmt.Fprint(writer, "\x1b[?25l")
+	defer fmt.Fprint(writer, "\x1b[?25h")
+
+	for loop := 0; loop < stateLoops; loop++ {
+		for _, frame := range state.Frames {
+			// Clear and print each line
+			for _, line := range frame.Lines {
+				fmt.Fprintf(writer, "\r\x1b[2K%s\n", line)
+			}
+
+			// Move cursor back up
+			fmt.Fprintf(writer, "\x1b[%dA", len(frame.Lines))
+
+			time.Sleep(frameDur)
+		}
+	}
+
+	// Print final frame cleanly
+	finalFrame := state.Frames[len(state.Frames)-1]
+	for _, line := range finalFrame.Lines {
+		fmt.Fprintln(writer, line)
+	}
+
+	return nil
+}

@@ -5,19 +5,22 @@ import "strings"
 // Character represents a terminal character with frames and agent states
 type Character struct {
 	Name        string
-	Personality string           // "efficient", "friendly", "analytical", "creative"
+	Personality string // "efficient", "friendly", "analytical", "creative"
 	Width       int
 	Height      int
+	BaseFrame   Frame            // Idle/immutable base character
 	States      map[string]State // Agent states (plan, think, execute, etc.)
 	Frames      []Frame          // Keep for backward compatibility
 }
 
 // State represents an agent behavioral state
 type State struct {
-	Name        string
-	Description string
-	Frames      []Frame
-	StateType   string // "standard" or "custom"
+	Name           string
+	Description    string
+	Frames         []Frame // Multiple frames for animation
+	StateType      string  // "standard" or "custom"
+	AnimationFPS   int     // FPS for this state (default: 5)
+	AnimationLoops int     // Loop count for this state (default: 1)
 }
 
 // Frame represents a single frame of animation

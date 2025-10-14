@@ -15,16 +15,28 @@ const sessionDir = ".tangent"
 type Frame struct {
 	Name      string   `json:"name"`
 	Lines     []string `json:"lines"`
-	StateType string   `json:"state_type"` // "standard" or "custom"
+	StateType string   `json:"state_type,omitempty"` // For backward compatibility
+}
+
+// StateSession represents an agent state with animation frames
+type StateSession struct {
+	Name           string  `json:"name"`
+	Description    string  `json:"description"`
+	StateType      string  `json:"state_type"`
+	Frames         []Frame `json:"frames"`
+	AnimationFPS   int     `json:"animation_fps"`
+	AnimationLoops int     `json:"animation_loops"`
 }
 
 // Session represents a character project.
 type Session struct {
-	Name        string  `json:"name"`
-	Personality string  `json:"personality"` // "efficient", "friendly", "analytical", "creative"
-	Width       int     `json:"width"`
-	Height      int     `json:"height"`
-	Frames      []Frame `json:"frames"`
+	Name        string         `json:"name"`
+	Personality string         `json:"personality,omitempty"`
+	Width       int            `json:"width"`
+	Height      int            `json:"height"`
+	BaseFrame   Frame          `json:"base_frame"`
+	States      []StateSession `json:"states"`
+	Frames      []Frame        `json:"frames"` // Deprecated, keep for backward compatibility
 }
 
 // NewSession creates a new session.
@@ -33,7 +45,8 @@ func NewSession(name string, width, height int) *Session {
 		Name:   name,
 		Width:  width,
 		Height: height,
-		Frames: []Frame{},
+		States: []StateSession{},
+		Frames: []Frame{}, // Keep for backward compatibility
 	}
 }
 

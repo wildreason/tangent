@@ -31,8 +31,8 @@ func (e *SimpleAnimationEngine) Animate(character *domain.Character, fps int, lo
 		return domain.NewAnimationError(character.Name, "start", "character has no animation frames", nil)
 	}
 
-	// Hide cursor and save position
-	fmt.Print("\x1b[?25l\x1b[s")
+	// Hide cursor
+	fmt.Print("\x1b[?25l")
 	defer fmt.Print("\x1b[?25h") // Show cursor on exit
 
 	frameDur := time.Second / time.Duration(fps)
@@ -72,7 +72,7 @@ func (e *SimpleAnimationEngine) renderFrame(frame domain.Frame, characterName st
 	}
 
 	// Move cursor back up to overwrite the same area
-	fmt.Printf("\x1b[%dA\x1b[u", len(frame.Lines))
+	fmt.Printf("\x1b[%dA", len(frame.Lines))
 
 	return nil
 }
