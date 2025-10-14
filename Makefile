@@ -33,6 +33,7 @@ install: build
 release:
 	@echo "Creating release..."
 	@read -p "Version (e.g., v0.1.0-beta.5): " version; \
+	./scripts/validate-release.sh "$$version" && \
 	git tag $$version && \
 	git push origin $$version && \
 	echo "✓ Released: $$version"
