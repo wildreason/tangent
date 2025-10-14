@@ -1467,6 +1467,16 @@ func hasRequiredStates(session *Session) bool {
 	required := []string{"plan", "think", "execute"}
 	found := make(map[string]bool)
 
+	// Check in States (new structure)
+	for _, state := range session.States {
+		for _, req := range required {
+			if state.Name == req {
+				found[req] = true
+			}
+		}
+	}
+
+	// Also check in Frames for backward compatibility
 	for _, frame := range session.Frames {
 		for _, req := range required {
 			if frame.Name == req {
@@ -1483,6 +1493,12 @@ func getMissingRequiredStates(session *Session) []string {
 	required := []string{"plan", "think", "execute"}
 	found := make(map[string]bool)
 
+	// Check in States (new structure)
+	for _, state := range session.States {
+		found[state.Name] = true
+	}
+
+	// Also check in Frames for backward compatibility
 	for _, frame := range session.Frames {
 		found[frame.Name] = true
 	}
@@ -1746,7 +1762,7 @@ func addAgentStateWithBase(session *Session) {
 	}
 
 	// Show required states
-	requiredStates := []string{"think", "plan", "search"}
+	requiredStates := []string{"plan", "think", "execute"}
 	missingRequired := []string{}
 	for _, req := range requiredStates {
 		if !existingStates[req] {
@@ -1758,9 +1774,9 @@ func addAgentStateWithBase(session *Session) {
 		fmt.Println("  ◢ Required states (choose one):")
 		for _, req := range missingRequired {
 			descriptions := map[string]string{
-				"think":  "Agent processing information",
-				"plan":   "Agent analyzing and planning",
-				"search": "Agent searching for information",
+				"plan":    "Agent analyzing and planning",
+				"think":   "Agent processing information",
+				"execute": "Agent performing actions",
 			}
 			fmt.Printf("    • %-8s - %s\n", req, descriptions[req])
 		}
@@ -1799,7 +1815,7 @@ func addAgentStateWithBase(session *Session) {
 
 	// Determine state type
 	stateType := "custom"
-	standardStates := []string{"think", "plan", "search", "wait", "error", "success"}
+	standardStates := []string{"plan", "think", "execute", "wait", "error", "success"}
 	for _, std := range standardStates {
 		if stateName == std {
 			stateType = "standard"

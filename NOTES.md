@@ -16,7 +16,7 @@
 
 ### 3. Add Agent States
 For each state (minimum 3 required):
-- **Required states**: think, plan, search
+- **Required states**: plan, think, execute
 - **Optional states**: wait, error, success
 - **Custom states**: any name you choose
 
@@ -44,7 +44,7 @@ For each state:
 
 ```
 ▢ CHARACTER: mercury
-  Base: ✓ Created | States: 3 (think, plan, search)
+  Base: ✓ Created | States: 3 (plan, think, execute)
 
   1. Create base character
   2. Add agent state
@@ -71,7 +71,7 @@ For each state:
 - Live preview during creation
 
 ### State Types
-- **Standard**: think, plan, search, wait, error, success
+- **Standard**: plan, think, execute, wait, error, success
 - **Custom**: any name for unique behaviors
 
 ### Animation
@@ -103,19 +103,19 @@ Special:
 ## Planet Series Characters
 
 Target: 8 characters
-- Mercury
-- Venus
-- Earth
-- Mars
-- Jupiter
-- Saturn
-- Uranus
-- Neptune
+- Mercury (efficient)
+- Venus (friendly)
+- Earth (balanced)
+- Mars (action-oriented)
+- Jupiter (powerful)
+- Saturn (analytical)
+- Uranus (creative)
+- Neptune (calm)
 
 Each character:
 - Unique base (idle) design
-- Same 3 required states (think, plan, search)
-- Optional additional states
+- Same 3 required states (plan, think, execute)
+- Optional additional states (wait, error, success)
 - Distinct personality and visual style
 
 ## Example: Creating Mercury
@@ -134,25 +134,25 @@ Each character:
    (immutable foundation)
    ```
 
-3. **Add Think State**
-   ```
-   3 animation frames
-   Start from base: yes
-   Modify lines to show thinking
-   ```
-
-4. **Add Plan State**
+3. **Add Plan State**
    ```
    3 animation frames
    Start from base: yes
    Modify lines to show planning
    ```
 
-5. **Add Search State**
+4. **Add Think State**
    ```
    3 animation frames
    Start from base: yes
-   Modify lines to show searching
+   Modify lines to show thinking
+   ```
+
+5. **Add Execute State**
+   ```
+   3 animation frames
+   Start from base: yes
+   Modify lines to show executing
    ```
 
 6. **Preview & Export**
@@ -177,8 +177,24 @@ Each character:
   },
   "states": [
     {
+      "name": "plan",
+      "description": "Agent planning state",
+      "state_type": "standard",
+      "frames": [...],
+      "animation_fps": 5,
+      "animation_loops": 1
+    },
+    {
       "name": "think",
       "description": "Agent thinking state",
+      "state_type": "standard",
+      "frames": [...],
+      "animation_fps": 5,
+      "animation_loops": 1
+    },
+    {
+      "name": "execute",
+      "description": "Agent executing state",
       "state_type": "standard",
       "frames": [...],
       "animation_fps": 5,
@@ -198,7 +214,8 @@ Each character:
 ### API
 - `agent.ShowBase()` - Display base character
 - `agent.AnimateState(name, fps, loops)` - Animate specific state
-- `agent.Think()`, `agent.Plan()`, `agent.Search()` - Standard states
+- `agent.Plan()`, `agent.Think()`, `agent.Execute()` - Required states
+- `agent.Wait()`, `agent.Error()`, `agent.Success()` - Optional states
 
 ## Migration from Old Workflow
 
@@ -207,12 +224,15 @@ Each character:
 - No base character concept
 - Frames treated equally
 - Manual duplication for variations
+- Inconsistent state names
 
 **New (alpha.3)**:
 - Base character first
 - States built FROM base
 - Structured state creation
 - Copy-from-base option
+- Unified API contract (plan, think, execute)
+- Planet Series characters only
 - Reduced friction
 
 ## Backward Compatibility
