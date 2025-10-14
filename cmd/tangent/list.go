@@ -84,11 +84,6 @@ func handleListAgent(name string) {
 	}
 	fmt.Println()
 
-	// Show base character
-	fmt.Println("Base Character:")
-	agent.ShowBase(os.Stdout)
-	fmt.Println()
-
 	// Animate states
 	if targetState != "" {
 		// Animate specific state
@@ -115,6 +110,11 @@ func handleListAgent(name string) {
 		agent.AnimateState(os.Stdout, targetState, fps, loops)
 		fmt.Println()
 	} else {
+		// Show base character when no specific state requested
+		fmt.Println("Base Character:")
+		agent.ShowBase(os.Stdout)
+		fmt.Println()
+
 		// List available states when no specific state requested
 		if len(char.States) > 0 {
 			fmt.Println("Available States:")
