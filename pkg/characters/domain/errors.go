@@ -175,7 +175,7 @@ func getValidationSuggestion(err *ValidationError) string {
 	case "dimensions":
 		return "Ensure width and height are positive integers (e.g., width: 8, height: 4)"
 	case "pattern":
-		return "Use valid pattern characters: F=█, R=▐, L=▌, T=▀, B=▄, 1-8=quadrants, _=space"
+		return "Use valid pattern characters: F, T, B, L, R, 1-8, ., :, #, _, X"
 	case "frames":
 		return "Ensure the number of frame patterns matches the character height"
 	case "frame_name":

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/wildreason/tangent/pkg/characters/domain"
+	"github.com/wildreason/tangent/pkg/characters/patterns"
 )
 
 // SimplePatternCompiler implements the PatternCompiler interface
@@ -19,38 +20,40 @@ type PatternValidator interface {
 
 // NewPatternCompiler creates a new pattern compiler
 func NewPatternCompiler() domain.PatternCompiler {
+	codes := patterns.DefaultPatternCodes()
 	return &SimplePatternCompiler{
 		patterns: map[rune]rune{
 			// Basic blocks
-			'F': '█', // Full Block
-			'T': '▀', // Top Half Block
-			'B': '▄', // Bottom Half Block
-			'L': '▌', // Left Half Block
-			'R': '▐', // Right Half Block
+			'F': codes.FullBlock,    // Full Block
+			'T': codes.TopHalf,      // Top Half Block
+			'B': codes.BottomHalf,   // Bottom Half Block
+			'L': codes.LeftHalf,     // Left Half Block
+			'R': codes.RightHalf,    // Right Half Block
 
 			// Shading blocks
-			'.': '░', // Light Shade
-			':': '▒', // Medium Shade
-			'#': '▓', // Dark Shade
+			'.': codes.LightShade,   // Light Shade
+			':': codes.MediumShade,  // Medium Shade
+			'#': codes.DarkShade,    // Dark Shade
 
 			// Single quadrants (1-4)
-			'1': '▘', // Quadrant Upper Left
-			'2': '▝', // Quadrant Upper Right
-			'3': '▖', // Quadrant Lower Left
-			'4': '▗', // Quadrant Lower Right
+			'1': codes.Quad1,        // Quadrant Upper Left
+			'2': codes.Quad2,        // Quadrant Upper Right
+			'3': codes.Quad3,        // Quadrant Lower Left
+			'4': codes.Quad4,        // Quadrant Lower Right
 
 			// Three-quadrant composites (5-8, reverse of 1-4)
-			'5': '▛', // Three Quadrants: UL+UR+LL
-			'6': '▜', // Three Quadrants: UL+UR+LR
-			'7': '▙', // Three Quadrants: UL+LL+LR
-			'8': '▟', // Three Quadrants: UR+LL+LR
+			'5': codes.Quad5,        // Three Quadrants: UL+UR+LL
+			'6': codes.Quad6,        // Three Quadrants: UL+UR+LR
+			'7': codes.Quad7,        // Three Quadrants: UL+LL+LR
+			'8': codes.Quad8,        // Three Quadrants: UR+LL+LR
 
 			// Diagonals
-			'\\': '▚', // Diagonal Backward
-			'/':  '▞', // Diagonal Forward
+			'\\': codes.DiagonalBackward, // Diagonal Backward
+			'/':  codes.DiagonalForward,  // Diagonal Forward
 
-			// Space
-			'_': ' ',
+			// Special
+			'_': codes.Space,        // Space
+			'X': codes.Mirror,       // Mirror
 		},
 		validators: []PatternValidator{
 			&LengthValidator{},

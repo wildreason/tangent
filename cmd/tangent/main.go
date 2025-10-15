@@ -12,6 +12,7 @@ import (
 	"github.com/wildreason/tangent/pkg/characters"
 	"github.com/wildreason/tangent/pkg/characters/domain"
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
+	"github.com/wildreason/tangent/pkg/characters/patterns"
 )
 
 var (
@@ -300,7 +301,7 @@ func addFrame(session *Session) {
 	}
 
 	fmt.Println()
-	fmt.Println("Pattern codes: F=█ T=▀ B=▄ L=▌ R=▐ 1-8=quads .=#:=shades _=space X=mirror")
+	fmt.Println(patterns.GetPatternHelp())
 	fmt.Println()
 
 	lines := make([]string, session.Height)
@@ -807,6 +808,18 @@ func compilePattern(pattern string) string {
 	return compiler.Compile(pattern)
 }
 
+// convertFramesToDomain converts local Frame slice to domain.Frame slice
+func convertFramesToDomain(frames []Frame) []domain.Frame {
+	domainFrames := make([]domain.Frame, len(frames))
+	for i, frame := range frames {
+		domainFrames[i] = domain.Frame{
+			Name:  frame.Name,
+			Lines: frame.Lines,
+		}
+	}
+	return domainFrames
+}
+
 func sessionExists(name string) bool {
 	sessions, _ := ListSessions()
 	for _, s := range sessions {
@@ -1000,48 +1013,48 @@ func adminRegister(jsonPath string) {
 		}
 	}
 
-		// Generate library file
-		libraryFile := fmt.Sprintf("pkg/characters/library/%s.go", charData.Name)
+	// Generate library file
+	libraryFile := fmt.Sprintf("pkg/characters/library/%s.go", charData.Name)
 
-		// Use default personality if not provided
-		personality := charData.Personality
-		if personality == "" {
-			personality = "efficient"
-		}
+	// Use default personality if not provided
+	personality := charData.Personality
+	if personality == "" {
+		personality = "efficient"
+	}
 
-		// Create patterns array
-		patterns := []struct {
-			Name  string
-			Lines []string
-		}{
-			{
-				Name:  "base",
-				Lines: charData.BaseFrame.Lines,
-			},
-		}
+	// Create patterns array
+	patterns := []struct {
+		Name  string
+		Lines []string
+	}{
+		{
+			Name:  "base",
+			Lines: charData.BaseFrame.Lines,
+		},
+	}
 
-		// Add states - preserve individual frames for proper animation
-		for _, state := range charData.States {
-			for i, frame := range state.Frames {
-				// Create individual pattern for each frame
-				patternName := state.Name
-				if len(state.Frames) > 1 {
-					// Add frame number if multiple frames exist
-					patternName = fmt.Sprintf("%s_%d", state.Name, i+1)
-				}
-
-				patterns = append(patterns, struct {
-					Name  string
-					Lines []string
-				}{
-					Name:  patternName,
-					Lines: frame.Lines,
-				})
+	// Add states - preserve individual frames for proper animation
+	for _, state := range charData.States {
+		for i, frame := range state.Frames {
+			// Create individual pattern for each frame
+			patternName := state.Name
+			if len(state.Frames) > 1 {
+				// Add frame number if multiple frames exist
+				patternName = fmt.Sprintf("%s_%d", state.Name, i+1)
 			}
-		}
 
-		// Generate Go code
-		code := generateLibraryCode(charData.Name, personality, charData.Width, charData.Height, patterns)
+			patterns = append(patterns, struct {
+				Name  string
+				Lines []string
+			}{
+				Name:  patternName,
+				Lines: frame.Lines,
+			})
+		}
+	}
+
+	// Generate Go code
+	code := generateLibraryCode(charData.Name, personality, charData.Width, charData.Height, patterns)
 
 	// Write file
 	if err := os.WriteFile(libraryFile, []byte(code), 0644); err != nil {
@@ -1502,7 +1515,7 @@ func createBaseCharacter(session *Session) {
 	fmt.Printf("◢ Designing %s's base (idle) state\n", session.Name)
 	fmt.Println("  This is the immutable foundation for all states")
 	fmt.Println()
-	fmt.Println("Pattern codes: F=█ T=▀ B=▄ L=▌ R=▐ 1-8=quads .=#:=shades _=space X=mirror")
+	fmt.Println(patterns.GetPatternHelp())
 	fmt.Println()
 
 	lines := make([]string, session.Height)
@@ -1705,7 +1718,7 @@ func addAgentStateWithBase(session *Session) {
 			fmt.Println("  Creating from scratch:\n")
 		}
 
-		fmt.Println("Pattern codes: F=█ T=▀ B=▄ L=▌ R=▐ 1-8=quads .=#:=shades _=space X=mirror")
+		fmt.Println(patterns.GetPatternHelp())
 		fmt.Println()
 
 		// Input lines
@@ -1954,24 +1967,30 @@ func previewAllStates(session *Session) {
 		fmt.Printf("  State: %s (%d frames)\n", state.Name, len(state.Frames))
 		fmt.Printf("  Animating at %d FPS...\n\n", state.AnimationFPS)
 
-		// Create temporary character for animation
+		// Create temporary character for animation using new state-based approach
 		tempChar := &domain.Character{
 			Name:   session.Name + "-" + state.Name,
 			Width:  session.Width,
 			Height: session.Height,
-			Frames: []domain.Frame{},
+			BaseFrame: domain.Frame{
+				Name:  session.BaseFrame.Name,
+				Lines: session.BaseFrame.Lines,
+			},
+			States: map[string]domain.State{
+				state.Name: {
+					Name:           state.Name,
+					Description:    state.Description,
+					Frames:         convertFramesToDomain(state.Frames),
+					StateType:      state.StateType,
+					AnimationFPS:   state.AnimationFPS,
+					AnimationLoops: state.AnimationLoops,
+				},
+			},
 		}
 
-		for _, frame := range state.Frames {
-			tempChar.Frames = append(tempChar.Frames, domain.Frame{
-				Name:  frame.Name,
-				Lines: frame.Lines,
-			})
-		}
-
-		// Animate using service layer
-		engine := infrastructure.NewAnimationEngine()
-		if err := engine.Animate(tempChar, state.AnimationFPS, 1); err != nil {
+		// Create AgentCharacter and use AnimateState method
+		agent := characters.NewAgentCharacter(tempChar)
+		if err := agent.AnimateState(os.Stdout, state.Name, state.AnimationFPS, 1); err != nil {
 			handleError("Animation failed", err)
 			continue
 		}

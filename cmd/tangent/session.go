@@ -30,12 +30,12 @@ type StateSession struct {
 
 // Session represents a character project.
 type Session struct {
-	Name        string         `json:"name"`
-	Width       int            `json:"width"`
-	Height      int            `json:"height"`
-	BaseFrame   Frame          `json:"base_frame"`
-	States      []StateSession `json:"states"`
-	Frames      []Frame        `json:"frames"` // Deprecated, keep for backward compatibility
+	Name      string         `json:"name"`
+	Width     int            `json:"width"`
+	Height    int            `json:"height"`
+	BaseFrame Frame          `json:"base_frame"`
+	States    []StateSession `json:"states"`
+	Frames    []Frame        `json:"frames"` // Deprecated, keep for backward compatibility
 }
 
 // NewSession creates a new session.
