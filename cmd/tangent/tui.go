@@ -20,6 +20,7 @@ const (
 	ScreenCreateState
 	ScreenStateNameInput
 	ScreenStateFrameInput
+	ScreenStatePreview
 	ScreenExport
 )
 
@@ -36,13 +37,13 @@ type CreationModel struct {
 	textInput   textinput.Model
 
 	// State creation state
-	currentStateName  string
-	currentStateType  string
-	stateFrameCount   int
-	stateFrames       [][]string
-	currentFrame      int
-	currentFrameLine  int
-	frameLines        []string
+	currentStateName string
+	currentStateType string
+	stateFrameCount  int
+	stateFrames      [][]string
+	currentFrame     int
+	currentFrameLine int
+	frameLines       []string
 
 	// UI dimensions
 	width  int
@@ -73,7 +74,7 @@ func NewCreationModel(session *Session) CreationModel {
 	ti := textinput.New()
 	ti.Placeholder = "Enter pattern (e.g., FFFFFFFF)"
 	ti.Focus()
-	ti.CharLimit = session.Width
+	ti.CharLimit = 50 // Allow longer input for state names
 	ti.Width = 40
 
 	return CreationModel{
@@ -188,7 +189,7 @@ func (m CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.textInput, cmd = m.textInput.Update(msg)
 				return m, cmd
 			}
-			
+
 		case ScreenStateFrameInput:
 			switch msg.String() {
 			case "ctrl+c":
@@ -204,6 +205,31 @@ func (m CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			default:
 				m.textInput, cmd = m.textInput.Update(msg)
 				return m, cmd
+			}
+			
+		case ScreenStatePreview:
+			switch msg.String() {
+			case "ctrl+c":
+				return m, tea.Quit
+			case "enter", "space":
+				// Save and go back to menu
+				m.screen = ScreenMenu
+				m.statusMsg = fmt.Sprintf("✓ State '%s' saved!", m.currentStateName)
+				m.currentStateName = ""
+				m.stateFrames = nil
+				return m, nil
+			case "esc":
+				// Discard and go back to menu
+				// Remove the last state
+				if len(m.session.States) > 0 {
+					m.session.States = m.session.States[:len(m.session.States)-1]
+					m.session.Save()
+				}
+				m.screen = ScreenMenu
+				m.statusMsg = "State discarded"
+				m.currentStateName = ""
+				m.stateFrames = nil
+				return m, nil
 			}
 		}
 	}
@@ -228,6 +254,8 @@ func (m CreationModel) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.screen = ScreenCreateBase
 			m.currentLine = 0
 			m.textInput.SetValue("")
+			m.textInput.CharLimit = m.session.Width // Limit to character width for patterns
+			m.textInput.Placeholder = "Enter pattern (e.g., FFFFFFFF)"
 			m.textInput.Focus()
 			m.statusMsg = "Creating base character - Press Enter to confirm each line"
 		case 1: // Add agent state
@@ -237,6 +265,7 @@ func (m CreationModel) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			} else {
 				m.screen = ScreenStateNameInput
 				m.textInput.SetValue("")
+				m.textInput.CharLimit = 50 // Allow full state names
 				m.textInput.Placeholder = "Enter state name (plan, think, execute)"
 				m.textInput.Focus()
 				m.statusMsg = "Enter agent state name"
@@ -313,12 +342,12 @@ func (m CreationModel) updateCreateBase(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 // handleStateNameSubmit handles state name input
 func (m CreationModel) handleStateNameSubmit() (tea.Model, tea.Cmd) {
 	stateName := strings.TrimSpace(m.textInput.Value())
-	
+
 	if stateName == "" {
 		m.err = fmt.Errorf("state name cannot be empty")
 		return m, nil
 	}
-	
+
 	// Check if state already exists
 	for _, state := range m.session.States {
 		if state.Name == stateName {
@@ -326,7 +355,7 @@ func (m CreationModel) handleStateNameSubmit() (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 	}
-	
+
 	// Determine state type
 	standardStates := []string{"plan", "think", "execute", "wait", "error", "success"}
 	m.currentStateType = "custom"
@@ -336,60 +365,61 @@ func (m CreationModel) handleStateNameSubmit() (tea.Model, tea.Cmd) {
 			break
 		}
 	}
-	
+
 	m.currentStateName = stateName
 	m.stateFrameCount = 3 // Default to 3 frames (minimum)
 	m.stateFrames = make([][]string, 0, m.stateFrameCount)
 	m.currentFrame = 0
 	m.currentFrameLine = 0
 	m.frameLines = make([]string, m.session.Height)
-	
+
 	// Move to frame input
 	m.screen = ScreenStateFrameInput
 	m.textInput.SetValue("")
+	m.textInput.CharLimit = m.session.Width // Limit to character width for patterns
 	m.textInput.Placeholder = "Enter pattern (e.g., FFFFFFFF)"
 	m.textInput.Focus()
 	m.err = nil
 	m.statusMsg = fmt.Sprintf("Creating '%s' state - Frame 1/%d, Line 1/%d", stateName, m.stateFrameCount, m.session.Height)
-	
+
 	return m, nil
 }
 
 // handleStateFrameLineSubmit handles frame line input for state
 func (m CreationModel) handleStateFrameLineSubmit() (tea.Model, tea.Cmd) {
 	value := m.textInput.Value()
-	
+
 	// Validate length
 	if len(value) != m.session.Width {
 		m.err = fmt.Errorf("expected %d characters, got %d", m.session.Width, len(value))
 		return m, nil
 	}
-	
+
 	// Apply mirroring
 	value = applyMirroring(value)
-	
+
 	// Store the line
 	m.frameLines[m.currentFrameLine] = value
 	m.currentFrameLine++
-	
+
 	// Clear input for next line
 	m.textInput.SetValue("")
 	m.err = nil
-	
+
 	// Check if current frame is complete
 	if m.currentFrameLine >= m.session.Height {
 		// Save current frame
 		frameCopy := make([]string, m.session.Height)
 		copy(frameCopy, m.frameLines)
 		m.stateFrames = append(m.stateFrames, frameCopy)
-		
+
 		m.currentFrame++
 		m.currentFrameLine = 0
 		m.frameLines = make([]string, m.session.Height)
-		
+
 		// Check if all frames are complete
 		if m.currentFrame >= m.stateFrameCount {
-			// Save state to session
+			// Save state to session temporarily
 			newState := StateSession{
 				Name:           m.currentStateName,
 				Description:    fmt.Sprintf("Agent %s state", m.currentStateName),
@@ -409,10 +439,9 @@ func (m CreationModel) handleStateFrameLineSubmit() (tea.Model, tea.Cmd) {
 			m.session.States = append(m.session.States, newState)
 			m.session.Save()
 			
-			m.statusMsg = fmt.Sprintf("✓ State '%s' created with %d frames!", m.currentStateName, m.stateFrameCount)
-			m.screen = ScreenMenu
-			m.currentStateName = ""
-			m.stateFrames = nil
+			// Go to preview screen instead of menu
+			m.screen = ScreenStatePreview
+			m.statusMsg = fmt.Sprintf("Preview '%s' state - Press Enter to confirm, Esc to discard", m.currentStateName)
 			m.currentFrame = 0
 		} else {
 			m.statusMsg = fmt.Sprintf("Frame %d/%d completed - Starting frame %d", m.currentFrame, m.stateFrameCount, m.currentFrame+1)
@@ -420,7 +449,7 @@ func (m CreationModel) handleStateFrameLineSubmit() (tea.Model, tea.Cmd) {
 	} else {
 		m.statusMsg = fmt.Sprintf("Frame %d/%d, Line %d/%d completed", m.currentFrame+1, m.stateFrameCount, m.currentFrameLine, m.session.Height)
 	}
-	
+
 	return m, nil
 }
 
@@ -490,6 +519,8 @@ func (m CreationModel) renderLeftPane(width int) string {
 		content = m.renderStateNameInput()
 	case ScreenStateFrameInput:
 		content = m.renderStateFrameInput()
+	case ScreenStatePreview:
+		content = m.renderStatePreview()
 	case ScreenExport:
 		content = "Export screen"
 	}
@@ -576,7 +607,7 @@ func (m CreationModel) renderCreateBase() string {
 // renderStateNameInput renders the state name input
 func (m CreationModel) renderStateNameInput() string {
 	var content strings.Builder
-	
+
 	content.WriteString(m.styles.title.Render("ADD AGENT STATE"))
 	content.WriteString("\n\n")
 	content.WriteString("Enter a state name for your character:\n\n")
@@ -588,17 +619,17 @@ func (m CreationModel) renderStateNameInput() string {
 	content.WriteString("  • error    - Agent handling errors\n")
 	content.WriteString("  • success  - Agent celebrating success\n\n")
 	content.WriteString("Or enter a custom state name.\n\n")
-	
+
 	// Show text input
 	content.WriteString(m.textInput.View())
 	content.WriteString("\n\n")
-	
+
 	// Show error if any
 	if m.err != nil {
 		content.WriteString(m.styles.errorMsg.Render(fmt.Sprintf("✗ %s", m.err.Error())))
 		content.WriteString("\n")
 	}
-	
+
 	// Show existing states
 	if len(m.session.States) > 0 {
 		content.WriteString("\nExisting states:\n")
@@ -606,35 +637,35 @@ func (m CreationModel) renderStateNameInput() string {
 			content.WriteString(fmt.Sprintf("  • %s (%d frames)\n", state.Name, len(state.Frames)))
 		}
 	}
-	
+
 	content.WriteString("\n")
 	content.WriteString(m.styles.helpText.Render("Enter: confirm | Esc: cancel"))
-	
+
 	return content.String()
 }
 
 // renderStateFrameInput renders the state frame input
 func (m CreationModel) renderStateFrameInput() string {
 	var content strings.Builder
-	
+
 	content.WriteString(m.styles.title.Render(fmt.Sprintf("CREATE STATE: %s", m.currentStateName)))
 	content.WriteString("\n\n")
-	content.WriteString(m.styles.helpText.Render(fmt.Sprintf("Frame %d/%d | Line %d/%d", 
+	content.WriteString(m.styles.helpText.Render(fmt.Sprintf("Frame %d/%d | Line %d/%d",
 		m.currentFrame+1, m.stateFrameCount, m.currentFrameLine+1, m.session.Height)))
 	content.WriteString("\n\n")
 	content.WriteString(patterns.GetPatternHelp())
 	content.WriteString("\n\n")
-	
+
 	// Show text input
 	content.WriteString(m.textInput.View())
 	content.WriteString("\n\n")
-	
+
 	// Show error if any
 	if m.err != nil {
 		content.WriteString(m.styles.errorMsg.Render(fmt.Sprintf("✗ %s", m.err.Error())))
 		content.WriteString("\n")
 	}
-	
+
 	// Show current frame progress
 	content.WriteString(fmt.Sprintf("\nCurrent frame (%d/%d):\n", m.currentFrame+1, m.stateFrameCount))
 	compiler := infrastructure.NewPatternCompiler()
@@ -644,14 +675,48 @@ func (m CreationModel) renderStateFrameInput() string {
 			content.WriteString(fmt.Sprintf("  %d: %s\n", i+1, compiled))
 		}
 	}
-	
+
 	// Show completed frames
 	if len(m.stateFrames) > 0 {
 		content.WriteString(fmt.Sprintf("\nCompleted frames: %d/%d\n", len(m.stateFrames), m.stateFrameCount))
 	}
-	
+
 	content.WriteString("\n")
 	content.WriteString(m.styles.helpText.Render("Enter: confirm line | Ctrl+D: delete last | Esc: cancel"))
+
+	return content.String()
+}
+
+// renderStatePreview renders the final preview of completed state
+func (m CreationModel) renderStatePreview() string {
+	var content strings.Builder
+	
+	content.WriteString(m.styles.title.Render(fmt.Sprintf("PREVIEW: %s", m.currentStateName)))
+	content.WriteString("\n\n")
+	content.WriteString(m.styles.helpText.Render("Review your animated state"))
+	content.WriteString("\n\n")
+	
+	// Get the last state (the one we just created)
+	if len(m.session.States) > 0 {
+		state := m.session.States[len(m.session.States)-1]
+		
+		content.WriteString(fmt.Sprintf("State: %s (%s)\n", state.Name, state.StateType))
+		content.WriteString(fmt.Sprintf("Frames: %d\n", len(state.Frames)))
+		content.WriteString(fmt.Sprintf("Animation: %d FPS, %d loops\n\n", state.AnimationFPS, state.AnimationLoops))
+		
+		content.WriteString("All frames:\n\n")
+		compiler := infrastructure.NewPatternCompiler()
+		for i, frame := range state.Frames {
+			content.WriteString(fmt.Sprintf("Frame %d:\n", i+1))
+			for _, line := range frame.Lines {
+				compiled := compiler.Compile(line)
+				content.WriteString("  " + compiled + "\n")
+			}
+			content.WriteString("\n")
+		}
+	}
+	
+	content.WriteString(m.styles.helpText.Render("Enter: confirm and save | Esc: discard and cancel"))
 	
 	return content.String()
 }
@@ -707,7 +772,7 @@ func (m CreationModel) renderRightPane(width int) string {
 				preview.WriteString("  " + compiled + "\n")
 			}
 		}
-		
+
 		// Show existing states
 		if len(m.session.States) > 0 {
 			preview.WriteString("\nExisting States:\n")
@@ -721,12 +786,12 @@ func (m CreationModel) renderRightPane(width int) string {
 				}
 			}
 		}
-		
+
 	case ScreenStateFrameInput:
 		// Show current frame being built
 		preview.WriteString(fmt.Sprintf("Building '%s' state:\n", m.currentStateName))
 		preview.WriteString(fmt.Sprintf("Frame %d/%d\n\n", m.currentFrame+1, m.stateFrameCount))
-		
+
 		for i := 0; i < m.session.Height; i++ {
 			if i < m.currentFrameLine && m.frameLines[i] != "" {
 				compiled := compiler.Compile(m.frameLines[i])
@@ -744,7 +809,7 @@ func (m CreationModel) renderRightPane(width int) string {
 				preview.WriteString("  " + strings.Repeat("_", m.session.Width) + "\n")
 			}
 		}
-		
+
 		// Show completed frames preview
 		if len(m.stateFrames) > 0 {
 			preview.WriteString(fmt.Sprintf("\n\nCompleted frames: %d\n", len(m.stateFrames)))
@@ -755,6 +820,26 @@ func (m CreationModel) renderRightPane(width int) string {
 					preview.WriteString("  " + compiled + "\n")
 				}
 			}
+		}
+
+	case ScreenStatePreview:
+		// Show animated preview of the completed state
+		if len(m.session.States) > 0 {
+			state := m.session.States[len(m.session.States)-1]
+			preview.WriteString(fmt.Sprintf("Animating '%s' state:\n\n", state.Name))
+			
+			// Show all frames in sequence (simulated animation)
+			for i, frame := range state.Frames {
+				preview.WriteString(fmt.Sprintf("→ Frame %d/%d\n", i+1, len(state.Frames)))
+				for _, line := range frame.Lines {
+					compiled := compiler.Compile(line)
+					preview.WriteString("  " + compiled + "\n")
+				}
+				preview.WriteString("\n")
+			}
+			
+			preview.WriteString("\n✓ This is how your state will animate!\n")
+			preview.WriteString("  (Frames will cycle at 5 FPS)")
 		}
 		
 	case ScreenExport:
