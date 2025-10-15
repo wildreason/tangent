@@ -1,8 +1,8 @@
-# Tangent Alpha.4 - API Usage Guide
+# Tangent API Reference
 
 ## Overview
 
-Tangent Alpha.4 provides a **simple, state-based API** for using agent characters in your CLI applications. Characters are created using the interactive TUI builder and compiled into the library for instant API access.
+Tangent provides a **simple, state-based API** for using agent characters in your CLI applications. Characters are created using the interactive TUI builder and compiled into the library for instant API access.
 
 ## Quick Start
 
@@ -300,22 +300,22 @@ func main() {
 
 ## API Design Principles
 
-### ✓ Simplicity First
+### Simplicity First
 - **One function to load**: `LibraryAgent(name)`
 - **Three core methods**: `Plan()`, `Think()`, `Execute()`
 - **Zero configuration**: Characters work out of the box
 
-### ✓ Type Safety
+### Type Safety
 - Compile-time errors for missing agents
 - All agents guaranteed to have required states
 - Clear error messages for debugging
 
-### ✓ Consistent Interface
+### Consistent Interface
 - All agents implement the same `AgentCharacter` interface
 - Predictable method signatures
 - Standard `io.Writer` for flexible output
 
-### ✓ Discoverability
+### Discoverability
 - `ListLibrary()` shows what's available
 - `ListStates()` shows what each agent can do
 - Clear method names match agent behaviors
@@ -323,10 +323,10 @@ func main() {
 ## Character Requirements
 
 All registered agents **must have**:
-- ✓ Base character (idle state)
-- ✓ Plan state (3+ frames)
-- ✓ Think state (3+ frames)
-- ✓ Execute state (3+ frames)
+- Base character (idle state)
+- Plan state (3+ frames)
+- Think state (3+ frames)
+- Execute state (3+ frames)
 
 This guarantees API consumers can always use the core methods.
 
@@ -344,23 +344,6 @@ This guarantees API consumers can always use the core methods.
 
 # 4. Run your application
 go run your-app.go
-```
-
-## Workflow Summary
-
-```
-Designer's Workflow:
-1. tangent create              → Interactive TUI builder
-2. Create base + 3 states      → plan, think, execute
-3. Export for contribution     → name.json + name-README.md
-4. tangent admin register      → Compiles into library
-5. make build                  → Binary ready
-
-Developer's Workflow:
-1. Import package              → import "github.com/wildreason/tangent/pkg/characters"
-2. List agents                 → characters.ListLibrary()
-3. Load agent                  → characters.LibraryAgent("name")
-4. Use states                  → agent.Plan(), agent.Think(), agent.Execute()
 ```
 
 ## Migration from Alpha.3
@@ -408,11 +391,11 @@ err := agent.Wait(os.Stdout)
 
 ## Support
 
-- **Documentation**: `/Users/btsznh/wild/characters/README.md`
-- **Examples**: `/Users/btsznh/wild/characters/examples/`
+- **Documentation**: `docs/`
+- **Examples**: `examples/`
 - **Repository**: https://github.com/wildreason/tangent
 
 ---
 
-**Tangent v0.1.0-alpha.4** - Terminal Agent Designer
+**Tangent** - Terminal Agent Designer
 
