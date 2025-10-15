@@ -1,0 +1,92 @@
+{
+  "name": "testchar",
+  "personality": "friendly",
+  "width": 7,
+  "height": 3,
+  "base_frame": {
+    "name": "base",
+    "lines": [
+      "___F___",
+      "__FFF__",
+      "___F___"
+    ]
+  },
+  "states": [
+    {
+      "name": "plan",
+      "description": "Agent plan state",
+      "state_type": "standard",
+      "frames": [
+        {
+          "name": "plan_frame_1",
+          "lines": [
+            "___F___",
+            "__FFF__",
+            "___F___"
+          ]
+        },
+        {
+          "name": "plan_frame_2",
+          "lines": [
+            "__F_F__",
+            "_F___F_",
+            "__F_F__"
+          ]
+        }
+      ],
+      "animation_fps": 5,
+      "animation_loops": 1
+    },
+    {
+      "name": "think",
+      "description": "Agent think state",
+      "state_type": "standard",
+      "frames": [
+        {
+          "name": "think_frame_1",
+          "lines": [
+            "___F___",
+            "__FFF__",
+            "___F___"
+          ]
+        }
+      ],
+      "animation_fps": 5,
+      "animation_loops": 1
+    },
+    {
+      "name": "execute",
+      "description": "Agent execute state",
+      "state_type": "standard",
+      "frames": [
+        {
+          "name": "execute_frame_1",
+          "lines": [
+            "___F___",
+            "__FFF__",
+            "___F___"
+          ]
+        },
+        {
+          "name": "execute_frame_2",
+          "lines": [
+            "___F___",
+            "__FFF__",
+            "___F___"
+          ]
+        },
+        {
+          "name": "execute_frame_3",
+          "lines": [
+            "___F___",
+            "__FFF__",
+            "___F___"
+          ]
+        }
+      ],
+      "animation_fps": 5,
+      "animation_loops": 1
+    }
+  ],
+  "frames": []
+}
