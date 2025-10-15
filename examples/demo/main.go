@@ -7,7 +7,6 @@ import (
 	"github.com/wildreason/tangent/pkg/characters"
 	"github.com/wildreason/tangent/pkg/characters/domain"
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
-	"github.com/wildreason/tangent/pkg/characters/service"
 )
 
 func main() {
@@ -55,12 +54,7 @@ func main() {
 	fmt.Println()
 
 	// Create service with infrastructure
-	tempDir := "/tmp/tangent-demo"
-	os.MkdirAll(tempDir, 0755)
-	repo := infrastructure.NewFileCharacterRepository(tempDir)
-	compiler := infrastructure.NewPatternCompiler()
-	animationEngine := infrastructure.NewAnimationEngine()
-	service := service.NewCharacterService(repo, compiler, animationEngine)
+	service := characters.NewCharacterService()
 
 	// Create character using domain specification
 	spec := domain.NewCharacterSpec("demo-robot", 9, 4).

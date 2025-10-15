@@ -578,8 +578,9 @@ func animateCharacter(session *Session) {
 	fmt.Printf("◢ Animating '%s' with %d frames at 5 FPS for 3 cycles\n", session.Name, len(session.Frames))
 	fmt.Println("◢ Press Ctrl+C to stop\n")
 
-	// Animate using characters package
-	if err := characters.Animate(os.Stdout, character, 5, 3); err != nil {
+	// Animate using AgentCharacter
+	agent := characters.NewAgentCharacter(character)
+	if err := agent.AnimateState(os.Stdout, "plan", 5, 3); err != nil {
 		handleError("Animation failed", err)
 		return
 	}
@@ -689,7 +690,8 @@ func saveToFile(session *Session) {
 	fmt.Println("◢ Usage:")
 	fmt.Printf("   import \"%s\"\n", pkgName)
 	fmt.Printf("   char, _ := %s.%s()\n", pkgName, capitalize(session.Name))
-	fmt.Println("   characters.Animate(os.Stdout, char, 5, 3)")
+	fmt.Println("   agent := characters.NewAgentCharacter(char)")
+	fmt.Println("   agent.AnimateState(os.Stdout, \"plan\", 5, 3)")
 	fmt.Println()
 }
 
@@ -832,20 +834,20 @@ func isValidGoIdentifier(name string) bool {
 	if name == "" {
 		return false
 	}
-	
+
 	// First character must be letter or underscore
 	first := rune(name[0])
 	if !unicode.IsLetter(first) && first != '_' {
 		return false
 	}
-	
+
 	// All other characters must be letter, digit, or underscore
 	for _, r := range name[1:] {
 		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != '_' {
 			return false
 		}
 	}
-	
+
 	return true
 }
 
@@ -1964,9 +1966,9 @@ func previewStateAnimation(session *Session) {
 		})
 	}
 
-	// Animate using service layer
-	engine := infrastructure.NewAnimationEngine()
-	if err := engine.Animate(tempChar, state.AnimationFPS, 2); err != nil {
+	// Animate using AgentCharacter
+	agent := characters.NewAgentCharacter(tempChar)
+	if err := agent.AnimateState(os.Stdout, state.Name, state.AnimationFPS, 2); err != nil {
 		handleError("Animation failed", err)
 		return
 	}
