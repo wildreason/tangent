@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -1153,9 +1155,121 @@ func (m CreationModel) renderStatusBar() string {
 
 // exportCharacter exports the character to JSON and README files
 func (m *CreationModel) exportCharacter() error {
-	// Use the existing exportForContribution function from main.go
-	exportForContribution(m.session)
+	// Generate JSON content
+	jsonData := struct {
+		Name      string `json:"name"`
+		Width     int    `json:"width"`
+		Height    int    `json:"height"`
+		BaseFrame struct {
+			Name  string   `json:"name"`
+			Lines []string `json:"lines"`
+		} `json:"base_frame"`
+		States []struct {
+			Name   string `json:"name"`
+			Frames []struct {
+				Lines []string `json:"lines"`
+			} `json:"frames"`
+		} `json:"states"`
+	}{
+		Name:   m.session.Name,
+		Width:  m.session.Width,
+		Height: m.session.Height,
+	}
+	
+	// Add base frame
+	jsonData.BaseFrame.Name = m.session.BaseFrame.Name
+	jsonData.BaseFrame.Lines = m.session.BaseFrame.Lines
+	
+	// Add states
+	for _, state := range m.session.States {
+		stateData := struct {
+			Name   string `json:"name"`
+			Frames []struct {
+				Lines []string `json:"lines"`
+			} `json:"frames"`
+		}{
+			Name: state.Name,
+		}
+		
+		for _, frame := range state.Frames {
+			frameData := struct {
+				Lines []string `json:"lines"`
+			}{
+				Lines: frame.Lines,
+			}
+			stateData.Frames = append(stateData.Frames, frameData)
+		}
+		
+		jsonData.States = append(jsonData.States, stateData)
+	}
+	
+	// Marshal to JSON
+	jsonBytes, err := json.MarshalIndent(jsonData, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal JSON: %w", err)
+	}
+	
+	// Write JSON file
+	jsonFilename := m.session.Name + ".json"
+	if err := os.WriteFile(jsonFilename, jsonBytes, 0644); err != nil {
+		return fmt.Errorf("failed to write JSON file: %w", err)
+	}
+	
+	// Generate README
+	readme := m.generateReadme()
+	readmeFilename := m.session.Name + "-README.md"
+	if err := os.WriteFile(readmeFilename, []byte(readme), 0644); err != nil {
+		return fmt.Errorf("failed to write README file: %w", err)
+	}
+	
 	return nil
+}
+
+// generateReadme generates the contribution README content
+func (m *CreationModel) generateReadme() string {
+	var sb strings.Builder
+	
+	sb.WriteString(fmt.Sprintf("# %s Character\n\n", m.session.Name))
+	sb.WriteString("## Character Information\n\n")
+	sb.WriteString(fmt.Sprintf("- **Name:** %s\n", m.session.Name))
+	sb.WriteString(fmt.Sprintf("- **Dimensions:** %dx%d\n", m.session.Width, m.session.Height))
+	sb.WriteString(fmt.Sprintf("- **States:** %d\n\n", len(m.session.States)))
+	
+	sb.WriteString("## States\n\n")
+	for _, state := range m.session.States {
+		sb.WriteString(fmt.Sprintf("- **%s** (%s): %d frames\n", state.Name, state.StateType, len(state.Frames)))
+	}
+	sb.WriteString("\n")
+	
+	sb.WriteString("## Preview\n\n")
+	sb.WriteString("```\n")
+	if len(m.session.BaseFrame.Lines) > 0 {
+		compiler := infrastructure.NewPatternCompiler()
+		for _, line := range m.session.BaseFrame.Lines {
+			sb.WriteString(compiler.Compile(line) + "\n")
+		}
+	}
+	sb.WriteString("```\n\n")
+	
+	sb.WriteString("## Usage\n\n")
+	sb.WriteString("```go\n")
+	sb.WriteString(fmt.Sprintf("agent, _ := characters.LibraryAgent(\"%s\")\n", m.session.Name))
+	sb.WriteString("agent.Plan(os.Stdout)   // Show plan state\n")
+	sb.WriteString("agent.Think(os.Stdout)  // Show think state\n")
+	sb.WriteString("agent.Execute(os.Stdout) // Show execute state\n")
+	sb.WriteString("```\n\n")
+	
+	sb.WriteString("## Contribution\n\n")
+	sb.WriteString("This character was created using Tangent character builder.\n\n")
+	sb.WriteString("### Next Steps\n\n")
+	sb.WriteString("1. Review the exported JSON file\n")
+	sb.WriteString("2. Read the contribution README\n")
+	sb.WriteString("3. Fork the Tangent repository on GitHub\n")
+	sb.WriteString("4. Create a new branch for your character\n")
+	sb.WriteString("5. Add your JSON file to characters/ directory\n")
+	sb.WriteString("6. Submit a Pull Request\n")
+	
+	return sb.String()
 }
 
 // StartCreationTUI starts the Bubbletea TUI for character creation
