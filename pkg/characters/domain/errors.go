@@ -76,7 +76,7 @@ var (
 
 	ErrCharacterNameInvalid = &ValidationError{
 		Field:   "name",
-		Message: "character name contains invalid characters (only letters, numbers, hyphens, and underscores allowed)",
+		Message: "character name must be a valid Go identifier (letters, numbers, underscore only, no hyphens or special characters)",
 	}
 
 	ErrInvalidDimensions = &ValidationError{
@@ -171,7 +171,7 @@ func GetErrorSuggestion(err error) string {
 func getValidationSuggestion(err *ValidationError) string {
 	switch err.Field {
 	case "name":
-		return "Use a descriptive name with letters, numbers, hyphens, or underscores (e.g., 'my-character', 'robot_v2')"
+		return "Use a descriptive name with letters, numbers, or underscores only (e.g., 'myCharacter', 'robot_v2', 'agent1')"
 	case "dimensions":
 		return "Ensure width and height are positive integers (e.g., width: 8, height: 4)"
 	case "pattern":
