@@ -13,8 +13,8 @@ internal_docs/
 # Binaries
 /cmd/tangent/tangent
 /tools/builder/builder
-tangent
-builder
+/tangent
+/builder
 
 # OS files
 .DS_Store
