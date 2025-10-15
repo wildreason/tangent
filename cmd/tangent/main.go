@@ -887,8 +887,6 @@ func handleCLI() {
 		} else {
 			handleList()
 		}
-	case "demo":
-		handleDemo()
 	case "view":
 		handleView(os.Args[2:])
 	case "admin":
@@ -899,7 +897,7 @@ func handleCLI() {
 		printUsage()
 	default:
 		fmt.Fprintf(os.Stderr, "Error: unknown command '%s'\n\n", command)
-		printUsage()
+		fmt.Fprintln(os.Stderr, "Try 'tangent help' for usage information")
 		os.Exit(1)
 	}
 }
@@ -908,57 +906,22 @@ func printUsage() {
 	fmt.Println("Tangent - Terminal Agent Designer")
 	fmt.Println()
 	fmt.Println("USAGE:")
-	fmt.Println("  tangent create                    Start interactive character builder")
-	fmt.Println("  tangent browse [name] [options]   List agents or view specific agent")
-	fmt.Println("  tangent demo <name> [options]     Animate character for testing")
-	fmt.Println("  tangent view [--session|--json]   View WIP character without register")
-	fmt.Println("  tangent admin <command>           Admin commands")
-	fmt.Println("  tangent version                   Show version information")
-	fmt.Println("  tangent help                      Show this help message")
-	fmt.Println()
-	fmt.Println("BROWSE OPTIONS:")
-	fmt.Println("  --state <name>                    Animate specific state (plan|think|execute)")
-	fmt.Println("  --fps <N>                         Override animation FPS")
-	fmt.Println("  --loops <N>                       Override animation loops")
-	fmt.Println()
-	fmt.Println("DEMO OPTIONS:")
-	fmt.Println("  --state <name>                    Animate specific state (plan|think|execute)")
-	fmt.Println("  --fps <N>                         Override animation FPS")
-	fmt.Println("  --loops <N>                       Override animation loops")
-	fmt.Println()
-	fmt.Println("VIEW OPTIONS:")
-	fmt.Println("  --session <name>                  Load saved session and preview it")
-	fmt.Println("  --json <file>                     Load a contribution JSON and preview it")
-	fmt.Println("  --state <name>                    Animate specific state (plan|think|execute)")
-	fmt.Println("  --fps <N>                         Override animation FPS")
-	fmt.Println("  --loops <N>                       Override animation loops")
-	fmt.Println()
-	fmt.Println("ADMIN COMMANDS:")
-	fmt.Println("  tangent admin register <json>     Register character to library")
-	fmt.Println("  tangent admin validate <json>     Validate character JSON")
+	fmt.Println("  tangent create      Start interactive character builder")
+	fmt.Println("  tangent browse      List all agents")
+	fmt.Println("  tangent browse <name> [--state plan|think|execute] [--fps N] [--loops N]")
+	fmt.Println("                      View and animate specific agent")
+	fmt.Println("  tangent view        View work-in-progress character")
+	fmt.Println("  tangent view --session <name> [--state STATE] [--fps N] [--loops N]")
+	fmt.Println("                      Preview saved session")
+	fmt.Println("  tangent view --json <file> [--state STATE] [--fps N] [--loops N]")
+	fmt.Println("                      Preview contribution JSON")
+	fmt.Println("  tangent version     Show version information")
+	fmt.Println("  tangent help        Show this help message")
 	fmt.Println()
 	fmt.Println("EXAMPLES:")
-	fmt.Println("  # Create character (interactive)")
-	fmt.Println("  tangent create")
-	fmt.Println()
-	fmt.Println("  # List all agents")
-	fmt.Println("  tangent browse")
-	fmt.Println()
-	fmt.Println("  # View specific agent")
-	fmt.Println("  tangent browse alex")
-	fmt.Println("  tangent browse alex --state plan")
-	fmt.Println("  tangent browse alex --fps 10 --loops 2")
-	fmt.Println()
-	fmt.Println("  # Test character animations (alternative)")
-	fmt.Println("  tangent demo alex")
-	fmt.Println("  tangent demo alex --state plan")
-	fmt.Println()
-	fmt.Println("  # View WIP character (no admin)")
-	fmt.Println("  tangent view --session mercury --state plan --fps 8 --loops 2")
-	fmt.Println("  tangent view --json mercury.json --state think --fps 6 --loops 3")
-	fmt.Println()
-	fmt.Println("  # Admin: Register character")
-	fmt.Println("  tangent admin register alex.json")
+	fmt.Println("  tangent create              # Start creating a character")
+	fmt.Println("  tangent browse              # List all available agents")
+	fmt.Println("  tangent browse mercury      # View mercury agent")
 	fmt.Println()
 	fmt.Println("For full documentation: https://github.com/wildreason/tangent")
 }
@@ -1242,124 +1205,6 @@ func generateLibraryCode(name, personality string, width, height int, patterns [
 	sb.WriteString("}\n")
 
 	return sb.String()
-}
-
-func handleDemo() {
-	if len(os.Args) < 3 {
-		fmt.Println("Error: missing character name")
-		fmt.Println("Usage: tangent demo <name> [--state plan|think|execute] [--fps N] [--loops N]")
-		os.Exit(1)
-	}
-
-	characterName := os.Args[2]
-
-	// Parse optional flags
-	var targetState string
-	var overrideFPS int
-	var overrideLoops int
-
-	for i := 3; i < len(os.Args); i++ {
-		switch os.Args[i] {
-		case "--state":
-			if i+1 < len(os.Args) {
-				targetState = os.Args[i+1]
-				i++
-			}
-		case "--fps":
-			if i+1 < len(os.Args) {
-				if fps, err := strconv.Atoi(os.Args[i+1]); err == nil {
-					overrideFPS = fps
-				}
-				i++
-			}
-		case "--loops":
-			if i+1 < len(os.Args) {
-				if loops, err := strconv.Atoi(os.Args[i+1]); err == nil {
-					overrideLoops = loops
-				}
-				i++
-			}
-		}
-	}
-
-	// Load character
-	agent, err := characters.LibraryAgent(characterName)
-	if err != nil {
-		fmt.Printf("Error: character '%s' not found\n", characterName)
-		fmt.Println("Available characters:")
-		names := characters.ListLibrary()
-		for _, name := range names {
-			fmt.Printf("  %s\n", name)
-		}
-		os.Exit(1)
-	}
-
-	char := agent.GetCharacter()
-	fmt.Printf("Demo: %s (%dx%d)\n\n", char.Name, char.Width, char.Height)
-
-	if targetState != "" {
-		// Animate specific state
-		state, exists := char.States[targetState]
-		if !exists {
-			fmt.Printf("Error: state '%s' not found\n", targetState)
-			fmt.Println("Available states:")
-			for name := range char.States {
-				fmt.Printf("  %s\n", name)
-			}
-			os.Exit(1)
-		}
-
-		fps := state.AnimationFPS
-		loops := state.AnimationLoops
-		if overrideFPS > 0 {
-			fps = overrideFPS
-		}
-		if overrideLoops > 0 {
-			loops = overrideLoops
-		}
-
-		fmt.Printf("🔹 Animating '%s' (%d frames) at %d FPS for %d loops\n", targetState, len(state.Frames), fps, loops)
-		agent.AnimateState(os.Stdout, targetState, fps, loops)
-		fmt.Println()
-	} else {
-		// Show base character first
-		fmt.Println("🔹 Base Character:")
-		agent.ShowBase(os.Stdout)
-		fmt.Println()
-
-		// Animate all states in stable order
-		stateNames := make([]string, 0, len(char.States))
-		for name := range char.States {
-			stateNames = append(stateNames, name)
-		}
-
-		// Sort for consistent order
-		for i := 0; i < len(stateNames); i++ {
-			for j := i + 1; j < len(stateNames); j++ {
-				if stateNames[i] > stateNames[j] {
-					stateNames[i], stateNames[j] = stateNames[j], stateNames[i]
-				}
-			}
-		}
-
-		for _, stateName := range stateNames {
-			state := char.States[stateName]
-			fps := state.AnimationFPS
-			loops := state.AnimationLoops
-			if overrideFPS > 0 {
-				fps = overrideFPS
-			}
-			if overrideLoops > 0 {
-				loops = overrideLoops
-			}
-
-			fmt.Printf("🔹 Animating '%s' (%d frames) at %d FPS for %d loops\n", stateName, len(state.Frames), fps, loops)
-			agent.AnimateState(os.Stdout, stateName, fps, loops)
-			fmt.Println()
-		}
-	}
-
-	fmt.Println("✅ Demo complete!")
 }
 
 func pluralize(count int) string {
