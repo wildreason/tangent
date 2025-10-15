@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.0-alpha.4] - 2025-10-15
+
+Alpha.4 focuses on a simpler, production-ready workflow for both creators and developers.
+
+### Highlights
+- New Bubbletea TUI with split-pane live preview and auto-animate
+- Simplified CLI: `create`, `browse`, `view` (admin kept, hidden; demo removed)
+- State engine: minimum 3 frames per state; CLI overrides for `--fps` and `--loops`
+- Centralized pattern codes; improved pattern compiler
+- Library workflow: `tangent admin register` preserves frames per state
+- API ready: `LibraryAgent()` with `Plan`, `Think`, `Execute` required
+- Documentation reorg to `docs/` (API, STATES, PATTERNS, CLI, CONTRIBUTING_CHARACTERS)
+- Release guard: release requires CHANGELOG update
+
+### Breaking/Notable Changes
+- Removed `tangent demo`; help simplified
+- Admin commands retained but removed from help output
+
+### Migration Notes
+- Use `tangent browse` and `tangent view` instead of `tangent demo`
+- Characters must include `plan`, `think`, `execute` with ≥3 frames each
+
 ## [0.1.0-alpha.3] - 2025-10-14
 
 **API Contract Unification & Planet Series MVP**
