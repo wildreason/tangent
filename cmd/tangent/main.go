@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/wildreason/tangent/pkg/characters"
 	"github.com/wildreason/tangent/pkg/characters/domain"
@@ -61,6 +62,12 @@ func createCharacter() {
 
 	if name == "" {
 		handleError("Character creation failed", domain.NewValidationError("name", name, "character name cannot be empty"))
+		return
+	}
+
+	// Validate character name for Go identifier compatibility
+	if !isValidGoIdentifier(name) {
+		handleError("Character creation failed", domain.ErrCharacterNameInvalid)
 		return
 	}
 
@@ -820,6 +827,28 @@ func convertFramesToDomain(frames []Frame) []domain.Frame {
 	return domainFrames
 }
 
+// isValidGoIdentifier checks if a string is a valid Go identifier
+func isValidGoIdentifier(name string) bool {
+	if name == "" {
+		return false
+	}
+	
+	// First character must be letter or underscore
+	first := rune(name[0])
+	if !unicode.IsLetter(first) && first != '_' {
+		return false
+	}
+	
+	// All other characters must be letter, digit, or underscore
+	for _, r := range name[1:] {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) && r != '_' {
+			return false
+		}
+	}
+	
+	return true
+}
+
 func sessionExists(name string) bool {
 	sessions, _ := ListSessions()
 	for _, s := range sessions {
@@ -989,6 +1018,10 @@ func adminRegister(jsonPath string) {
 	// Validate required fields
 	if charData.Name == "" {
 		fmt.Println("Error: missing 'name' field")
+		os.Exit(1)
+	}
+	if !isValidGoIdentifier(charData.Name) {
+		fmt.Printf("Error: %s\n", domain.ErrCharacterNameInvalid.Error())
 		os.Exit(1)
 	}
 	if charData.Width == 0 || charData.Height == 0 {
