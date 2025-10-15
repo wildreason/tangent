@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/wildreason/tangent/pkg/characters/domain"
+	"github.com/wildreason/tangent/pkg/characters/infrastructure"
 )
 
 // AgentCharacter wraps a Character with state-based API methods for AI agents
@@ -203,11 +204,15 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 	fmt.Fprint(writer, "\x1b[?25l")
 	defer fmt.Fprint(writer, "\x1b[?25h")
 
+	// Create pattern compiler for frame compilation
+	compiler := infrastructure.NewPatternCompiler()
+
 	for loop := 0; loop < stateLoops; loop++ {
 		for _, frame := range state.Frames {
-			// Clear and print each line
+			// Clear and print each line (compile pattern codes)
 			for _, line := range frame.Lines {
-				fmt.Fprintf(writer, "\r\x1b[2K%s\n", line)
+				compiledLine := compiler.Compile(line)
+				fmt.Fprintf(writer, "\r\x1b[2K%s\n", compiledLine)
 			}
 
 			// Move cursor back up
@@ -217,10 +222,11 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 		}
 	}
 
-	// Print final frame cleanly
+	// Print final frame cleanly (compile pattern codes)
 	finalFrame := state.Frames[len(state.Frames)-1]
 	for _, line := range finalFrame.Lines {
-		fmt.Fprintln(writer, line)
+		compiledLine := compiler.Compile(line)
+		fmt.Fprintln(writer, compiledLine)
 	}
 
 	return nil
