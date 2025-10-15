@@ -24,36 +24,36 @@ func NewPatternCompiler() domain.PatternCompiler {
 	return &SimplePatternCompiler{
 		patterns: map[rune]rune{
 			// Basic blocks
-			'F': codes.FullBlock,    // Full Block
-			'T': codes.TopHalf,      // Top Half Block
-			'B': codes.BottomHalf,   // Bottom Half Block
-			'L': codes.LeftHalf,     // Left Half Block
-			'R': codes.RightHalf,    // Right Half Block
+			'F': codes.FullBlock,  // Full Block
+			'T': codes.TopHalf,    // Top Half Block
+			'B': codes.BottomHalf, // Bottom Half Block
+			'L': codes.LeftHalf,   // Left Half Block
+			'R': codes.RightHalf,  // Right Half Block
 
 			// Shading blocks
-			'.': codes.LightShade,   // Light Shade
-			':': codes.MediumShade,  // Medium Shade
-			'#': codes.DarkShade,    // Dark Shade
+			'.': codes.LightShade,  // Light Shade
+			':': codes.MediumShade, // Medium Shade
+			'#': codes.DarkShade,   // Dark Shade
 
 			// Single quadrants (1-4)
-			'1': codes.Quad1,        // Quadrant Upper Left
-			'2': codes.Quad2,        // Quadrant Upper Right
-			'3': codes.Quad3,        // Quadrant Lower Left
-			'4': codes.Quad4,        // Quadrant Lower Right
+			'1': codes.Quad1, // Quadrant Upper Left
+			'2': codes.Quad2, // Quadrant Upper Right
+			'3': codes.Quad3, // Quadrant Lower Left
+			'4': codes.Quad4, // Quadrant Lower Right
 
 			// Three-quadrant composites (5-8, reverse of 1-4)
-			'5': codes.Quad5,        // Three Quadrants: UL+UR+LL
-			'6': codes.Quad6,        // Three Quadrants: UL+UR+LR
-			'7': codes.Quad7,        // Three Quadrants: UL+LL+LR
-			'8': codes.Quad8,        // Three Quadrants: UR+LL+LR
+			'5': codes.Quad5, // Three Quadrants: UL+UR+LL
+			'6': codes.Quad6, // Three Quadrants: UL+UR+LR
+			'7': codes.Quad7, // Three Quadrants: UL+LL+LR
+			'8': codes.Quad8, // Three Quadrants: UR+LL+LR
 
 			// Diagonals
 			'\\': codes.DiagonalBackward, // Diagonal Backward
 			'/':  codes.DiagonalForward,  // Diagonal Forward
 
 			// Special
-			'_': codes.Space,        // Space
-			'X': codes.Mirror,       // Mirror
+			'_': codes.Space,  // Space
+			'X': codes.Mirror, // Mirror
 		},
 		validators: []PatternValidator{
 			&LengthValidator{},
