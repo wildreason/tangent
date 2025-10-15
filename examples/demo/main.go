@@ -6,7 +6,6 @@ import (
 
 	"github.com/wildreason/tangent/pkg/characters"
 	"github.com/wildreason/tangent/pkg/characters/domain"
-	"github.com/wildreason/tangent/pkg/characters/infrastructure"
 )
 
 func main() {
