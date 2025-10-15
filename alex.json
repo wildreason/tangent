@@ -1,0 +1,126 @@
+{
+  "name": "alex",
+  "personality": "analytical",
+  "width": 9,
+  "height": 4,
+  "base_frame": {
+    "name": "base",
+    "lines": [
+      "  ███  ",
+      " █████ ",
+      "███████",
+      "  ███  "
+    ]
+  },
+  "states": [
+    {
+      "name": "plan",
+      "description": "Alex planning state",
+      "state_type": "standard",
+      "frames": [
+        {
+          "name": "plan_frame_1",
+          "lines": [
+            "  ███  ",
+            " █████ ",
+            "███████",
+            "  ███  "
+          ]
+        },
+        {
+          "name": "plan_frame_2",
+          "lines": [
+            "  ███  ",
+            " █████ ",
+            "███████",
+            "  ███  "
+          ]
+        },
+        {
+          "name": "plan_frame_3",
+          "lines": [
+            "  ███  ",
+            " █████ ",
+            "███████",
+            "  ███  "
+          ]
+        }
+      ],
+      "animation_fps": 3,
+      "animation_loops": 2
+    },
+    {
+      "name": "think",
+      "description": "Alex thinking state",
+      "state_type": "standard",
+      "frames": [
+        {
+          "name": "think_frame_1",
+          "lines": [
+            "  ███  ",
+            " █████ ",
+            "███████",
+            "  ███  "
+          ]
+        },
+        {
+          "name": "think_frame_2",
+          "lines": [
+            "  ███  ",
+            " █████ ",
+            "███████",
+            "  ███  "
+          ]
+        }
+      ],
+      "animation_fps": 4,
+      "animation_loops": 1
+    },
+    {
+      "name": "execute",
+      "description": "Alex executing state",
+      "state_type": "standard",
+      "frames": [
+        {
+          "name": "execute_frame_1",
+          "lines": [
+            "  ███  ",
+            " █████ ",
+            "███████",
+            "  ███  "
+          ]
+        },
+        {
+          "name": "execute_frame_2",
+          "lines": [
+            "  ███  ",
+            " █████ ",
+            "███████",
+            "  ███  "
+          ]
+        },
+        {
+          "name": "execute_frame_3",
+          "lines": [
+            "  ███  ",
+            " █████ ",
+            "███████",
+            "  ███  "
+          ]
+        },
+        {
+          "name": "execute_frame_4",
+          "lines": [
+            "  ███  ",
+            " █████ ",
+            "███████",
+            "  ███  "
+          ]
+        }
+      ],
+      "animation_fps": 6,
+      "animation_loops": 3
+    }
+  ],
+  "frames": []
+}

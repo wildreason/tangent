@@ -7,36 +7,45 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 const sessionDir = ".tangent"
 
 // Frame represents a single animation frame.
 type Frame struct {
-	Name  string   `json:"name"`
-	Lines []string `json:"lines"`
+	Name      string   `json:"name"`
+	Lines     []string `json:"lines"`
+	StateType string   `json:"state_type,omitempty"` // For backward compatibility
+}
+
+// StateSession represents an agent state with animation frames
+type StateSession struct {
+	Name           string  `json:"name"`
+	Description    string  `json:"description"`
+	StateType      string  `json:"state_type"`
+	Frames         []Frame `json:"frames"`
+	AnimationFPS   int     `json:"animation_fps"`
+	AnimationLoops int     `json:"animation_loops"`
 }
 
 // Session represents a character project.
 type Session struct {
-	Name      string    `json:"name"`
-	Width     int       `json:"width"`
-	Height    int       `json:"height"`
-	Frames    []Frame   `json:"frames"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Name      string         `json:"name"`
+	Width     int            `json:"width"`
+	Height    int            `json:"height"`
+	BaseFrame Frame          `json:"base_frame"`
+	States    []StateSession `json:"states"`
+	Frames    []Frame        `json:"frames"` // Deprecated, keep for backward compatibility
 }
 
 // NewSession creates a new session.
 func NewSession(name string, width, height int) *Session {
 	return &Session{
-		Name:      name,
-		Width:     width,
-		Height:    height,
-		Frames:    []Frame{},
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Name:   name,
+		Width:  width,
+		Height: height,
+		States: []StateSession{},
+		Frames: []Frame{}, // Keep for backward compatibility
 	}
 }
 
@@ -53,7 +62,6 @@ func (s *Session) Save() error {
 	}
 
 	filePath := filepath.Join(dir, s.Name+".json")
-	s.UpdatedAt = time.Now()
 
 	data, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {

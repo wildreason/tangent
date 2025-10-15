@@ -45,25 +45,64 @@ git checkout -b feature/your-feature-name
 
 ## Development Guidelines
 
+### Architecture
+
+Tangent follows a layered architecture with clear separation of concerns:
+
+- **Domain Layer** (`pkg/characters/domain/`): Core business logic and entities
+- **Service Layer** (`pkg/characters/service/`): Application logic and orchestration
+- **Infrastructure Layer** (`pkg/characters/infrastructure/`): External concerns and implementations
+- **Package Interface** (`pkg/characters/`): Public API and backward compatibility
+
+See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed information.
+
 ### Code Style
 
 - Follow standard Go conventions (`gofmt`, `go vet`)
 - Write clear, descriptive commit messages
 - Add comments for complex logic
 - Keep functions focused and testable
+- Maintain backward compatibility when possible
 
 ### Testing
 
+Tangent uses a comprehensive testing strategy:
+
+#### Unit Tests
+- Each layer has unit tests in `*_test.go` files
+- Mock dependencies for isolated testing
+- Test both success and error cases
+
+#### Test Structure
+```
+pkg/characters/
+├── domain/
+│   └── *_test.go
+├── service/
+│   └── *_test.go
+└── infrastructure/
+    └── *_test.go
+```
+
+#### Running Tests
 ```bash
 # Run all tests
 go test ./...
 
 # Run specific package tests
-go test ./pkg/characters
+go test ./pkg/characters/infrastructure
+go test ./pkg/characters/service
+go test ./pkg/characters/domain
 
 # Test the CLI
 cd cmd/tangent && go run main.go session.go
 ```
+
+#### Test Guidelines
+- Write tests for new features
+- Maintain test coverage
+- Use table-driven tests for multiple scenarios
+- Mock external dependencies
 
 ### Examples
 
