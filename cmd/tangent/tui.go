@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -44,6 +45,10 @@ type CreationModel struct {
 	currentFrame     int
 	currentFrameLine int
 	frameLines       []string
+
+	// Animation state for preview
+	previewFrameIndex int
+	animating         bool
 
 	// UI dimensions
 	width  int
@@ -130,19 +135,40 @@ func NewStyles() Styles {
 	}
 }
 
+// tickMsg is sent on animation ticks
+type tickMsg struct{}
+
 // Init initializes the model
 func (m CreationModel) Init() tea.Cmd {
 	return textinput.Blink
 }
 
+// tick returns a command that sends a tickMsg after a delay
+func tick() tea.Cmd {
+	return tea.Tick(time.Second/5, func(time.Time) tea.Msg {
+		return tickMsg{}
+	})
+}
+
 // Update handles messages
 func (m CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-
+	
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		return m, nil
+		
+	case tickMsg:
+		// Handle animation frame updates
+		if m.animating && m.screen == ScreenStatePreview {
+			if len(m.session.States) > 0 {
+				state := m.session.States[len(m.session.States)-1]
+				m.previewFrameIndex = (m.previewFrameIndex + 1) % len(state.Frames)
+			}
+			return m, tick() // Continue animation
+		}
 		return m, nil
 
 	case tea.KeyMsg:
@@ -206,13 +232,14 @@ func (m CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.textInput, cmd = m.textInput.Update(msg)
 				return m, cmd
 			}
-			
+
 		case ScreenStatePreview:
 			switch msg.String() {
 			case "ctrl+c":
 				return m, tea.Quit
 			case "enter", "space":
 				// Save and go back to menu
+				m.animating = false
 				m.screen = ScreenMenu
 				m.statusMsg = fmt.Sprintf("✓ State '%s' saved!", m.currentStateName)
 				m.currentStateName = ""
@@ -220,6 +247,7 @@ func (m CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			case "esc":
 				// Discard and go back to menu
+				m.animating = false
 				// Remove the last state
 				if len(m.session.States) > 0 {
 					m.session.States = m.session.States[:len(m.session.States)-1]
@@ -428,21 +456,24 @@ func (m CreationModel) handleStateFrameLineSubmit() (tea.Model, tea.Cmd) {
 				AnimationLoops: 1,
 				Frames:         make([]Frame, 0, len(m.stateFrames)),
 			}
-			
+
 			for i, frameLines := range m.stateFrames {
 				newState.Frames = append(newState.Frames, Frame{
 					Name:  fmt.Sprintf("%s_frame_%d", m.currentStateName, i+1),
 					Lines: frameLines,
 				})
 			}
-			
+
 			m.session.States = append(m.session.States, newState)
 			m.session.Save()
-			
+
 			// Go to preview screen instead of menu
 			m.screen = ScreenStatePreview
 			m.statusMsg = fmt.Sprintf("Preview '%s' state - Press Enter to confirm, Esc to discard", m.currentStateName)
 			m.currentFrame = 0
+			m.previewFrameIndex = 0
+			m.animating = true
+			return m, tick() // Start animation
 		} else {
 			m.statusMsg = fmt.Sprintf("Frame %d/%d completed - Starting frame %d", m.currentFrame, m.stateFrameCount, m.currentFrame+1)
 		}
@@ -690,20 +721,20 @@ func (m CreationModel) renderStateFrameInput() string {
 // renderStatePreview renders the final preview of completed state
 func (m CreationModel) renderStatePreview() string {
 	var content strings.Builder
-	
+
 	content.WriteString(m.styles.title.Render(fmt.Sprintf("PREVIEW: %s", m.currentStateName)))
 	content.WriteString("\n\n")
 	content.WriteString(m.styles.helpText.Render("Review your animated state"))
 	content.WriteString("\n\n")
-	
+
 	// Get the last state (the one we just created)
 	if len(m.session.States) > 0 {
 		state := m.session.States[len(m.session.States)-1]
-		
+
 		content.WriteString(fmt.Sprintf("State: %s (%s)\n", state.Name, state.StateType))
 		content.WriteString(fmt.Sprintf("Frames: %d\n", len(state.Frames)))
 		content.WriteString(fmt.Sprintf("Animation: %d FPS, %d loops\n\n", state.AnimationFPS, state.AnimationLoops))
-		
+
 		content.WriteString("All frames:\n\n")
 		compiler := infrastructure.NewPatternCompiler()
 		for i, frame := range state.Frames {
@@ -715,9 +746,9 @@ func (m CreationModel) renderStatePreview() string {
 			content.WriteString("\n")
 		}
 	}
-	
+
 	content.WriteString(m.styles.helpText.Render("Enter: confirm and save | Esc: discard and cancel"))
-	
+
 	return content.String()
 }
 
@@ -826,22 +857,37 @@ func (m CreationModel) renderRightPane(width int) string {
 		// Show animated preview of the completed state
 		if len(m.session.States) > 0 {
 			state := m.session.States[len(m.session.States)-1]
-			preview.WriteString(fmt.Sprintf("Animating '%s' state:\n\n", state.Name))
+			preview.WriteString(fmt.Sprintf("◢ ANIMATING: %s\n\n", state.Name))
+			preview.WriteString(fmt.Sprintf("Frame %d/%d @ 5 FPS\n\n", m.previewFrameIndex+1, len(state.Frames)))
 			
-			// Show all frames in sequence (simulated animation)
-			for i, frame := range state.Frames {
-				preview.WriteString(fmt.Sprintf("→ Frame %d/%d\n", i+1, len(state.Frames)))
+			// Show only the current frame (animated)
+			if m.previewFrameIndex < len(state.Frames) {
+				frame := state.Frames[m.previewFrameIndex]
+				// Center the animation
+				preview.WriteString("\n")
 				for _, line := range frame.Lines {
 					compiled := compiler.Compile(line)
-					preview.WriteString("  " + compiled + "\n")
+					preview.WriteString("    " + compiled + "\n")
 				}
 				preview.WriteString("\n")
 			}
 			
-			preview.WriteString("\n✓ This is how your state will animate!\n")
-			preview.WriteString("  (Frames will cycle at 5 FPS)")
+			preview.WriteString("\n━━━━━━━━━━━━━━━━━━━━━━\n\n")
+			preview.WriteString("✓ Animation cycling!\n")
+			preview.WriteString(fmt.Sprintf("  %d frames @ 5 FPS\n", len(state.Frames)))
+			preview.WriteString("\n")
+			
+			// Show frame indicators
+			preview.WriteString("Frames: ")
+			for i := range state.Frames {
+				if i == m.previewFrameIndex {
+					preview.WriteString("● ")
+				} else {
+					preview.WriteString("○ ")
+				}
+			}
 		}
-		
+
 	case ScreenExport:
 		preview.WriteString("Export preview")
 	}
