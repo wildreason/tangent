@@ -110,7 +110,7 @@ release:
     
     ### Quick Start
     ```bash
-    ./tangent  # Start the interactive builder
+    tangent create  # Start creating a character
     ```
   footer: |
     ---
@@ -119,9 +119,9 @@ release:
     
     ## Documentation
     - [README](https://github.com/wildreason/tangent/blob/main/README.md)
-    - [Pattern Guide](https://github.com/wildreason/tangent/blob/main/docs/PATTERN_GUIDE.md)
-    - [Library Characters](https://github.com/wildreason/tangent/blob/main/docs/LIBRARY.md)
-    - [Contributing](https://github.com/wildreason/tangent/blob/main/CONTRIBUTING.md)
+    - [API Documentation](https://github.com/wildreason/tangent/blob/main/docs/API.md)
+    - [CLI Guide](https://github.com/wildreason/tangent/blob/main/docs/CLI.md)
+    - [Pattern Reference](https://github.com/wildreason/tangent/blob/main/docs/PATTERNS.md)
     
     © 2025 Wildreason, Inc. - [MIT License](https://github.com/wildreason/tangent/blob/main/LICENSE)
 
