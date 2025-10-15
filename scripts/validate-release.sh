@@ -54,16 +54,37 @@ if ! git diff --quiet HEAD; then
     exit 1
 fi
 
-# Check if tag already exists
+# Check if tag already exists locally
 if git tag -l | grep -q "^$VERSION$"; then
-    echo "❌ Error: Tag $VERSION already exists"
+    echo "❌ Error: Tag $VERSION already exists locally"
     echo ""
     echo "Existing tags:"
     git tag -l | sort -V
     exit 1
 fi
 
+# Check if tag exists on remote (GitHub)
+if git ls-remote --tags origin 2>/dev/null | grep -q "refs/tags/$VERSION$"; then
+    if [ "$FORCE_RELEASE" != "1" ]; then
+        echo "❌ Error: Tag $VERSION already exists on GitHub"
+        echo ""
+        echo "This usually means a release was already created."
+        echo "If you need to re-release, you must:"
+        echo "  1. Delete the remote tag: git push origin --delete $VERSION"
+        echo "  2. Delete the GitHub release manually at:"
+        echo "     https://github.com/wildreason/tangent/releases"
+        echo "  3. Run make release again"
+        echo ""
+        echo "Or use: FORCE_RELEASE=1 make release (not recommended)"
+        exit 1
+    else
+        echo "⚠️  Warning: Tag $VERSION exists on GitHub but FORCE_RELEASE=1"
+        echo "⚠️  This may cause conflicts. Proceed with caution."
+    fi
+fi
+
 echo "✅ CHANGELOG.md updated for $VERSION"
 echo "✅ Working directory is clean"
-echo "✅ Tag $VERSION does not exist"
+echo "✅ Tag $VERSION does not exist locally"
+echo "✅ Tag $VERSION does not exist on GitHub"
 echo "✅ Ready to create release!"
