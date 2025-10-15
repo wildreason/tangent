@@ -195,31 +195,12 @@ else
     fi
 fi
 
-# Success message
+# Concise success output (5 lines)
 echo ""
-if [ -n "$EXISTING_VERSION" ] && [ "$EXISTING_VERSION" != "unknown" ]; then
-    echo "╔══════════════════════════════════════════╗"
-    echo "║  ✓ Upgrade Complete!                     ║"
-    echo "║    $EXISTING_VERSION → $LATEST_VERSION                      ║"
-    echo "╚══════════════════════════════════════════╝"
-else
-    echo "╔══════════════════════════════════════════╗"
-    echo "║  ✓ Installation Complete!                ║"
-    echo "║    Tangent v$LATEST_VERSION                       ║"
-    echo "╚══════════════════════════════════════════╝"
-fi
-echo ""
-echo "Quick Start:"
-echo "  tangent                    # Start visual builder"
-echo "  tangent --version          # Check version"
-echo "  tangent gallery            # Browse library"
-echo ""
-echo "For Go developers:"
-echo "  import \"github.com/$REPO/pkg/characters\""
-echo "  (Run 'go mod tidy' in your project)"
-echo ""
-echo "Documentation:"
-echo "  https://github.com/$REPO"
-echo ""
-echo "Need help? https://github.com/$REPO/issues"
+VERSION_TAG="$RELEASE_TAG"
+echo "Tangent Installer — Terminal Agent Designer"
+echo "Installing ${VERSION_TAG} to ${INSTALL_DIR} ..."
+echo "Downloading and extracting… ✓"
+echo "Installed: ${INSTALL_DIR}/tangent"
+echo "Next: tangent create | tangent browse | tangent view | tangent version"
 
