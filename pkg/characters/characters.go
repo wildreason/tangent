@@ -32,18 +32,15 @@ import (
 
 // CharacterService provides character creation functionality
 type CharacterService struct {
-	compiler        domain.PatternCompiler
-	animationEngine domain.AnimationEngine
+	compiler domain.PatternCompiler
 }
 
 // NewCharacterService creates a new character service with default implementations
 func NewCharacterService() *CharacterService {
 	compiler := infrastructure.NewPatternCompiler()
-	animationEngine := infrastructure.NewAnimationEngine()
 
 	return &CharacterService{
-		compiler:        compiler,
-		animationEngine: animationEngine,
+		compiler: compiler,
 	}
 }
 
@@ -180,11 +177,6 @@ func LibraryInfo(name string) (string, error) {
 	return libChar.Description, nil
 }
 
-// Animate animates a character using the animation engine
-func Animate(writer interface{}, character *domain.Character, fps int, loops int) error {
-	animationEngine := infrastructure.NewAnimationEngine()
-	return animationEngine.Animate(character, fps, loops)
-}
 
 // ShowIdle displays the idle state of a character
 func ShowIdle(writer interface{}, character *domain.Character) error {

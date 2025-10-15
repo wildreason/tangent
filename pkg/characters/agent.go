@@ -14,14 +14,12 @@ import (
 // AgentCharacter wraps a Character with state-based API methods for AI agents
 type AgentCharacter struct {
 	character *domain.Character
-	animator  domain.AnimationEngine
 }
 
 // NewAgentCharacter creates a new AgentCharacter wrapper
 func NewAgentCharacter(character *domain.Character) *AgentCharacter {
 	return &AgentCharacter{
 		character: character,
-		animator:  nil, // Will be created on demand
 	}
 }
 
