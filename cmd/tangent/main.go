@@ -71,7 +71,7 @@ func createCharacter() {
 		handleError("Character creation failed", domain.ErrCharacterNameInvalid)
 		return
 	}
-	
+
 	// Check if character already exists in library
 	availableChars := characters.ListLibrary()
 	for _, existingName := range availableChars {
@@ -145,18 +145,18 @@ func convertAgentToSession(agent *characters.AgentCharacter) *Session {
 		}
 		session.Frames = append(session.Frames, sessionFrame)
 	}
-	
+
 	return session
 }
 
 // convertSessionToCharacterSpec converts a Session to a characters.CharacterSpec
 func convertSessionToCharacterSpec(session *Session) *characters.CharacterSpec {
 	spec := characters.NewCharacterSpec(session.Name, session.Width, session.Height)
-	
+
 	for _, frame := range session.Frames {
 		spec.AddFrame(frame.Name, frame.Lines)
 	}
-	
+
 	return spec
 }
 
@@ -1112,8 +1112,8 @@ func adminRegister(jsonPath string) {
 	// Write file
 	if err := os.WriteFile(libraryFile, []byte(code), 0644); err != nil {
 		fmt.Printf("Error writing library file: %v\n", err)
-			os.Exit(1)
-		}
+		os.Exit(1)
+	}
 
 	fmt.Printf("✅ Character '%s' registered successfully!\n", charData.Name)
 	fmt.Printf("📁 Library file: %s\n", libraryFile)
@@ -1153,8 +1153,8 @@ func adminValidate(jsonPath string) {
 
 	if err := json.Unmarshal(data, &charData); err != nil {
 		fmt.Printf("Error parsing JSON: %v\n", err)
-			os.Exit(1)
-		}
+		os.Exit(1)
+	}
 
 	// Validate required fields
 	valid := true
@@ -1205,8 +1205,8 @@ func adminValidate(jsonPath string) {
 		fmt.Printf("   States: %d\n", len(charData.States))
 	} else {
 		fmt.Println("❌ Character JSON has validation errors")
-			os.Exit(1)
-		}
+		os.Exit(1)
+	}
 }
 
 func generateLibraryCode(name, personality string, width, height int, patterns []struct {
@@ -1248,8 +1248,8 @@ func handleDemo() {
 	if len(os.Args) < 3 {
 		fmt.Println("Error: missing character name")
 		fmt.Println("Usage: tangent demo <name> [--state plan|think|execute] [--fps N] [--loops N]")
-			os.Exit(1)
-		}
+		os.Exit(1)
+	}
 
 	characterName := os.Args[2]
 
@@ -1284,15 +1284,15 @@ func handleDemo() {
 
 	// Load character
 	agent, err := characters.LibraryAgent(characterName)
-		if err != nil {
+	if err != nil {
 		fmt.Printf("Error: character '%s' not found\n", characterName)
 		fmt.Println("Available characters:")
 		names := characters.ListLibrary()
 		for _, name := range names {
 			fmt.Printf("  %s\n", name)
 		}
-			os.Exit(1)
-		}
+		os.Exit(1)
+	}
 
 	char := agent.GetCharacter()
 	fmt.Printf("Demo: %s (%dx%d)\n\n", char.Name, char.Width, char.Height)
@@ -1306,8 +1306,8 @@ func handleDemo() {
 			for name := range char.States {
 				fmt.Printf("  %s\n", name)
 			}
-		os.Exit(1)
-	}
+			os.Exit(1)
+		}
 
 		fps := state.AnimationFPS
 		loops := state.AnimationLoops
@@ -1320,7 +1320,7 @@ func handleDemo() {
 
 		fmt.Printf("🔹 Animating '%s' (%d frames) at %d FPS for %d loops\n", targetState, len(state.Frames), fps, loops)
 		agent.AnimateState(os.Stdout, targetState, fps, loops)
-	fmt.Println()
+		fmt.Println()
 	} else {
 		// Show base character first
 		fmt.Println("🔹 Base Character:")
@@ -1462,7 +1462,7 @@ func exportForContribution(session *Session) {
 	// Export to JSON
 	filename := session.Name + ".json"
 	data, err := json.MarshalIndent(session, "", "  ")
-		if err != nil {
+	if err != nil {
 		fmt.Printf("✗ Error marshaling JSON: %v\n\n", err)
 		return
 	}
@@ -1557,7 +1557,7 @@ func createBaseCharacter(session *Session) {
 		confirm, _ := reader.ReadString('\n')
 		if strings.ToLower(strings.TrimSpace(confirm)) != "y" {
 			fmt.Println()
-		return
+			return
 		}
 	}
 
@@ -1660,8 +1660,8 @@ func previewBaseCharacter(session *Session) {
 	for _, line := range session.BaseFrame.Lines {
 		fmt.Println(compilePattern(line))
 	}
-			fmt.Println()
-		}
+	fmt.Println()
+}
 
 // addAgentStateWithBase adds an agent state with reference to base
 func addAgentStateWithBase(session *Session) {
@@ -1823,8 +1823,8 @@ func addAgentStateWithBase(session *Session) {
 					} else {
 						fmt.Println("  ✓ Live preview disabled")
 					}
-			continue
-		}
+					continue
+				}
 
 				// If empty and we have a current line, keep it
 				if line == "" && currentLine != "" {
@@ -1991,7 +1991,7 @@ func previewDualPane(session *Session, stateName string) {
 	fmt.Println("\n╔══════════════════════════════════════════════════════════════╗")
 	fmt.Println("║  PREVIEW (FORMATION | END-STATE)                             ║")
 	fmt.Println("╚══════════════════════════════════════════════════════════════╝")
-		fmt.Println()
+	fmt.Println()
 	fmt.Println("  Left: Formation (what you're building now)")
 	fmt.Println("  Right: End-state (as it will animate)\n")
 
@@ -2062,7 +2062,7 @@ func showLivePreview(session *Session, lines []string, currentLine int, context 
 	fmt.Println("╔══════════════════════════════════════════════════════════════════════════════╗")
 	fmt.Println("║  LIVE PREVIEW MODE - Press 'p' to toggle, 'q' to quit preview              ║")
 	fmt.Println("╚══════════════════════════════════════════════════════════════════════════════╝")
-		fmt.Println()
+	fmt.Println()
 
 	// Split-pane layout
 	fmt.Printf("┌%s┬%s┐\n", strings.Repeat("─", leftWidth-2), strings.Repeat("─", rightWidth-2))
@@ -2109,7 +2109,7 @@ func showLivePreview(session *Session, lines []string, currentLine int, context 
 
 	// Bottom border
 	fmt.Printf("└%s┴%s┘\n", strings.Repeat("─", leftWidth-2), strings.Repeat("─", rightWidth-2))
-		fmt.Println()
+	fmt.Println()
 	fmt.Println("  ◢ Commands: 'p' = toggle preview, 'q' = quit preview, or continue editing")
 	fmt.Print("  ◢ Line input: ")
 }
@@ -2135,7 +2135,7 @@ func editAgentState(session *Session) {
 	fmt.Println("\n╔══════════════════════════════════════════╗")
 	fmt.Println("║  EDIT AGENT STATE                        ║")
 	fmt.Println("╚══════════════════════════════════════════╝")
-		fmt.Println()
+	fmt.Println()
 	fmt.Println("  States:")
 	for i, state := range session.States {
 		fmt.Printf("    %d. %s (%d frames)\n", i+1, state.Name, len(state.Frames))
