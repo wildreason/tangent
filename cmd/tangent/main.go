@@ -71,7 +71,7 @@ func createCharacter() {
 		handleError("Character creation failed", domain.ErrCharacterNameInvalid)
 		return
 	}
-
+	
 	// Check if character already exists in library
 	availableChars := characters.ListLibrary()
 	for _, existingName := range availableChars {
@@ -93,8 +93,11 @@ func createCharacter() {
 	session := NewSession(name, width, height)
 	session.Save()
 
-	// Enter character builder
-	characterBuilder(session)
+	// Start Bubbletea TUI
+	if err := StartCreationTUI(session); err != nil {
+		handleError("TUI failed", err)
+		return
+	}
 }
 
 // convertAgentToSession converts an AgentCharacter to a Session for UI compatibility
@@ -142,18 +145,18 @@ func convertAgentToSession(agent *characters.AgentCharacter) *Session {
 		}
 		session.Frames = append(session.Frames, sessionFrame)
 	}
-
+	
 	return session
 }
 
 // convertSessionToCharacterSpec converts a Session to a characters.CharacterSpec
 func convertSessionToCharacterSpec(session *Session) *characters.CharacterSpec {
 	spec := characters.NewCharacterSpec(session.Name, session.Width, session.Height)
-
+	
 	for _, frame := range session.Frames {
 		spec.AddFrame(frame.Name, frame.Lines)
 	}
-
+	
 	return spec
 }
 
@@ -198,10 +201,9 @@ func characterBuilder(session *Session) {
 
 		fmt.Println("  1. Create base character")
 		fmt.Println("  2. Add agent state")
-		fmt.Println("  3. Preview (dual-pane: formation | end)")
-		fmt.Println("  4. Animate all states")
-		fmt.Println("  5. Export for contribution (JSON)")
-		fmt.Println("  6. Exit")
+		fmt.Println("  3. Animate all states")
+		fmt.Println("  4. Export for contribution (JSON)")
+		fmt.Println("  5. Exit")
 		fmt.Println()
 		fmt.Print("◢ Choose option: ")
 
@@ -214,12 +216,10 @@ func characterBuilder(session *Session) {
 		case "2":
 			addAgentStateWithBase(session)
 		case "3":
-			previewDualPane(session, "")
-		case "4":
 			previewAllStates(session)
-		case "5":
+		case "4":
 			exportForContribution(session)
-		case "6":
+		case "5":
 			// Save session
 			if err := session.Save(); err != nil {
 				handleError("Failed to save session", err)
@@ -1112,8 +1112,8 @@ func adminRegister(jsonPath string) {
 	// Write file
 	if err := os.WriteFile(libraryFile, []byte(code), 0644); err != nil {
 		fmt.Printf("Error writing library file: %v\n", err)
-		os.Exit(1)
-	}
+			os.Exit(1)
+		}
 
 	fmt.Printf("✅ Character '%s' registered successfully!\n", charData.Name)
 	fmt.Printf("📁 Library file: %s\n", libraryFile)
@@ -1153,8 +1153,8 @@ func adminValidate(jsonPath string) {
 
 	if err := json.Unmarshal(data, &charData); err != nil {
 		fmt.Printf("Error parsing JSON: %v\n", err)
-		os.Exit(1)
-	}
+			os.Exit(1)
+		}
 
 	// Validate required fields
 	valid := true
@@ -1205,8 +1205,8 @@ func adminValidate(jsonPath string) {
 		fmt.Printf("   States: %d\n", len(charData.States))
 	} else {
 		fmt.Println("❌ Character JSON has validation errors")
-		os.Exit(1)
-	}
+			os.Exit(1)
+		}
 }
 
 func generateLibraryCode(name, personality string, width, height int, patterns []struct {
@@ -1248,8 +1248,8 @@ func handleDemo() {
 	if len(os.Args) < 3 {
 		fmt.Println("Error: missing character name")
 		fmt.Println("Usage: tangent demo <name> [--state plan|think|execute] [--fps N] [--loops N]")
-		os.Exit(1)
-	}
+			os.Exit(1)
+		}
 
 	characterName := os.Args[2]
 
@@ -1284,15 +1284,15 @@ func handleDemo() {
 
 	// Load character
 	agent, err := characters.LibraryAgent(characterName)
-	if err != nil {
+		if err != nil {
 		fmt.Printf("Error: character '%s' not found\n", characterName)
 		fmt.Println("Available characters:")
 		names := characters.ListLibrary()
 		for _, name := range names {
 			fmt.Printf("  %s\n", name)
 		}
-		os.Exit(1)
-	}
+			os.Exit(1)
+		}
 
 	char := agent.GetCharacter()
 	fmt.Printf("Demo: %s (%dx%d)\n\n", char.Name, char.Width, char.Height)
@@ -1306,8 +1306,8 @@ func handleDemo() {
 			for name := range char.States {
 				fmt.Printf("  %s\n", name)
 			}
-			os.Exit(1)
-		}
+		os.Exit(1)
+	}
 
 		fps := state.AnimationFPS
 		loops := state.AnimationLoops
@@ -1320,7 +1320,7 @@ func handleDemo() {
 
 		fmt.Printf("🔹 Animating '%s' (%d frames) at %d FPS for %d loops\n", targetState, len(state.Frames), fps, loops)
 		agent.AnimateState(os.Stdout, targetState, fps, loops)
-		fmt.Println()
+	fmt.Println()
 	} else {
 		// Show base character first
 		fmt.Println("🔹 Base Character:")
@@ -1462,7 +1462,7 @@ func exportForContribution(session *Session) {
 	// Export to JSON
 	filename := session.Name + ".json"
 	data, err := json.MarshalIndent(session, "", "  ")
-	if err != nil {
+		if err != nil {
 		fmt.Printf("✗ Error marshaling JSON: %v\n\n", err)
 		return
 	}
@@ -1557,7 +1557,7 @@ func createBaseCharacter(session *Session) {
 		confirm, _ := reader.ReadString('\n')
 		if strings.ToLower(strings.TrimSpace(confirm)) != "y" {
 			fmt.Println()
-			return
+		return
 		}
 	}
 
@@ -1568,32 +1568,33 @@ func createBaseCharacter(session *Session) {
 	fmt.Printf("◢ Designing %s's base (idle) state\n", session.Name)
 	fmt.Println("  This is the immutable foundation for all states")
 	fmt.Println()
+	fmt.Println("  ◢ Live Preview: Press 'p' to toggle split-pane preview")
+	fmt.Println()
 	fmt.Println(patterns.GetPatternHelp())
 	fmt.Println()
 
 	lines := make([]string, session.Height)
+	livePreview := false
 
 	for i := 0; i < session.Height; i++ {
 		for {
+			// Show live preview if enabled
+			if livePreview {
+				showLivePreview(session, lines, i, "base")
+			}
+
 			fmt.Printf("◢ Line %d/%d: ", i+1, session.Height)
 			line, _ := reader.ReadString('\n')
 			line = strings.TrimSpace(line)
 
-			// Quick dual-pane preview trigger
-			if line == ":p" {
-				// Fill missing lines with spaces for a coherent preview
-				tempLines := make([]string, session.Height)
-				copy(tempLines, lines)
-				for idx := range tempLines {
-					if len(tempLines[idx]) == 0 {
-						tempLines[idx] = strings.Repeat("_", session.Width)
-					}
+			// Toggle live preview
+			if line == "p" {
+				livePreview = !livePreview
+				if livePreview {
+					fmt.Println("  ✓ Live preview enabled")
+				} else {
+					fmt.Println("  ✓ Live preview disabled")
 				}
-				// Build a temporary base-only frame for formation side
-				tempSession := *session
-				tempSession.BaseFrame = Frame{Name: "base", Lines: tempLines}
-				previewDualPane(&tempSession, "")
-				// Continue asking for the same line after preview
 				continue
 			}
 
@@ -1659,8 +1660,8 @@ func previewBaseCharacter(session *Session) {
 	for _, line := range session.BaseFrame.Lines {
 		fmt.Println(compilePattern(line))
 	}
-	fmt.Println()
-}
+			fmt.Println()
+		}
 
 // addAgentStateWithBase adds an agent state with reference to base
 func addAgentStateWithBase(session *Session) {
@@ -1791,66 +1792,39 @@ func addAgentStateWithBase(session *Session) {
 
 		fmt.Println(patterns.GetPatternHelp())
 		fmt.Println()
+		fmt.Println("  ◢ Live Preview: Press 'p' to toggle split-pane preview")
+		fmt.Println()
 
 		// Input lines
+		livePreview := false
 		for i := 0; i < session.Height; i++ {
 			for {
+				// Show live preview if enabled
+				if livePreview {
+					showLivePreview(session, lines, i, stateName)
+				}
+
 				currentLine := ""
 				if startFromBase == "y" && i < len(lines) {
 					currentLine = lines[i]
 					fmt.Printf("◢ Line %d/%d (current: %s): ", i+1, session.Height, compilePattern(currentLine))
 				} else {
-					fmt.Printf("◢ Line %d/%d (type ':p' to preview): ", i+1, session.Height)
+					fmt.Printf("◢ Line %d/%d: ", i+1, session.Height)
 				}
 
 				line, _ := reader.ReadString('\n')
 				line = strings.TrimSpace(line)
 
-				// Quick dual-pane preview trigger
-				if line == ":p" {
-					// Compose formation frames: existing plus current in-progress
-					formationFrames := make([]Frame, 0, len(stateFrames)+1)
-					formationFrames = append(formationFrames, stateFrames...)
-					// Build in-progress frame snapshot
-					tempLines := make([]string, session.Height)
-					copy(tempLines, lines)
-					for idx := range tempLines {
-						if len(tempLines[idx]) == 0 {
-							tempLines[idx] = strings.Repeat("_", session.Width)
-						}
+				// Toggle live preview
+				if line == "p" {
+					livePreview = !livePreview
+					if livePreview {
+						fmt.Println("  ✓ Live preview enabled")
+					} else {
+						fmt.Println("  ✓ Live preview disabled")
 					}
-					formationFrames = append(formationFrames, Frame{Name: fmt.Sprintf("%s_frame_%d", stateName, frameIdx+1), Lines: tempLines})
-
-					// Prepare a temp session including formation frames under the state
-					tempSession := *session
-					// Copy states and append/replace the current state's frames for preview
-					replaced := false
-					newStates := make([]StateSession, 0, len(tempSession.States))
-					for _, st := range tempSession.States {
-						if st.Name == stateName {
-							st.Frames = formationFrames
-							newStates = append(newStates, st)
-							replaced = true
-						} else {
-							newStates = append(newStates, st)
-						}
-					}
-					if !replaced {
-						newStates = append(newStates, StateSession{
-							Name:           stateName,
-							Description:    fmt.Sprintf("Agent %s state", stateName),
-							StateType:      stateType,
-							Frames:         formationFrames,
-							AnimationFPS:   5,
-							AnimationLoops: 1,
-						})
-					}
-					tempSession.States = newStates
-
-					previewDualPane(&tempSession, stateName)
-					// Continue editing the same line
-					continue
-				}
+			continue
+		}
 
 				// If empty and we have a current line, keep it
 				if line == "" && currentLine != "" {
@@ -2017,7 +1991,7 @@ func previewDualPane(session *Session, stateName string) {
 	fmt.Println("\n╔══════════════════════════════════════════════════════════════╗")
 	fmt.Println("║  PREVIEW (FORMATION | END-STATE)                             ║")
 	fmt.Println("╚══════════════════════════════════════════════════════════════╝")
-	fmt.Println()
+		fmt.Println()
 	fmt.Println("  Left: Formation (what you're building now)")
 	fmt.Println("  Right: End-state (as it will animate)\n")
 
@@ -2074,6 +2048,81 @@ func max(a, b int) int {
 	return b
 }
 
+// showLivePreview displays a persistent vertical split-pane with live updates
+func showLivePreview(session *Session, lines []string, currentLine int, context string) {
+	// Clear screen and set up split-pane layout
+	fmt.Print("\x1b[2J\x1b[H") // Clear screen and move cursor to top-left
+
+	// Get terminal width (assume 80 columns as fallback)
+	terminalWidth := 80
+	leftWidth := terminalWidth / 2
+	rightWidth := terminalWidth - leftWidth - 1 // -1 for separator
+
+	// Header
+	fmt.Println("╔══════════════════════════════════════════════════════════════════════════════╗")
+	fmt.Println("║  LIVE PREVIEW MODE - Press 'p' to toggle, 'q' to quit preview              ║")
+	fmt.Println("╚══════════════════════════════════════════════════════════════════════════════╝")
+		fmt.Println()
+
+	// Split-pane layout
+	fmt.Printf("┌%s┬%s┐\n", strings.Repeat("─", leftWidth-2), strings.Repeat("─", rightWidth-2))
+
+	// Left pane: Current creation interface
+	fmt.Printf("│ %-*s │ %-*s │\n", leftWidth-4, "CREATION", rightWidth-4, "LIVE PREVIEW")
+	fmt.Printf("├%s┼%s┤\n", strings.Repeat("─", leftWidth-2), strings.Repeat("─", rightWidth-2))
+
+	// Show current line being edited
+	fmt.Printf("│ %-*s │ %-*s │\n", leftWidth-4, fmt.Sprintf("Line %d/%d", currentLine+1, session.Height), rightWidth-4, "Real-time render")
+	fmt.Printf("├%s┼%s┤\n", strings.Repeat("─", leftWidth-2), strings.Repeat("─", rightWidth-2))
+
+	// Show the character being built
+	compiler := infrastructure.NewPatternCompiler()
+	for row := 0; row < session.Height; row++ {
+		leftContent := ""
+		rightContent := ""
+
+		if row < len(lines) && lines[row] != "" {
+			// Show pattern codes on left
+			leftContent = lines[row]
+			// Show compiled result on right
+			rightContent = compiler.Compile(lines[row])
+		} else if row == currentLine {
+			// Show current line being edited
+			leftContent = repeatString("█", session.Width) // Cursor indicator
+			rightContent = repeatString("█", session.Width)
+		} else {
+			// Show empty lines
+			leftContent = strings.Repeat("_", session.Width)
+			rightContent = strings.Repeat(" ", session.Width)
+		}
+
+		// Pad content to fit pane width
+		if len(leftContent) > leftWidth-4 {
+			leftContent = leftContent[:leftWidth-4]
+		}
+		if len(rightContent) > rightWidth-4 {
+			rightContent = rightContent[:rightWidth-4]
+		}
+
+		fmt.Printf("│ %-*s │ %-*s │\n", leftWidth-4, leftContent, rightWidth-4, rightContent)
+	}
+
+	// Bottom border
+	fmt.Printf("└%s┴%s┘\n", strings.Repeat("─", leftWidth-2), strings.Repeat("─", rightWidth-2))
+		fmt.Println()
+	fmt.Println("  ◢ Commands: 'p' = toggle preview, 'q' = quit preview, or continue editing")
+	fmt.Print("  ◢ Line input: ")
+}
+
+// Helper function for string repetition
+func repeatString(s string, count int) string {
+	result := ""
+	for i := 0; i < count; i++ {
+		result += s
+	}
+	return result
+}
+
 // editAgentState edits an existing agent state
 func editAgentState(session *Session) {
 	if len(session.States) == 0 {
@@ -2086,7 +2135,7 @@ func editAgentState(session *Session) {
 	fmt.Println("\n╔══════════════════════════════════════════╗")
 	fmt.Println("║  EDIT AGENT STATE                        ║")
 	fmt.Println("╚══════════════════════════════════════════╝")
-	fmt.Println()
+		fmt.Println()
 	fmt.Println("  States:")
 	for i, state := range session.States {
 		fmt.Printf("    %d. %s (%d frames)\n", i+1, state.Name, len(state.Frames))
