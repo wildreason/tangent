@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/wildreason/tangent/pkg/characters"
@@ -92,8 +93,11 @@ func createCharacter() {
 	session := NewSession(name, width, height)
 	session.Save()
 
-	// Enter character builder
-	characterBuilder(session)
+	// Start Bubbletea TUI
+	if err := StartCreationTUI(session); err != nil {
+		handleError("TUI failed", err)
+		return
+	}
 }
 
 // convertAgentToSession converts an AgentCharacter to a Session for UI compatibility
@@ -883,8 +887,8 @@ func handleCLI() {
 		} else {
 			handleList()
 		}
-	case "demo":
-		handleDemo()
+	case "view":
+		handleView(os.Args[2:])
 	case "admin":
 		handleAdminCLI()
 	case "version", "--version", "-v":
@@ -893,7 +897,7 @@ func handleCLI() {
 		printUsage()
 	default:
 		fmt.Fprintf(os.Stderr, "Error: unknown command '%s'\n\n", command)
-		printUsage()
+		fmt.Fprintln(os.Stderr, "Try 'tangent help' for usage information")
 		os.Exit(1)
 	}
 }
@@ -902,45 +906,18 @@ func printUsage() {
 	fmt.Println("Tangent - Terminal Agent Designer")
 	fmt.Println()
 	fmt.Println("USAGE:")
-	fmt.Println("  tangent create                    Start interactive character builder")
-	fmt.Println("  tangent browse [name] [options]   List agents or view specific agent")
-	fmt.Println("  tangent demo <name> [options]     Animate character for testing")
-	fmt.Println("  tangent admin <command>           Admin commands")
-	fmt.Println("  tangent version                   Show version information")
-	fmt.Println("  tangent help                      Show this help message")
-	fmt.Println()
-	fmt.Println("BROWSE OPTIONS:")
-	fmt.Println("  --state <name>                    Animate specific state (plan|think|execute)")
-	fmt.Println("  --fps <N>                         Override animation FPS")
-	fmt.Println("  --loops <N>                       Override animation loops")
-	fmt.Println()
-	fmt.Println("DEMO OPTIONS:")
-	fmt.Println("  --state <name>                    Animate specific state (plan|think|execute)")
-	fmt.Println("  --fps <N>                         Override animation FPS")
-	fmt.Println("  --loops <N>                       Override animation loops")
-	fmt.Println()
-	fmt.Println("ADMIN COMMANDS:")
-	fmt.Println("  tangent admin register <json>     Register character to library")
-	fmt.Println("  tangent admin validate <json>     Validate character JSON")
+	fmt.Println("  tangent create      Start interactive character builder")
+	fmt.Println("  tangent browse      List all agents")
+	fmt.Println("  tangent browse <name> [--state plan|think|execute] [--fps N] [--loops N]")
+	fmt.Println("  tangent view --session <name> [--state STATE] [--fps N] [--loops N]")
+	fmt.Println("  tangent view --json <file> [--state STATE] [--fps N] [--loops N]")
+	fmt.Println("  tangent version     Show version information")
+	fmt.Println("  tangent help        Show this help message")
 	fmt.Println()
 	fmt.Println("EXAMPLES:")
-	fmt.Println("  # Create character (interactive)")
-	fmt.Println("  tangent create")
-	fmt.Println()
-	fmt.Println("  # List all agents")
-	fmt.Println("  tangent browse")
-	fmt.Println()
-	fmt.Println("  # View specific agent")
-	fmt.Println("  tangent browse alex")
-	fmt.Println("  tangent browse alex --state plan")
-	fmt.Println("  tangent browse alex --fps 10 --loops 2")
-	fmt.Println()
-	fmt.Println("  # Test character animations (alternative)")
-	fmt.Println("  tangent demo alex")
-	fmt.Println("  tangent demo alex --state plan")
-	fmt.Println()
-	fmt.Println("  # Admin: Register character")
-	fmt.Println("  tangent admin register alex.json")
+	fmt.Println("  tangent create              # Start creating a character")
+	fmt.Println("  tangent browse              # List all available agents")
+	fmt.Println("  tangent browse mercury      # View mercury agent")
 	fmt.Println()
 	fmt.Println("For full documentation: https://github.com/wildreason/tangent")
 }
@@ -1226,124 +1203,6 @@ func generateLibraryCode(name, personality string, width, height int, patterns [
 	return sb.String()
 }
 
-func handleDemo() {
-	if len(os.Args) < 3 {
-		fmt.Println("Error: missing character name")
-		fmt.Println("Usage: tangent demo <name> [--state plan|think|execute] [--fps N] [--loops N]")
-		os.Exit(1)
-	}
-
-	characterName := os.Args[2]
-
-	// Parse optional flags
-	var targetState string
-	var overrideFPS int
-	var overrideLoops int
-
-	for i := 3; i < len(os.Args); i++ {
-		switch os.Args[i] {
-		case "--state":
-			if i+1 < len(os.Args) {
-				targetState = os.Args[i+1]
-				i++
-			}
-		case "--fps":
-			if i+1 < len(os.Args) {
-				if fps, err := strconv.Atoi(os.Args[i+1]); err == nil {
-					overrideFPS = fps
-				}
-				i++
-			}
-		case "--loops":
-			if i+1 < len(os.Args) {
-				if loops, err := strconv.Atoi(os.Args[i+1]); err == nil {
-					overrideLoops = loops
-				}
-				i++
-			}
-		}
-	}
-
-	// Load character
-	agent, err := characters.LibraryAgent(characterName)
-	if err != nil {
-		fmt.Printf("Error: character '%s' not found\n", characterName)
-		fmt.Println("Available characters:")
-		names := characters.ListLibrary()
-		for _, name := range names {
-			fmt.Printf("  %s\n", name)
-		}
-		os.Exit(1)
-	}
-
-	char := agent.GetCharacter()
-	fmt.Printf("Demo: %s (%dx%d)\n\n", char.Name, char.Width, char.Height)
-
-	if targetState != "" {
-		// Animate specific state
-		state, exists := char.States[targetState]
-		if !exists {
-			fmt.Printf("Error: state '%s' not found\n", targetState)
-			fmt.Println("Available states:")
-			for name := range char.States {
-				fmt.Printf("  %s\n", name)
-			}
-			os.Exit(1)
-		}
-
-		fps := state.AnimationFPS
-		loops := state.AnimationLoops
-		if overrideFPS > 0 {
-			fps = overrideFPS
-		}
-		if overrideLoops > 0 {
-			loops = overrideLoops
-		}
-
-		fmt.Printf("🔹 Animating '%s' (%d frames) at %d FPS for %d loops\n", targetState, len(state.Frames), fps, loops)
-		agent.AnimateState(os.Stdout, targetState, fps, loops)
-		fmt.Println()
-	} else {
-		// Show base character first
-		fmt.Println("🔹 Base Character:")
-		agent.ShowBase(os.Stdout)
-		fmt.Println()
-
-		// Animate all states in stable order
-		stateNames := make([]string, 0, len(char.States))
-		for name := range char.States {
-			stateNames = append(stateNames, name)
-		}
-
-		// Sort for consistent order
-		for i := 0; i < len(stateNames); i++ {
-			for j := i + 1; j < len(stateNames); j++ {
-				if stateNames[i] > stateNames[j] {
-					stateNames[i], stateNames[j] = stateNames[j], stateNames[i]
-				}
-			}
-		}
-
-		for _, stateName := range stateNames {
-			state := char.States[stateName]
-			fps := state.AnimationFPS
-			loops := state.AnimationLoops
-			if overrideFPS > 0 {
-				fps = overrideFPS
-			}
-			if overrideLoops > 0 {
-				loops = overrideLoops
-			}
-
-			fmt.Printf("🔹 Animating '%s' (%d frames) at %d FPS for %d loops\n", stateName, len(state.Frames), fps, loops)
-			agent.AnimateState(os.Stdout, stateName, fps, loops)
-			fmt.Println()
-		}
-	}
-
-	fmt.Println("✅ Demo complete!")
-}
-
 func pluralize(count int) string {
 	if count == 1 {
 		return ""
@@ -1550,16 +1409,35 @@ func createBaseCharacter(session *Session) {
 	fmt.Printf("◢ Designing %s's base (idle) state\n", session.Name)
 	fmt.Println("  This is the immutable foundation for all states")
 	fmt.Println()
+	fmt.Println("  ◢ Live Preview: Press 'p' to toggle split-pane preview")
+	fmt.Println()
 	fmt.Println(patterns.GetPatternHelp())
 	fmt.Println()
 
 	lines := make([]string, session.Height)
+	livePreview := false
 
 	for i := 0; i < session.Height; i++ {
 		for {
+			// Show live preview if enabled
+			if livePreview {
+				showLivePreview(session, lines, i, "base")
+			}
+
 			fmt.Printf("◢ Line %d/%d: ", i+1, session.Height)
 			line, _ := reader.ReadString('\n')
 			line = strings.TrimSpace(line)
+
+			// Toggle live preview
+			if line == "p" {
+				livePreview = !livePreview
+				if livePreview {
+					fmt.Println("  ✓ Live preview enabled")
+				} else {
+					fmt.Println("  ✓ Live preview disabled")
+				}
+				continue
+			}
 
 			// Apply mirroring
 			line = applyMirroring(line)
@@ -1755,10 +1633,18 @@ func addAgentStateWithBase(session *Session) {
 
 		fmt.Println(patterns.GetPatternHelp())
 		fmt.Println()
+		fmt.Println("  ◢ Live Preview: Press 'p' to toggle split-pane preview")
+		fmt.Println()
 
 		// Input lines
+		livePreview := false
 		for i := 0; i < session.Height; i++ {
 			for {
+				// Show live preview if enabled
+				if livePreview {
+					showLivePreview(session, lines, i, stateName)
+				}
+
 				currentLine := ""
 				if startFromBase == "y" && i < len(lines) {
 					currentLine = lines[i]
@@ -1769,6 +1655,17 @@ func addAgentStateWithBase(session *Session) {
 
 				line, _ := reader.ReadString('\n')
 				line = strings.TrimSpace(line)
+
+				// Toggle live preview
+				if line == "p" {
+					livePreview = !livePreview
+					if livePreview {
+						fmt.Println("  ✓ Live preview enabled")
+					} else {
+						fmt.Println("  ✓ Live preview disabled")
+					}
+					continue
+				}
 
 				// If empty and we have a current line, keep it
 				if line == "" && currentLine != "" {
@@ -1840,6 +1737,231 @@ func addAgentStateWithBase(session *Session) {
 	} else {
 		fmt.Println("  ✓ All required states added! You can now export for contribution.\n")
 	}
+}
+
+// previewDualPane renders a side-by-side formation vs end-state preview for a session.
+// If stateName is empty, shows base-only on both sides.
+func previewDualPane(session *Session, stateName string) {
+	// Determine preview height and width
+	height := session.Height
+	width := session.Width
+
+	// Assemble left (formation) frames
+	leftFrames := [][]string{}
+	if stateName == "" {
+		// Base static
+		lf := make([]string, height)
+		copy(lf, session.BaseFrame.Lines)
+		leftFrames = append(leftFrames, lf)
+	} else {
+		// Find the state and use its frames as formation
+		for _, st := range session.States {
+			if st.Name == stateName {
+				for _, f := range st.Frames {
+					lf := make([]string, height)
+					copy(lf, f.Lines)
+					leftFrames = append(leftFrames, lf)
+				}
+				break
+			}
+		}
+		if len(leftFrames) == 0 {
+			// Fallback to base static
+			lf := make([]string, height)
+			copy(lf, session.BaseFrame.Lines)
+			leftFrames = append(leftFrames, lf)
+		}
+	}
+
+	// Assemble right (end-state) frames using domain + AgentCharacter grouping
+	// Build temporary domain character
+	dStates := map[string]domain.State{}
+	for _, st := range session.States {
+		dStates[st.Name] = domain.State{
+			Name:           st.Name,
+			Description:    st.Description,
+			Frames:         convertFramesToDomain(st.Frames),
+			StateType:      st.StateType,
+			AnimationFPS:   st.AnimationFPS,
+			AnimationLoops: st.AnimationLoops,
+		}
+	}
+	tempChar := &domain.Character{
+		Name:      session.Name,
+		Width:     session.Width,
+		Height:    session.Height,
+		BaseFrame: domain.Frame{Name: session.BaseFrame.Name, Lines: session.BaseFrame.Lines},
+		States:    dStates,
+	}
+
+	// Extract right frames for the selected state
+	rightFrames := [][]string{}
+	if stateName == "" {
+		rf := make([]string, height)
+		copy(rf, session.BaseFrame.Lines)
+		rightFrames = append(rightFrames, rf)
+	} else if st, ok := tempChar.States[stateName]; ok && len(st.Frames) > 0 {
+		for _, f := range st.Frames {
+			rf := make([]string, height)
+			copy(rf, f.Lines)
+			rightFrames = append(rightFrames, rf)
+		}
+	} else {
+		rf := make([]string, height)
+		copy(rf, session.BaseFrame.Lines)
+		rightFrames = append(rightFrames, rf)
+	}
+
+	// Prepare compiler
+	compiler := infrastructure.NewPatternCompiler()
+
+	// Animation parameters
+	fps := 5
+	loops := 2
+	frameDur := time.Second / time.Duration(fps)
+
+	// Ensure both sides have at least one frame
+	if len(leftFrames) == 0 {
+		leftFrames = append(leftFrames, make([]string, height))
+	}
+	if len(rightFrames) == 0 {
+		rightFrames = append(rightFrames, make([]string, height))
+	}
+
+	// Header
+	fmt.Println("\n╔══════════════════════════════════════════════════════════════╗")
+	fmt.Println("║  PREVIEW (FORMATION | END-STATE)                             ║")
+	fmt.Println("╚══════════════════════════════════════════════════════════════╝")
+	fmt.Println()
+	fmt.Println("  Left: Formation (what you're building now)")
+	fmt.Println("  Right: End-state (as it will animate)\n")
+
+	// Hide cursor
+	fmt.Print("\x1b[?25l")
+	defer fmt.Print("\x1b[?25h")
+
+	// Animate
+	for loop := 0; loop < loops; loop++ {
+		for fi := 0; fi < max(len(leftFrames), len(rightFrames)); fi++ {
+			l := leftFrames[fi%len(leftFrames)]
+			r := rightFrames[fi%len(rightFrames)]
+
+			// Render combined rows
+			for row := 0; row < height; row++ {
+				lc := ""
+				rc := ""
+				if row < len(l) {
+					lc = compiler.Compile(l[row])
+				}
+				if row < len(r) {
+					rc = compiler.Compile(r[row])
+				}
+				fmt.Printf("\r\x1b[2K  %-*s    %s\n", width, lc, rc)
+			}
+			// Move cursor back up
+			fmt.Printf("\x1b[%dA", height)
+			time.Sleep(frameDur)
+		}
+	}
+
+	// Print final combined frame cleanly
+	l := leftFrames[len(leftFrames)-1]
+	r := rightFrames[len(rightFrames)-1]
+	for row := 0; row < height; row++ {
+		lc := ""
+		rc := ""
+		if row < len(l) {
+			lc = compiler.Compile(l[row])
+		}
+		if row < len(r) {
+			rc = compiler.Compile(r[row])
+		}
+		fmt.Printf("\r\x1b[2K  %-*s    %s\n", width, lc, rc)
+	}
+	fmt.Println("\n✓ Preview complete. Press Enter to return.\n")
+	bufio.NewReader(os.Stdin).ReadString('\n')
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+// showLivePreview displays a persistent vertical split-pane with live updates
+func showLivePreview(session *Session, lines []string, currentLine int, context string) {
+	// Clear screen and set up split-pane layout
+	fmt.Print("\x1b[2J\x1b[H") // Clear screen and move cursor to top-left
+
+	// Get terminal width (assume 80 columns as fallback)
+	terminalWidth := 80
+	leftWidth := terminalWidth / 2
+	rightWidth := terminalWidth - leftWidth - 1 // -1 for separator
+
+	// Header
+	fmt.Println("╔══════════════════════════════════════════════════════════════════════════════╗")
+	fmt.Println("║  LIVE PREVIEW MODE - Press 'p' to toggle, 'q' to quit preview              ║")
+	fmt.Println("╚══════════════════════════════════════════════════════════════════════════════╝")
+	fmt.Println()
+
+	// Split-pane layout
+	fmt.Printf("┌%s┬%s┐\n", strings.Repeat("─", leftWidth-2), strings.Repeat("─", rightWidth-2))
+
+	// Left pane: Current creation interface
+	fmt.Printf("│ %-*s │ %-*s │\n", leftWidth-4, "CREATION", rightWidth-4, "LIVE PREVIEW")
+	fmt.Printf("├%s┼%s┤\n", strings.Repeat("─", leftWidth-2), strings.Repeat("─", rightWidth-2))
+
+	// Show current line being edited
+	fmt.Printf("│ %-*s │ %-*s │\n", leftWidth-4, fmt.Sprintf("Line %d/%d", currentLine+1, session.Height), rightWidth-4, "Real-time render")
+	fmt.Printf("├%s┼%s┤\n", strings.Repeat("─", leftWidth-2), strings.Repeat("─", rightWidth-2))
+
+	// Show the character being built
+	compiler := infrastructure.NewPatternCompiler()
+	for row := 0; row < session.Height; row++ {
+		leftContent := ""
+		rightContent := ""
+
+		if row < len(lines) && lines[row] != "" {
+			// Show pattern codes on left
+			leftContent = lines[row]
+			// Show compiled result on right
+			rightContent = compiler.Compile(lines[row])
+		} else if row == currentLine {
+			// Show current line being edited
+			leftContent = repeatString("█", session.Width) // Cursor indicator
+			rightContent = repeatString("█", session.Width)
+		} else {
+			// Show empty lines
+			leftContent = strings.Repeat("_", session.Width)
+			rightContent = strings.Repeat(" ", session.Width)
+		}
+
+		// Pad content to fit pane width
+		if len(leftContent) > leftWidth-4 {
+			leftContent = leftContent[:leftWidth-4]
+		}
+		if len(rightContent) > rightWidth-4 {
+			rightContent = rightContent[:rightWidth-4]
+		}
+
+		fmt.Printf("│ %-*s │ %-*s │\n", leftWidth-4, leftContent, rightWidth-4, rightContent)
+	}
+
+	// Bottom border
+	fmt.Printf("└%s┴%s┘\n", strings.Repeat("─", leftWidth-2), strings.Repeat("─", rightWidth-2))
+	fmt.Println()
+	fmt.Println("  ◢ Commands: 'p' = toggle preview, 'q' = quit preview, or continue editing")
+	fmt.Print("  ◢ Line input: ")
+}
+
+// Helper function for string repetition
+func repeatString(s string, count int) string {
+	result := ""
+	for i := 0; i < count; i++ {
+		result += s
+	}
+	return result
 }
 
 // editAgentState edits an existing agent state

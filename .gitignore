@@ -1,5 +1,6 @@
 # Archive - experimental and non-essential files
 archive/
+.cursor/
 
 # Internal docs - reference materials for maintainers only
 internal_docs/
