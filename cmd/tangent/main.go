@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/wildreason/tangent/pkg/characters"
@@ -197,9 +198,10 @@ func characterBuilder(session *Session) {
 
 		fmt.Println("  1. Create base character")
 		fmt.Println("  2. Add agent state")
-		fmt.Println("  3. Animate all states")
-		fmt.Println("  4. Export for contribution (JSON)")
-		fmt.Println("  5. Exit")
+		fmt.Println("  3. Preview (dual-pane: formation | end)")
+		fmt.Println("  4. Animate all states")
+		fmt.Println("  5. Export for contribution (JSON)")
+		fmt.Println("  6. Exit")
 		fmt.Println()
 		fmt.Print("◢ Choose option: ")
 
@@ -212,10 +214,12 @@ func characterBuilder(session *Session) {
 		case "2":
 			addAgentStateWithBase(session)
 		case "3":
-			previewAllStates(session)
+			previewDualPane(session, "")
 		case "4":
-			exportForContribution(session)
+			previewAllStates(session)
 		case "5":
+			exportForContribution(session)
+		case "6":
 			// Save session
 			if err := session.Save(); err != nil {
 				handleError("Failed to save session", err)
@@ -885,6 +889,8 @@ func handleCLI() {
 		}
 	case "demo":
 		handleDemo()
+	case "view":
+		handleView(os.Args[2:])
 	case "admin":
 		handleAdminCLI()
 	case "version", "--version", "-v":
@@ -905,6 +911,7 @@ func printUsage() {
 	fmt.Println("  tangent create                    Start interactive character builder")
 	fmt.Println("  tangent browse [name] [options]   List agents or view specific agent")
 	fmt.Println("  tangent demo <name> [options]     Animate character for testing")
+	fmt.Println("  tangent view [--session|--json]   View WIP character without register")
 	fmt.Println("  tangent admin <command>           Admin commands")
 	fmt.Println("  tangent version                   Show version information")
 	fmt.Println("  tangent help                      Show this help message")
@@ -915,6 +922,13 @@ func printUsage() {
 	fmt.Println("  --loops <N>                       Override animation loops")
 	fmt.Println()
 	fmt.Println("DEMO OPTIONS:")
+	fmt.Println("  --state <name>                    Animate specific state (plan|think|execute)")
+	fmt.Println("  --fps <N>                         Override animation FPS")
+	fmt.Println("  --loops <N>                       Override animation loops")
+	fmt.Println()
+	fmt.Println("VIEW OPTIONS:")
+	fmt.Println("  --session <name>                  Load saved session and preview it")
+	fmt.Println("  --json <file>                     Load a contribution JSON and preview it")
 	fmt.Println("  --state <name>                    Animate specific state (plan|think|execute)")
 	fmt.Println("  --fps <N>                         Override animation FPS")
 	fmt.Println("  --loops <N>                       Override animation loops")
@@ -938,6 +952,10 @@ func printUsage() {
 	fmt.Println("  # Test character animations (alternative)")
 	fmt.Println("  tangent demo alex")
 	fmt.Println("  tangent demo alex --state plan")
+	fmt.Println()
+	fmt.Println("  # View WIP character (no admin)")
+	fmt.Println("  tangent view --session mercury --state plan --fps 8 --loops 2")
+	fmt.Println("  tangent view --json mercury.json --state think --fps 6 --loops 3")
 	fmt.Println()
 	fmt.Println("  # Admin: Register character")
 	fmt.Println("  tangent admin register alex.json")
@@ -1561,6 +1579,24 @@ func createBaseCharacter(session *Session) {
 			line, _ := reader.ReadString('\n')
 			line = strings.TrimSpace(line)
 
+			// Quick dual-pane preview trigger
+			if line == ":p" {
+				// Fill missing lines with spaces for a coherent preview
+				tempLines := make([]string, session.Height)
+				copy(tempLines, lines)
+				for idx := range tempLines {
+					if len(tempLines[idx]) == 0 {
+						tempLines[idx] = strings.Repeat("_", session.Width)
+					}
+				}
+				// Build a temporary base-only frame for formation side
+				tempSession := *session
+				tempSession.BaseFrame = Frame{Name: "base", Lines: tempLines}
+				previewDualPane(&tempSession, "")
+				// Continue asking for the same line after preview
+				continue
+			}
+
 			// Apply mirroring
 			line = applyMirroring(line)
 
@@ -1764,11 +1800,57 @@ func addAgentStateWithBase(session *Session) {
 					currentLine = lines[i]
 					fmt.Printf("◢ Line %d/%d (current: %s): ", i+1, session.Height, compilePattern(currentLine))
 				} else {
-					fmt.Printf("◢ Line %d/%d: ", i+1, session.Height)
+					fmt.Printf("◢ Line %d/%d (type ':p' to preview): ", i+1, session.Height)
 				}
 
 				line, _ := reader.ReadString('\n')
 				line = strings.TrimSpace(line)
+
+				// Quick dual-pane preview trigger
+				if line == ":p" {
+					// Compose formation frames: existing plus current in-progress
+					formationFrames := make([]Frame, 0, len(stateFrames)+1)
+					formationFrames = append(formationFrames, stateFrames...)
+					// Build in-progress frame snapshot
+					tempLines := make([]string, session.Height)
+					copy(tempLines, lines)
+					for idx := range tempLines {
+						if len(tempLines[idx]) == 0 {
+							tempLines[idx] = strings.Repeat("_", session.Width)
+						}
+					}
+					formationFrames = append(formationFrames, Frame{Name: fmt.Sprintf("%s_frame_%d", stateName, frameIdx+1), Lines: tempLines})
+
+					// Prepare a temp session including formation frames under the state
+					tempSession := *session
+					// Copy states and append/replace the current state's frames for preview
+					replaced := false
+					newStates := make([]StateSession, 0, len(tempSession.States))
+					for _, st := range tempSession.States {
+						if st.Name == stateName {
+							st.Frames = formationFrames
+							newStates = append(newStates, st)
+							replaced = true
+						} else {
+							newStates = append(newStates, st)
+						}
+					}
+					if !replaced {
+						newStates = append(newStates, StateSession{
+							Name:           stateName,
+							Description:    fmt.Sprintf("Agent %s state", stateName),
+							StateType:      stateType,
+							Frames:         formationFrames,
+							AnimationFPS:   5,
+							AnimationLoops: 1,
+						})
+					}
+					tempSession.States = newStates
+
+					previewDualPane(&tempSession, stateName)
+					// Continue editing the same line
+					continue
+				}
 
 				// If empty and we have a current line, keep it
 				if line == "" && currentLine != "" {
@@ -1840,6 +1922,156 @@ func addAgentStateWithBase(session *Session) {
 	} else {
 		fmt.Println("  ✓ All required states added! You can now export for contribution.\n")
 	}
+}
+
+// previewDualPane renders a side-by-side formation vs end-state preview for a session.
+// If stateName is empty, shows base-only on both sides.
+func previewDualPane(session *Session, stateName string) {
+	// Determine preview height and width
+	height := session.Height
+	width := session.Width
+
+	// Assemble left (formation) frames
+	leftFrames := [][]string{}
+	if stateName == "" {
+		// Base static
+		lf := make([]string, height)
+		copy(lf, session.BaseFrame.Lines)
+		leftFrames = append(leftFrames, lf)
+	} else {
+		// Find the state and use its frames as formation
+		for _, st := range session.States {
+			if st.Name == stateName {
+				for _, f := range st.Frames {
+					lf := make([]string, height)
+					copy(lf, f.Lines)
+					leftFrames = append(leftFrames, lf)
+				}
+				break
+			}
+		}
+		if len(leftFrames) == 0 {
+			// Fallback to base static
+			lf := make([]string, height)
+			copy(lf, session.BaseFrame.Lines)
+			leftFrames = append(leftFrames, lf)
+		}
+	}
+
+	// Assemble right (end-state) frames using domain + AgentCharacter grouping
+	// Build temporary domain character
+	dStates := map[string]domain.State{}
+	for _, st := range session.States {
+		dStates[st.Name] = domain.State{
+			Name:           st.Name,
+			Description:    st.Description,
+			Frames:         convertFramesToDomain(st.Frames),
+			StateType:      st.StateType,
+			AnimationFPS:   st.AnimationFPS,
+			AnimationLoops: st.AnimationLoops,
+		}
+	}
+	tempChar := &domain.Character{
+		Name:      session.Name,
+		Width:     session.Width,
+		Height:    session.Height,
+		BaseFrame: domain.Frame{Name: session.BaseFrame.Name, Lines: session.BaseFrame.Lines},
+		States:    dStates,
+	}
+
+	// Extract right frames for the selected state
+	rightFrames := [][]string{}
+	if stateName == "" {
+		rf := make([]string, height)
+		copy(rf, session.BaseFrame.Lines)
+		rightFrames = append(rightFrames, rf)
+	} else if st, ok := tempChar.States[stateName]; ok && len(st.Frames) > 0 {
+		for _, f := range st.Frames {
+			rf := make([]string, height)
+			copy(rf, f.Lines)
+			rightFrames = append(rightFrames, rf)
+		}
+	} else {
+		rf := make([]string, height)
+		copy(rf, session.BaseFrame.Lines)
+		rightFrames = append(rightFrames, rf)
+	}
+
+	// Prepare compiler
+	compiler := infrastructure.NewPatternCompiler()
+
+	// Animation parameters
+	fps := 5
+	loops := 2
+	frameDur := time.Second / time.Duration(fps)
+
+	// Ensure both sides have at least one frame
+	if len(leftFrames) == 0 {
+		leftFrames = append(leftFrames, make([]string, height))
+	}
+	if len(rightFrames) == 0 {
+		rightFrames = append(rightFrames, make([]string, height))
+	}
+
+	// Header
+	fmt.Println("\n╔══════════════════════════════════════════════════════════════╗")
+	fmt.Println("║  PREVIEW (FORMATION | END-STATE)                             ║")
+	fmt.Println("╚══════════════════════════════════════════════════════════════╝")
+	fmt.Println()
+	fmt.Println("  Left: Formation (what you're building now)")
+	fmt.Println("  Right: End-state (as it will animate)\n")
+
+	// Hide cursor
+	fmt.Print("\x1b[?25l")
+	defer fmt.Print("\x1b[?25h")
+
+	// Animate
+	for loop := 0; loop < loops; loop++ {
+		for fi := 0; fi < max(len(leftFrames), len(rightFrames)); fi++ {
+			l := leftFrames[fi%len(leftFrames)]
+			r := rightFrames[fi%len(rightFrames)]
+
+			// Render combined rows
+			for row := 0; row < height; row++ {
+				lc := ""
+				rc := ""
+				if row < len(l) {
+					lc = compiler.Compile(l[row])
+				}
+				if row < len(r) {
+					rc = compiler.Compile(r[row])
+				}
+				fmt.Printf("\r\x1b[2K  %-*s    %s\n", width, lc, rc)
+			}
+			// Move cursor back up
+			fmt.Printf("\x1b[%dA", height)
+			time.Sleep(frameDur)
+		}
+	}
+
+	// Print final combined frame cleanly
+	l := leftFrames[len(leftFrames)-1]
+	r := rightFrames[len(rightFrames)-1]
+	for row := 0; row < height; row++ {
+		lc := ""
+		rc := ""
+		if row < len(l) {
+			lc = compiler.Compile(l[row])
+		}
+		if row < len(r) {
+			rc = compiler.Compile(r[row])
+		}
+		fmt.Printf("\r\x1b[2K  %-*s    %s\n", width, lc, rc)
+	}
+	fmt.Println("\n✓ Preview complete. Press Enter to return.\n")
+	bufio.NewReader(os.Stdin).ReadString('\n')
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 // editAgentState edits an existing agent state
