@@ -18,8 +18,8 @@ curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh |
 
 # Discover avatars
 tangent browse              # See all available
-tangent browse mercury      # Preview specific avatar
-tangent browse water --state think --fps 8
+tangent browse fire         # Preview specific avatar
+tangent browse fire --state think --fps 8
 ```
 
 Pick the avatar that matches your agent's personality, then integrate with three simple API calls.
@@ -36,7 +36,7 @@ import "github.com/wildreason/tangent/pkg/characters"
 
 ```go
 // Load an avatar by name
-agent, err := characters.LibraryAgent("mercury")
+agent, err := characters.LibraryAgent("fire")
 if err != nil {
     log.Fatal(err)
 }
@@ -64,7 +64,7 @@ Lists all available avatars in the library.
 ```go
 avatars := characters.ListLibrary()
 fmt.Printf("Available avatars: %v\n", avatars)
-// Output: Available avatars: [demo4 mercury water water5]
+// Output: Available avatars: [fire]
 ```
 
 **Pro tip**: Use `tangent browse` in terminal for visual preview before integrating.
@@ -73,7 +73,7 @@ fmt.Printf("Available avatars: %v\n", avatars)
 Loads an avatar from the library.
 
 ```go
-agent, err := characters.LibraryAgent("mercury")
+agent, err := characters.LibraryAgent("fire")
 if err != nil {
     return fmt.Errorf("failed to load agent: %w", err)
 }
@@ -150,7 +150,7 @@ import (
 )
 
 func main() {
-    agent, _ := characters.LibraryAgent("mercury")
+    agent, _ := characters.LibraryAgent("fire")
     
     fmt.Println("Starting analysis...")
     agent.Plan(os.Stdout)
@@ -200,7 +200,7 @@ func showAgentStatus(agent *characters.AgentCharacter, status AgentStatus) {
 }
 
 func main() {
-    agent, _ := characters.LibraryAgent("water5")
+    agent, _ := characters.LibraryAgent("fire")
     
     // Simulate agent workflow
     showAgentStatus(agent, StatusPlanning)
@@ -231,11 +231,11 @@ type Agent struct {
 }
 
 func main() {
-    // Load multiple agents
+    // Load multiple agents (all using fire with different roles)
     agents := []Agent{
-        {name: "Planner", character: mustLoadAgent("mercury")},
-        {name: "Analyzer", character: mustLoadAgent("water")},
-        {name: "Executor", character: mustLoadAgent("water5")},
+        {name: "Planner", character: mustLoadAgent("fire")},
+        {name: "Analyzer", character: mustLoadAgent("fire")},
+        {name: "Executor", character: mustLoadAgent("fire")},
     }
     
     // Show agent states
@@ -311,7 +311,7 @@ func loadAgentSafely(name string) (*characters.AgentCharacter, error) {
 }
 
 func main() {
-    agent, err := loadAgentSafely("mercury")
+    agent, err := loadAgentSafely("fire")
     if err != nil {
         fmt.Printf("Error: %v\n", err)
         os.Exit(1)
@@ -361,10 +361,10 @@ This guarantees API consumers can always use the core methods.
 ./tangent browse
 
 # 2. Test an agent interactively
-./tangent browse mercury
+./tangent browse fire
 
 # 3. Test specific state
-./tangent browse mercury --state plan --fps 8 --loops 2
+./tangent browse fire --state plan --fps 8 --loops 2
 
 # 4. Run your application
 go run your-app.go
@@ -383,10 +383,10 @@ service := service.NewCharacterService(compiler, repo, engine)
 char, _ := service.LoadCharacter("rocket")
 ```
 
-**Alpha.4 (new):**
+**Alpha.4+ (new):**
 ```go
 // One line to load, instant use
-agent, _ := characters.LibraryAgent("mercury")
+agent, _ := characters.LibraryAgent("fire")
 agent.Plan(os.Stdout)
 ```
 
@@ -402,8 +402,8 @@ agent, err := characters.LibraryAgent("myagent")
 
 ### State missing
 ```go
-err := agent.Wait(os.Stdout)
-// Error: state "wait" not found for character mercury
+err := agent.CustomState(os.Stdout)
+// Error: state "custom_state" not found for character fire
 ```
 
 **Solution**: Use `agent.ListStates()` to see available states, or stick to required states (plan, think, execute)
