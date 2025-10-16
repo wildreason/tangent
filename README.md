@@ -18,10 +18,12 @@ When users interact with AI agents, they need more than text logs. They need to 
 
 ### Browse Available Avatars
 
+#### Install CLI (copy paste to your terminal)
 ```bash
-# Install CLI
 curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | bash
-
+```
+#### Window Shop
+```bash
 # Browse avatars
 tangent browse              # List all available avatars
 tangent browse mercury      # Preview mercury avatar with states
