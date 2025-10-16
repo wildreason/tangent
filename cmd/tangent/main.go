@@ -41,8 +41,8 @@ func main() {
 
 func showBanner() {
 	fmt.Println("╔══════════════════════════════════════════╗")
-	fmt.Println("║  TANGENT - Terminal Agent Designer      ║")
-	fmt.Println("║  Design characters for your CLI agents  ║")
+	fmt.Println("║  TANGENT - Terminal Avatars for AI      ║")
+	fmt.Println("║  Give your AI agent a face              ║")
 	fmt.Printf("║  %-40s ║\n", version)
 	fmt.Println("╚══════════════════════════════════════════╝")
 	fmt.Println()
@@ -903,23 +903,21 @@ func handleCLI() {
 }
 
 func printUsage() {
-	fmt.Println("Tangent - Terminal Agent Designer")
+	fmt.Println("Tangent - Terminal Avatars for AI Agents")
 	fmt.Println()
 	fmt.Println("USAGE:")
-	fmt.Println("  tangent create      Start interactive character builder")
-	fmt.Println("  tangent browse      List all agents")
+	fmt.Println("  tangent browse              List all avatars")
+	fmt.Println("  tangent browse <name>       Preview avatar with states")
 	fmt.Println("  tangent browse <name> [--state plan|think|execute] [--fps N] [--loops N]")
-	fmt.Println("  tangent view --session <name> [--state STATE] [--fps N] [--loops N]")
-	fmt.Println("  tangent view --json <file> [--state STATE] [--fps N] [--loops N]")
-	fmt.Println("  tangent version     Show version information")
-	fmt.Println("  tangent help        Show this help message")
+	fmt.Println("  tangent version             Show version information")
+	fmt.Println("  tangent help                Show this help message")
 	fmt.Println()
 	fmt.Println("EXAMPLES:")
-	fmt.Println("  tangent create              # Start creating a character")
-	fmt.Println("  tangent browse              # List all available agents")
-	fmt.Println("  tangent browse mercury      # View mercury agent")
+	fmt.Println("  tangent browse              # Discover available avatars")
+	fmt.Println("  tangent browse mercury      # Preview mercury avatar")
+	fmt.Println("  tangent browse water --state plan --fps 8")
 	fmt.Println()
-	fmt.Println("For full documentation: https://github.com/wildreason/tangent")
+	fmt.Println("For API integration: https://github.com/wildreason/tangent")
 }
 
 func handleAdminCLI() {

@@ -2,7 +2,27 @@
 
 ## Overview
 
-Tangent provides a **simple, state-based API** for using agent characters in your CLI applications. Characters are created using the interactive TUI builder and compiled into the library for instant API access.
+Tangent provides **terminal avatars for AI agents** with a simple, state-based API. Give your AI agent a face with expressive avatars that show what your agent is doing - planning, thinking, executing.
+
+### Why Terminal Avatars?
+
+AI agents need visible presence. When your agent is working, users should see it - not just read logs. Tangent's state-based avatars map directly to AI agent workflows, making your agent more trustworthy and engaging.
+
+### Discovery Workflow
+
+Before integrating, browse available avatars:
+
+```bash
+# Install CLI to browse avatars
+curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | bash
+
+# Discover avatars
+tangent browse              # See all available
+tangent browse mercury      # Preview specific avatar
+tangent browse water --state think --fps 8
+```
+
+Pick the avatar that matches your agent's personality, then integrate with three simple API calls.
 
 ## Quick Start
 
@@ -12,43 +32,45 @@ Tangent provides a **simple, state-based API** for using agent characters in you
 import "github.com/wildreason/tangent/pkg/characters"
 ```
 
-### 2. Load an Agent
+### 2. Load an Avatar
 
 ```go
+// Load an avatar by name
 agent, err := characters.LibraryAgent("mercury")
 if err != nil {
     log.Fatal(err)
 }
 ```
 
-### 3. Use Agent States
+### 3. Show Agent States
 
 ```go
-// Show planning state
-agent.Plan(os.Stdout)
+// During AI agent workflow, show what the agent is doing
 
-// Show thinking state  
-agent.Think(os.Stdout)
-
-// Show executing state
-agent.Execute(os.Stdout)
+agent.Plan(os.Stdout)       // Agent is planning/strategizing
+agent.Think(os.Stdout)      // Agent is processing/reasoning
+agent.Execute(os.Stdout)    // Agent is acting/performing
 ```
+
+That's it. Your AI agent now has a visible presence during its workflow.
 
 ## Complete API Reference
 
 ### Core Functions
 
 #### `ListLibrary() []string`
-Lists all available agent characters in the library.
+Lists all available avatars in the library.
 
 ```go
-agents := characters.ListLibrary()
-fmt.Printf("Available: %v\n", agents)
-// Output: Available: [demo4 mercury water water5]
+avatars := characters.ListLibrary()
+fmt.Printf("Available avatars: %v\n", avatars)
+// Output: Available avatars: [demo4 mercury water water5]
 ```
 
+**Pro tip**: Use `tangent browse` in terminal for visual preview before integrating.
+
 #### `LibraryAgent(name string) (*AgentCharacter, error)`
-Loads an agent character from the library.
+Loads an avatar from the library.
 
 ```go
 agent, err := characters.LibraryAgent("mercury")
@@ -61,18 +83,20 @@ if err != nil {
 
 #### Required States (Guaranteed)
 
-Every registered agent has these three states:
+Every avatar has these three core states that map to AI agent workflows:
 
 ```go
-// Planning state - Agent analyzing and strategizing
+// Planning state - AI agent analyzing options and strategizing
 agent.Plan(os.Stdout)
 
-// Thinking state - Agent processing and reasoning
+// Thinking state - AI agent processing information and reasoning
 agent.Think(os.Stdout)
 
-// Executing state - Agent taking action
+// Executing state - AI agent taking action and performing tasks
 agent.Execute(os.Stdout)
 ```
+
+These states are **guaranteed** - your code will never break because a state is missing.
 
 #### Optional States
 
@@ -397,5 +421,5 @@ err := agent.Wait(os.Stdout)
 
 ---
 
-**Tangent** - Terminal Agent Designer
+**Tangent** - Terminal Avatars for AI Agents
 

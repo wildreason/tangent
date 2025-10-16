@@ -1,81 +1,174 @@
-# Tangent — Terminal Agent Designer
+# Tangent - Terminal Avatars for AI Agents
 
-Design and use state-animated Unicode characters for CLI agents.
+Give your AI agent a face. Expressive, state-based avatars that bring personality to AI agents in terminal applications.
 
-Status: Alpha • Go 1.21+
+Status: Alpha.5 | Go 1.21+
+
+---
+
+## Why AI Agents Need Avatars
+
+When users interact with AI agents, they need more than text logs. They need to *see* the agent working - planning, thinking, executing. Tangent provides terminal-native avatars with semantic states that map directly to AI agent workflows.
+
+**The Vision**: By v1.0, Tangent aims to be the single source for AI agent terminal avatars - the standard library every AI-native CLI application uses.
 
 ---
 
 ## Quick Start
 
-### For Creators (TUI)
+### Browse Available Avatars
+
 ```bash
-# 1) Install
+# Install CLI
 curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | bash
 
-# 2) Create → Export → PR
-tangent create          
-# Build character with live preview
-# In TUI: Export JSON + README
-# Submit GitHub PR with the exported JSON
+# Browse avatars
+tangent browse              # List all available avatars
+tangent browse mercury      # Preview mercury avatar with states
 ```
 
-### For Developers (API)
+### Integrate with Your AI Agent
+
 ```go
 import "github.com/wildreason/tangent/pkg/characters"
 
 agent, _ := characters.LibraryAgent("mercury")
-agent.Plan(os.Stdout)
-agent.Think(os.Stdout)
-agent.Execute(os.Stdout)
+
+// Show agent states during workflow
+agent.Plan(os.Stdout)       // Agent is planning
+agent.Think(os.Stdout)      // Agent is thinking
+agent.Execute(os.Stdout)    // Agent is executing
 ```
+
+That's it. One line to load, three methods to give your agent presence.
 
 ---
 
-## What Works (Alpha)
-- Bubbletea TUI with split-pane live preview
-- Agent states: plan, think, execute (+ optional wait/error/success)
-- Minimum 3 frames per state; override fps/loops when browsing
-- Simple CLI: create, browse, view (admin hidden; demo removed)
-- Library workflow: export JSON → PR → admin register → compiled in
-- Ready-to-use API: `LibraryAgent()` with state methods
+## Available Avatars
+
+Each avatar has a distinct personality designed for AI agent workflows:
+
+- **mercury** - Fast, analytical avatar
+- **water** - Flowing, adaptive avatar
+- **water5** - Refined aquatic personality
+- **demo4** - Classic demonstration avatar
+
+More avatars coming in Beta. See `tangent browse` for the latest.
 
 ---
 
 ## Core Concepts
-- Base frame (idle) + state animations
-- Required states: plan, think, execute
-- 3+ frames per state for animation
+
+### State-Based Personality
+
+Avatars aren't decorations - they're semantic representations of what your AI agent is doing:
+
+- **plan** - Agent analyzing options and strategizing
+- **think** - Agent processing information and reasoning
+- **execute** - Agent taking action and performing tasks
+
+Optional states: **wait**, **error**, **success**
+
+### Terminal-First Design
+
+- Built for terminal applications, not web
+- Unicode-based, no external dependencies
+- Lightweight, zero-config integration
+- Works with any Go CLI framework
+
+### AI-Native Philosophy
+
+Tangent is purpose-built for AI agents. Every design decision optimizes for:
+- Giving agents visible presence
+- Mapping states to AI workflows
+- Building trust through personality
+- Terminal-native simplicity
 
 ---
 
-## Minimal Examples
+## Example: AI Agent with Avatar
 
-### Developers
 ```go
-agent, _ := characters.LibraryAgent("mercury")
-agent.Plan(os.Stdout)
-```
+package main
 
-### Creators
-```bash
-tangent create
-tangent browse              # list agents
-tangent browse mercury      # animate agent
+import (
+    "fmt"
+    "os"
+    "time"
+    "github.com/wildreason/tangent/pkg/characters"
+)
+
+func main() {
+    agent, _ := characters.LibraryAgent("mercury")
+
+    fmt.Println("Starting AI analysis...")
+    agent.Plan(os.Stdout)
+    time.Sleep(2 * time.Second)
+
+    fmt.Println("\nProcessing data...")
+    agent.Think(os.Stdout)
+    time.Sleep(2 * time.Second)
+
+    fmt.Println("\nExecuting task...")
+    agent.Execute(os.Stdout)
+
+    fmt.Println("\nTask complete!")
+}
 ```
 
 ---
 
 ## Documentation
-- `docs/API.md` – API reference
-- `docs/STATES.md` – Agent states guide
-- `docs/PATTERNS.md` – Unicode pattern reference
-- `docs/CLI.md` – CLI commands and options
+
+- **[API Reference](docs/API.md)** - Complete API documentation
+- **[State Guide](docs/STATES.md)** - Understanding agent states
+- **[Pattern Reference](docs/PATTERNS.md)** - Unicode pattern system
 
 ---
 
-## Contributing
-Character PRs welcome (JSON export from TUI)
+## Philosophy
+
+**Terminal-first.** Not a web component library ported to terminals. Built for terminal applications from the ground up.
+
+**AI-native.** Not generic animations. Purpose-built for AI agents that need visible presence during planning, reasoning, and execution.
+
+**Single-source vision.** By v1.0, Tangent aims to be the standard - the library every AI CLI developer reaches for when their agent needs a face.
+
+---
+
+## Roadmap
+
+**Alpha.5** (current): API-first positioning, curated avatar library
+**Beta**: Expanded avatar library (10-20 avatars), richer state vocabulary
+**v1.0**: The standard for AI agent terminal avatars
+
+---
+
+## For Advanced Users
+
+Want to create custom avatars? Tangent includes a creation tool for contributors. See [docs/CREATORS.md](docs/CREATORS.md) for the full workflow.
+
+Character contributions welcome via GitHub PR. We curate all avatars to maintain quality and AI-agent focus.
+
+---
+
+## Installation
+
+```bash
+# Via installer (recommended)
+curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | bash
+
+# Via Go
+go install github.com/wildreason/tangent/cmd/tangent@latest
+
+# As Go package
+go get github.com/wildreason/tangent/pkg/characters
+```
+
+---
 
 ## License
+
 MIT © 2025 Wildreason, Inc
+
+**Tangent** - Terminal Avatars for AI Agents

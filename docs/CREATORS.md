@@ -1,10 +1,12 @@
-# Tangent CLI Reference
+# Tangent Creator Guide
 
-Complete command-line interface reference for Tangent.
+**For Advanced Users**: Avatar creation and contribution workflow.
+
+This guide is for contributors who want to create custom avatars for AI agents. Most users should focus on browsing and integrating existing avatars (see main [README](../README.md)).
 
 ## Overview
 
-Tangent provides a simple, focused CLI for creating and browsing agent characters.
+Tangent provides a creation tool for building terminal avatars for AI agents. All avatars go through a curated review process to maintain quality and AI-native focus.
 
 ## Commands
 
@@ -369,5 +371,5 @@ For issues or questions:
 
 ---
 
-**Tangent** - Terminal Agent Designer
+**Tangent** - Terminal Avatars for AI Agents
 
