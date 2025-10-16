@@ -17,17 +17,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Go (stable)
+      - name: Set up Go 1.24.x
         uses: actions/setup-go@v5
         with:
-          go-version: 'stable'
-          check-latest: true
+          go-version: '1.24.x'
+          check-latest: false
 
-      - name: Run GoReleaser
+      - name: Run GoReleaser v2
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
-          version: latest
+          version: v2
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -20,3 +20,10 @@ internal_docs/
 .DS_Store
 Thumbs.db
 
+# Understory configuration and runtime files
+.understory/
+.understory/config.json
+.understory/agents/
+.understory/events/
+.understory/messages/
+.understory/logs/
