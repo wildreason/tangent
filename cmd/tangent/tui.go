@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/textinput"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
@@ -58,6 +59,9 @@ type CreationModel struct {
 	width  int
 	height int
 
+	// Right pane viewport for scrolling
+	previewViewport viewport.Model
+
 	// Styles
 	styles Styles
 
@@ -86,6 +90,10 @@ func NewCreationModel(session *Session) CreationModel {
 	ti.CharLimit = 50 // Allow longer input for state names
 	ti.Width = 40
 
+	// Initialize viewport for preview pane (will be sized properly on first WindowSizeMsg)
+	vp := viewport.New(40, 20)
+	vp.Style = lipgloss.NewStyle()
+
 	return CreationModel{
 		session:    session,
 		screen:     ScreenMenu,
@@ -97,9 +105,10 @@ func NewCreationModel(session *Session) CreationModel {
 			"Export for contribution",
 			"Save and exit",
 		},
-		baseLines: make([]string, session.Height),
-		textInput: ti,
-		styles:    NewStyles(),
+		baseLines:       make([]string, session.Height),
+		textInput:       ti,
+		previewViewport: vp,
+		styles:          NewStyles(),
 	}
 }
 
@@ -143,7 +152,7 @@ func NewStyles() Styles {
 type tickMsg struct{}
 
 // Init initializes the model
-func (m CreationModel) Init() tea.Cmd {
+func (m *CreationModel) Init() tea.Cmd {
 	return textinput.Blink
 }
 
@@ -155,13 +164,19 @@ func tick() tea.Cmd {
 }
 
 // Update handles messages
-func (m CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+
+		// Update viewport size for right pane
+		rightWidth := m.width - (m.width / 2)
+		m.previewViewport.Width = rightWidth - 8  // Account for border and padding
+		m.previewViewport.Height = m.height - 7   // Account for title, border, status bar
+
 		return m, nil
 
 	case tickMsg:
@@ -323,7 +338,7 @@ func (m CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // updateMenu handles menu navigation
-func (m CreationModel) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (m *CreationModel) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "up", "k":
 		if m.menuCursor > 0 {
@@ -379,7 +394,7 @@ func (m CreationModel) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 }
 
 // handleBaseLineSubmit handles Enter key in base creation
-func (m CreationModel) handleBaseLineSubmit() (tea.Model, tea.Cmd) {
+func (m *CreationModel) handleBaseLineSubmit() (tea.Model, tea.Cmd) {
 	value := m.textInput.Value()
 
 	// Validate length
@@ -419,7 +434,7 @@ func (m CreationModel) handleBaseLineSubmit() (tea.Model, tea.Cmd) {
 }
 
 // handleBaseLineDelete handles Ctrl+D in base creation
-func (m CreationModel) handleBaseLineDelete() (tea.Model, tea.Cmd) {
+func (m *CreationModel) handleBaseLineDelete() (tea.Model, tea.Cmd) {
 	// Delete last line
 	if m.currentLine > 0 {
 		m.currentLine--
@@ -430,12 +445,12 @@ func (m CreationModel) handleBaseLineDelete() (tea.Model, tea.Cmd) {
 }
 
 // updateCreateBase is now deprecated - logic moved to handlers
-func (m CreationModel) updateCreateBase(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+func (m *CreationModel) updateCreateBase(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
 // handleStateNameSubmit handles state name input
-func (m CreationModel) handleStateNameSubmit() (tea.Model, tea.Cmd) {
+func (m *CreationModel) handleStateNameSubmit() (tea.Model, tea.Cmd) {
 	stateName := strings.TrimSpace(m.textInput.Value())
 
 	if stateName == "" {
@@ -481,7 +496,7 @@ func (m CreationModel) handleStateNameSubmit() (tea.Model, tea.Cmd) {
 }
 
 // handleStateFrameLineSubmit handles frame line input for state
-func (m CreationModel) handleStateFrameLineSubmit() (tea.Model, tea.Cmd) {
+func (m *CreationModel) handleStateFrameLineSubmit() (tea.Model, tea.Cmd) {
 	value := m.textInput.Value()
 
 	// Validate length
@@ -552,7 +567,7 @@ func (m CreationModel) handleStateFrameLineSubmit() (tea.Model, tea.Cmd) {
 }
 
 // handleStateFrameLineDelete handles Ctrl+D in state frame input
-func (m CreationModel) handleStateFrameLineDelete() (tea.Model, tea.Cmd) {
+func (m *CreationModel) handleStateFrameLineDelete() (tea.Model, tea.Cmd) {
 	if m.currentFrameLine > 0 {
 		m.currentFrameLine--
 		m.frameLines[m.currentFrameLine] = ""
@@ -570,7 +585,7 @@ func (m CreationModel) handleStateFrameLineDelete() (tea.Model, tea.Cmd) {
 }
 
 // View renders the UI
-func (m CreationModel) View() string {
+func (m *CreationModel) View() string {
 	if m.width == 0 {
 		return "Loading..."
 	}
@@ -603,7 +618,7 @@ func (m CreationModel) View() string {
 }
 
 // renderLeftPane renders the left pane (menu or creation interface)
-func (m CreationModel) renderLeftPane(width int) string {
+func (m *CreationModel) renderLeftPane(width int) string {
 	var content string
 
 	title := m.styles.title.Render(fmt.Sprintf("◢ CHARACTER: %s", m.session.Name))
@@ -639,7 +654,7 @@ func (m CreationModel) renderLeftPane(width int) string {
 }
 
 // renderMenu renders the main menu
-func (m CreationModel) renderMenu() string {
+func (m *CreationModel) renderMenu() string {
 	var menu strings.Builder
 
 	menu.WriteString(m.styles.helpText.Render("Use ↑/↓ to navigate, Enter to select, q to quit"))
@@ -668,7 +683,7 @@ func (m CreationModel) renderMenu() string {
 }
 
 // renderCreateBase renders the base creation interface
-func (m CreationModel) renderCreateBase() string {
+func (m *CreationModel) renderCreateBase() string {
 	var content strings.Builder
 
 	content.WriteString(m.styles.title.Render("CREATE BASE CHARACTER"))
@@ -705,7 +720,7 @@ func (m CreationModel) renderCreateBase() string {
 }
 
 // renderStateNameInput renders the state name input
-func (m CreationModel) renderStateNameInput() string {
+func (m *CreationModel) renderStateNameInput() string {
 	var content strings.Builder
 
 	content.WriteString(m.styles.title.Render("ADD AGENT STATE"))
@@ -745,7 +760,7 @@ func (m CreationModel) renderStateNameInput() string {
 }
 
 // renderStateFrameInput renders the state frame input
-func (m CreationModel) renderStateFrameInput() string {
+func (m *CreationModel) renderStateFrameInput() string {
 	var content strings.Builder
 
 	content.WriteString(m.styles.title.Render(fmt.Sprintf("CREATE STATE: %s", m.currentStateName)))
@@ -788,7 +803,7 @@ func (m CreationModel) renderStateFrameInput() string {
 }
 
 // renderStatePreview renders the final preview of completed state
-func (m CreationModel) renderStatePreview() string {
+func (m *CreationModel) renderStatePreview() string {
 	var content strings.Builder
 
 	content.WriteString(m.styles.title.Render(fmt.Sprintf("PREVIEW: %s", m.currentStateName)))
@@ -822,7 +837,7 @@ func (m CreationModel) renderStatePreview() string {
 }
 
 // renderAnimateAll renders the animate all states screen
-func (m CreationModel) renderAnimateAll() string {
+func (m *CreationModel) renderAnimateAll() string {
 	var content strings.Builder
 
 	content.WriteString(m.styles.title.Render("ANIMATE ALL STATES"))
@@ -870,7 +885,7 @@ func (m CreationModel) renderAnimateAll() string {
 }
 
 // renderExport renders the export screen
-func (m CreationModel) renderExport() string {
+func (m *CreationModel) renderExport() string {
 	var content strings.Builder
 
 	content.WriteString(m.styles.title.Render("EXPORT FOR CONTRIBUTION"))
@@ -934,7 +949,7 @@ func (m CreationModel) renderExport() string {
 }
 
 // renderRightPane renders the right pane (live preview)
-func (m CreationModel) renderRightPane(width int) string {
+func (m *CreationModel) renderRightPane(width int) string {
 	title := m.styles.title.Render("◢ LIVE PREVIEW")
 
 	var preview strings.Builder
@@ -1128,11 +1143,16 @@ func (m CreationModel) renderRightPane(width int) string {
 		}
 	}
 
+	// Update viewport content
+	m.previewViewport.SetContent(preview.String())
+
+	// Render viewport with title
+	viewportView := m.previewViewport.View()
 	pane := lipgloss.JoinVertical(
 		lipgloss.Left,
 		title,
 		"",
-		preview.String(),
+		viewportView,
 	)
 
 	return m.styles.preview.
@@ -1142,7 +1162,7 @@ func (m CreationModel) renderRightPane(width int) string {
 }
 
 // renderStatusBar renders the bottom status bar
-func (m CreationModel) renderStatusBar() string {
+func (m *CreationModel) renderStatusBar() string {
 	status := m.statusMsg
 	if status == "" {
 		status = "Ready"
@@ -1272,8 +1292,9 @@ func (m *CreationModel) generateReadme() string {
 
 // StartCreationTUI starts the Bubbletea TUI for character creation
 func StartCreationTUI(session *Session) error {
+	model := NewCreationModel(session)
 	p := tea.NewProgram(
-		NewCreationModel(session),
+		&model,
 		tea.WithAltScreen(),
 	)
 
