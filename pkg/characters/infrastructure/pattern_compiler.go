@@ -23,12 +23,19 @@ func NewPatternCompiler() domain.PatternCompiler {
 	codes := patterns.DefaultPatternCodes()
 	return &SimplePatternCompiler{
 		patterns: map[rune]rune{
-			// Basic blocks
+			// Basic blocks (uppercase)
 			'F': codes.FullBlock,  // Full Block
 			'T': codes.TopHalf,    // Top Half Block
 			'B': codes.BottomHalf, // Bottom Half Block
 			'L': codes.LeftHalf,   // Left Half Block
 			'R': codes.RightHalf,  // Right Half Block
+
+			// Basic blocks (lowercase)
+			'f': codes.FullBlock,  // Full Block
+			't': codes.TopHalf,    // Top Half Block
+			'b': codes.BottomHalf, // Bottom Half Block
+			'l': codes.LeftHalf,   // Left Half Block
+			'r': codes.RightHalf,  // Right Half Block
 
 			// Shading blocks
 			'.': codes.LightShade,  // Light Shade
