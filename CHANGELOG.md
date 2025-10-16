@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.1.0-alpha.6] - 2025-10-16
+
+**Library Consolidation**
+
+Consolidated to single avatar with expanded state coverage. Removed test avatars from Alpha development phase.
+
+### Changes
+
+- **ADDED**: fire avatar with 14 states (11x3 dimensions)
+  - Core states: plan, think, execute, wait, error, success
+  - Extended: bash, read, write, search, build, communicate, block, blocked
+- **REMOVED**: Test avatars (demo4, mercury, water, water5)
+- **UPDATED**: Documentation examples reference fire avatar
+
+### Migration
+
+Change avatar name in existing code:
+```go
+// Before
+agent, _ := characters.LibraryAgent("mercury")
+
+// After
+agent, _ := characters.LibraryAgent("fire")
+```
+
+API unchanged - only avatar name differs.
+
+### Next
+
+Beta will expand library with additional avatars. Fire establishes baseline state coverage.
+
+---
+
 ## [0.1.0-alpha.5] - 2025-10-16
 
 **AI-Native Positioning: Terminal Avatars for AI Agents**

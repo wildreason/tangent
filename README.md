@@ -2,7 +2,7 @@
 
 Give your AI agent a face. Expressive, state-based avatars that bring personality to AI agents in terminal applications.
 
-Status: Alpha.5 | Go 1.21+
+Status: Alpha.6 | Go 1.21+
 
 ---
 
@@ -22,11 +22,12 @@ When users interact with AI agents, they need more than text logs. They need to 
 ```bash
 curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | bash
 ```
+
 #### Window Shop
 ```bash
 # Browse avatars
 tangent browse              # List all available avatars
-tangent browse mercury      # Preview mercury avatar with states
+tangent browse fire         # Preview fire avatar with states
 ```
 
 ### Integrate with Your AI Agent
@@ -34,42 +35,46 @@ tangent browse mercury      # Preview mercury avatar with states
 ```go
 import "github.com/wildreason/tangent/pkg/characters"
 
-agent, _ := characters.LibraryAgent("mercury")
+agent, _ := characters.LibraryAgent("fire")
 
 // Show agent states during workflow
 agent.Plan(os.Stdout)       // Agent is planning
 agent.Think(os.Stdout)      // Agent is thinking
-agent.Execute(os.Stdout)    // Agent is executing
+agent.Success(os.Stdout)    // Agent was successful
+agent.Searching(os.Stdout)  // Agent is searching files
 ```
 
-That's it. One line to load, three methods to give your agent presence.
+One line to load, and methods to give your agent presence.
 
 ---
 
-## Available Avatars
+## Available Avatar
 
-Each avatar has a distinct personality designed for AI agent workflows:
+**fire** (11x3) - 14 states including:
+- Core: plan, think, execute, wait, error, success
+- Extended: bash, read, write, search, build, communicate, block, blocked
 
-- **mercury** - Fast, analytical avatar
-- **water** - Flowing, adaptive avatar
-- **water5** - Refined aquatic personality
-- **demo4** - Classic demonstration avatar
-
-More avatars coming in Beta. See `tangent browse` for the latest.
+Additional avatars planned for Beta release.
 
 ---
 
 ## Core Concepts
 
-### State-Based Personality
+### State-Based Personality (Lifecycles)
 
-Avatars aren't decorations - they're semantic representations of what your AI agent is doing:
-
-- **plan** - Agent analyzing options and strategizing
-- **think** - Agent processing information and reasoning
-- **execute** - Agent taking action and performing tasks
-
-Optional states: **wait**, **error**, **success**
+AGENT LIFECYCLE STATES:
+  - waiting      → Agent idle, no task assigned
+  - thinking     → Agent analyzing/reasoning (LLM inference)
+  - planning     → Agent breaking down task into steps
+  - reading      → Agent examining files/docs
+  - searching    → Agent searching codebase (Grep/Glob)
+  - writing      → Agent creating/editing files
+  - executing    → Agent running bash commands
+  - building     → Agent compiling/testing
+  - communicating→ Agent messaging other agents (MCP)
+  - blocked      → Agent waiting on dependency
+  - error        → Agent encountered failure
+  - success      → Agent completed task
 
 ### Terminal-First Design
 
@@ -101,7 +106,7 @@ import (
 )
 
 func main() {
-    agent, _ := characters.LibraryAgent("mercury")
+    agent, _ := characters.LibraryAgent("fire")
 
     fmt.Println("Starting AI analysis...")
     agent.Plan(os.Stdout)
@@ -128,20 +133,10 @@ func main() {
 
 ---
 
-## Philosophy
-
-**Terminal-first.** Not a web component library ported to terminals. Built for terminal applications from the ground up.
-
-**AI-native.** Not generic animations. Purpose-built for AI agents that need visible presence during planning, reasoning, and execution.
-
-**Single-source vision.** By v1.0, Tangent aims to be the standard - the library every AI CLI developer reaches for when their agent needs a face.
-
----
-
 ## Roadmap
 
-**Alpha.5** (current): API-first positioning, curated avatar library
-**Beta**: Expanded avatar library (10-20 avatars), richer state vocabulary
+**Alpha** (current): API-first positioning, curated avatar library
+**Beta**: Expanded avatar library (8 avatars), richer state vocabulary
 **v1.0**: The standard for AI agent terminal avatars
 
 ---
