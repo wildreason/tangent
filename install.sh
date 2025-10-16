@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 echo "╔══════════════════════════════════════════╗"
 echo "║  Tangent Installer                       ║"
-echo "║  Terminal Agent Designer                 ║"
+echo "║  Terminal Avatars for AI Agents          ║"
 echo "╚══════════════════════════════════════════╝"
 echo ""
 
@@ -198,9 +198,9 @@ fi
 # Concise success output (5 lines)
 echo ""
 VERSION_TAG="$RELEASE_TAG"
-echo "Tangent Installer — Terminal Agent Designer"
+echo "Tangent Installer — Terminal Avatars for AI Agents"
 echo "Installing ${VERSION_TAG} to ${INSTALL_DIR} ..."
 echo "Downloading and extracting… ✓"
 echo "Installed: ${INSTALL_DIR}/tangent"
-echo "Next: tangent create | tangent browse | tangent view | tangent version"
+echo "Next: tangent browse (discover avatars for your AI agent)"
 

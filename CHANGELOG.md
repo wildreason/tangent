@@ -1,5 +1,97 @@
 # Changelog
 
+## [0.1.0-alpha.5] - 2025-10-16
+
+**AI-Native Positioning: Terminal Avatars for AI Agents**
+
+Alpha.5 repositions Tangent with laser focus on its true purpose: providing terminal avatars for AI agents. This is not a generic animation library - it's the single-source solution for giving AI agents a face, presence, and personality in terminal applications.
+
+### Strategic Positioning Changes
+
+- **NEW TAGLINE**: "Terminal Avatars for AI Agents" (was "Terminal Agent Designer")
+- **NEW PHILOSOPHY**: Give your AI agent a face - not "add animations to CLIs"
+- **NEW MESSAGING**: All documentation emphasizes AI-native, terminal-first design
+- **NEW VISION**: By v1.0, become the standard library for AI agent terminal avatars
+
+### Documentation Overhaul
+
+- **REWRITTEN**: README.md with AI-native positioning and Stripe-like clarity
+  - Clear value prop: "Give your AI agent a face"
+  - Browse → pick → integrate workflow emphasized
+  - Available avatars showcased with personality descriptions
+  - Philosophy section explains terminal-first, AI-native approach
+- **RENAMED**: docs/CLI.md → docs/CREATORS.md (for advanced users/contributors)
+- **ENHANCED**: docs/API.md with discovery workflow and AI agent context
+  - Added "Why Terminal Avatars?" section
+  - Added discovery workflow using `tangent browse`
+  - Emphasized guaranteed states and AI workflow mapping
+- **UPDATED**: All taglines changed from "Terminal Agent Designer" to "Terminal Avatars for AI Agents"
+
+### CLI Changes
+
+- **HIDDEN**: `tangent create` removed from help output (still functional for contributors)
+- **UPDATED**: Help text now emphasizes `tangent browse` as primary discovery tool
+- **REMOVED**: References to creation workflow in main help
+- **SIMPLIFIED**: Focus on avatar discovery and API integration
+- **UPDATED**: Banner and usage text with new "Terminal Avatars for AI Agents" tagline
+
+### Install Script Updates
+
+- **UPDATED**: Installer messaging emphasizes avatars for AI agents
+- **CHANGED**: Success message: "Next: tangent browse (discover avatars for your AI agent)"
+- **REMOVED**: References to `tangent create` from installer output
+
+### Positioning Strategy
+
+**What This Changes:**
+- From: "A tool to design and use CLI character animations"
+- To: "The definitive terminal avatar system for AI agents"
+
+**Target Audience:**
+- Developers building AI-native CLI applications
+- AI agent frameworks needing visible presence
+- Terminal-first AI tools
+
+**Not For:**
+- Generic CLI beautification
+- Web-based animations
+- Non-AI terminal applications
+
+### Roadmap Alignment
+
+- **Alpha.5** (current): API-first positioning, curated avatar library
+- **Beta** (next): Expanded library (10-20 avatars), richer state vocabulary
+- **v1.0** (goal): The standard - every AI CLI tool uses Tangent avatars
+
+### Files Modified
+
+1. README.md - Complete rewrite with AI-native focus
+2. cmd/tangent/main.go - Updated taglines, hidden `create` from help
+3. docs/CLI.md → docs/CREATORS.md - Renamed and repositioned for advanced users
+4. docs/API.md - Added AI-native context and discovery workflow
+5. install.sh - Updated all messaging to emphasize avatars for AI agents
+6. CHANGELOG.md - This entry
+
+### Migration Notes
+
+**For Users:**
+- No API changes - all existing code continues to work
+- `tangent browse` is now the primary discovery command
+- `tangent create` still available but not promoted (see docs/CREATORS.md)
+
+**For Contributors:**
+- Character creation workflow unchanged
+- Export → PR process maintained
+- Focus on AI-agent-appropriate avatars
+
+### Philosophy
+
+Tangent is purpose-built for AI agents in terminal applications. Every design decision optimizes for giving agents visible presence, mapping states to AI workflows, building trust through personality, and maintaining terminal-native simplicity.
+
+**The Vision**: By v1.0, become "the Stripe of terminal agent faces" - the single source every AI-native CLI reaches for when their agent needs a face.
+
+---
+
 ## [0.1.0-alpha.4] - 2025-10-15
 
 Alpha.4 focuses on a simpler, production-ready workflow for both creators and developers.
