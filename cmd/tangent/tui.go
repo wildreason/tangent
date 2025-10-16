@@ -62,6 +62,9 @@ type CreationModel struct {
 	// Right pane viewport for scrolling
 	previewViewport viewport.Model
 
+	// Grid overlay toggle
+	gridEnabled bool
+
 	// Styles
 	styles Styles
 
@@ -221,6 +224,14 @@ func (m *CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m.handleBaseLineSubmit()
 			case "ctrl+d":
 				return m.handleBaseLineDelete()
+			case "g", "G":
+				m.gridEnabled = !m.gridEnabled
+				status := "OFF"
+				if m.gridEnabled {
+					status = "ON"
+				}
+				m.statusMsg = fmt.Sprintf("Grid overlay: %s", status)
+				return m, nil
 			default:
 				// Let text input handle all other keys
 				m.textInput, cmd = m.textInput.Update(msg)
@@ -254,6 +265,14 @@ func (m *CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m.handleStateFrameLineSubmit()
 			case "ctrl+d":
 				return m.handleStateFrameLineDelete()
+			case "g", "G":
+				m.gridEnabled = !m.gridEnabled
+				status := "OFF"
+				if m.gridEnabled {
+					status = "ON"
+				}
+				m.statusMsg = fmt.Sprintf("Grid overlay: %s", status)
+				return m, nil
 			default:
 				m.textInput, cmd = m.textInput.Update(msg)
 				return m, cmd
@@ -714,7 +733,7 @@ func (m *CreationModel) renderCreateBase() string {
 	}
 
 	content.WriteString("\n")
-	content.WriteString(m.styles.helpText.Render("Enter: confirm line | Ctrl+D: delete last | Esc: cancel"))
+	content.WriteString(m.styles.helpText.Render("Enter: confirm line | Ctrl+D: delete last | G: grid | Esc: cancel"))
 
 	return content.String()
 }
@@ -797,7 +816,7 @@ func (m *CreationModel) renderStateFrameInput() string {
 	}
 
 	content.WriteString("\n")
-	content.WriteString(m.styles.helpText.Render("Enter: confirm line | Ctrl+D: delete last | Esc: cancel"))
+	content.WriteString(m.styles.helpText.Render("Enter: confirm line | Ctrl+D: delete last | G: grid | Esc: cancel"))
 
 	return content.String()
 }
@@ -977,16 +996,34 @@ func (m *CreationModel) renderRightPane(width int) string {
 				compiled := compiler.Compile(m.baseLines[i])
 				preview.WriteString("  " + compiled + "\n")
 			} else if i == m.currentLine {
-				// Show current line being edited
+				// Show current line being edited with character-by-character ghost fill
 				currentValue := m.textInput.Value()
-				if currentValue != "" {
-					compiled := compiler.Compile(currentValue)
-					preview.WriteString("  " + compiled + " ◀\n")
-				} else {
-					preview.WriteString("  " + strings.Repeat("_", m.session.Width) + " ◀\n")
+				var displayLine strings.Builder
+
+				for col := 0; col < m.session.Width; col++ {
+					if col < len(currentValue) {
+						// User has entered a character at this position - compile and show it
+						char := string(currentValue[col])
+						compiled := compiler.Compile(char)
+						displayLine.WriteString(compiled)
+					} else {
+						// No user input yet - show ghost or underscore
+						if m.gridEnabled {
+							displayLine.WriteString("░")
+						} else {
+							displayLine.WriteString("_")
+						}
+					}
 				}
+
+				preview.WriteString("  " + displayLine.String() + " ◀\n")
 			} else {
-				preview.WriteString("  " + strings.Repeat("_", m.session.Width) + "\n")
+				// Show ghost grid or underscores for future lines
+				if m.gridEnabled {
+					preview.WriteString("  " + strings.Repeat("░", m.session.Width) + "\n")
+				} else {
+					preview.WriteString("  " + strings.Repeat("_", m.session.Width) + "\n")
+				}
 			}
 		}
 
@@ -1024,16 +1061,34 @@ func (m *CreationModel) renderRightPane(width int) string {
 				compiled := compiler.Compile(m.frameLines[i])
 				preview.WriteString("  " + compiled + "\n")
 			} else if i == m.currentFrameLine {
-				// Show current line being edited
+				// Show current line being edited with character-by-character ghost fill
 				currentValue := m.textInput.Value()
-				if currentValue != "" {
-					compiled := compiler.Compile(currentValue)
-					preview.WriteString("  " + compiled + " ◀\n")
-				} else {
-					preview.WriteString("  " + strings.Repeat("_", m.session.Width) + " ◀\n")
+				var displayLine strings.Builder
+
+				for col := 0; col < m.session.Width; col++ {
+					if col < len(currentValue) {
+						// User has entered a character at this position - compile and show it
+						char := string(currentValue[col])
+						compiled := compiler.Compile(char)
+						displayLine.WriteString(compiled)
+					} else {
+						// No user input yet - show ghost or underscore
+						if m.gridEnabled {
+							displayLine.WriteString("░")
+						} else {
+							displayLine.WriteString("_")
+						}
+					}
 				}
+
+				preview.WriteString("  " + displayLine.String() + " ◀\n")
 			} else {
-				preview.WriteString("  " + strings.Repeat("_", m.session.Width) + "\n")
+				// Show ghost grid or underscores for future lines
+				if m.gridEnabled {
+					preview.WriteString("  " + strings.Repeat("░", m.session.Width) + "\n")
+				} else {
+					preview.WriteString("  " + strings.Repeat("_", m.session.Width) + "\n")
+				}
 			}
 		}
 
