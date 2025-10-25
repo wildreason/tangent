@@ -1,5 +1,50 @@
 # Changelog
 
+## [0.1.0-alpha.9] - 2025-10-24
+
+**Export Color Utilities for Consumer Integration**
+
+Added exported utility functions for color application, enabling consumers like Handwave to avoid code duplication.
+
+### Added
+
+- **Exported color utilities** in `pkg/characters/color.go`:
+  - `ColorizeFrame(frame, hexColor)` - Compile pattern codes and apply ANSI RGB colors to a frame
+  - `ColorizeString(text, hexColor)` - Wrap text with ANSI RGB escape codes
+  - `HexToRGB(hex)` - Convert hex color to RGB values
+- **Comprehensive tests** for all color utility functions
+- **Documentation** with usage examples for each exported function
+
+### Changed
+
+- Internal colorization in `agent.go` now uses exported `ColorizeString()` function
+- Removed duplicate `hexToRGB()` implementation from `agent.go`
+
+### Benefits
+
+- **Single source of truth** for color logic
+- **No code duplication** for consumers implementing custom animation systems
+- **Clear API** for non-blocking color application
+- **Supports custom TUI frameworks** like Bubble Tea
+
+### Migration for Consumers
+
+Consumers with duplicated colorization logic can now use Tangent's utilities:
+
+```go
+// Before (duplicated logic):
+func colorize(text, hex string) string {
+    // ... custom implementation
+}
+
+// After (using Tangent):
+import "github.com/wildreason/tangent/pkg/characters"
+
+coloredLines := characters.ColorizeFrame(frame, char.Color)
+```
+
+---
+
 ## [0.1.0-alpha.8] - 2025-10-24
 
 **Color Rendering Fix**
