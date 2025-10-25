@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
@@ -12,28 +11,10 @@ import (
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
 )
 
-// hexToRGB converts hex color to RGB values
-func hexToRGB(hex string) (r, g, b int) {
-	// Remove # if present
-	hex = strings.TrimPrefix(hex, "#")
-
-	// Parse hex string
-	if len(hex) == 6 {
-		val, _ := strconv.ParseInt(hex, 16, 32)
-		r = int((val >> 16) & 0xFF)
-		g = int((val >> 8) & 0xFF)
-		b = int(val & 0xFF)
-	}
-	return
-}
-
 // colorize wraps text with ANSI RGB color codes
+// This is a convenience wrapper around the exported ColorizeString function
 func colorize(text string, hexColor string) string {
-	if hexColor == "" {
-		return text
-	}
-	r, g, b := hexToRGB(hexColor)
-	return fmt.Sprintf("\x1b[38;2;%d;%d;%dm%s\x1b[0m", r, g, b, text)
+	return ColorizeString(text, hexColor)
 }
 
 // AgentCharacter wraps a Character with state-based API methods for AI agents
