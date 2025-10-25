@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.0-alpha.8] - 2025-10-24
+
+**Color Rendering Fix**
+
+Fixed terminal color rendering for all 7 character avatars.
+
+### Fixed
+
+- Characters now render in distinct colors in terminal output
+- Each avatar has unique color identity (fire=orange, mercury=silver, neptune=blue, mars=crimson, jupiter=gold, saturn=purple, uranus=teal)
+- ANSI RGB escape codes properly applied to all Unicode blocks
+
+---
+
 ## [0.1.0-alpha.7] - 2025-10-24
 
 **Seven-Avatar Library Complete with Terminal Colors**
