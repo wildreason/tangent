@@ -8,18 +8,9 @@ var marsCharacter = LibraryCharacter{
 	Name:        "mars",
 	Description: "mars - War energy avatar (14 states)",
 	Author:      "Wildreason, Inc",
+	Color:       "#DC143C", // Crimson
 	Width:       11,
 	Height:      3,
-	ColorPalette: map[string]string{
-		"R": "#FF0000", // Red
-		"L": "#DC143C", // Crimson
-		"F": "#FF6B6B", // Light red
-		"6": "#E63946", // Light crimson
-		"5": "#D62828", // Medium red
-		"4": "#C61818", // Dark red
-		"2": "#8B0000", // Dark red
-		"1": "#6B0000", // Darkest red
-	},
 	Patterns: []Frame{
 		{
 			Name: "base",

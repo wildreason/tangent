@@ -8,18 +8,9 @@ var neptuneCharacter = LibraryCharacter{
 	Name:        "neptune",
 	Description: "neptune - Ocean waves avatar (14 states)",
 	Author:      "Wildreason, Inc",
+	Color:       "#1E90FF", // Dodger blue
 	Width:       11,
 	Height:      3,
-	ColorPalette: map[string]string{
-		"R": "#1E90FF", // Dodger blue
-		"L": "#00CED1", // Dark turquoise
-		"F": "#87CEEB", // Sky blue
-		"6": "#4DB8E8", // Light blue
-		"5": "#3AA8D8", // Medium blue
-		"4": "#2798C8", // Blue
-		"2": "#1488B8", // Dark blue
-		"1": "#0178A8", // Darkest blue
-	},
 	Patterns: []Frame{
 		{
 			Name: "base",

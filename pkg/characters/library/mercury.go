@@ -8,18 +8,9 @@ var mercuryCharacter = LibraryCharacter{
 	Name:        "mercury",
 	Description: "mercury - Liquid metal avatar (14 states)",
 	Author:      "Wildreason, Inc",
+	Color:       "#C0C0C0", // Silver
 	Width:       11,
 	Height:      3,
-	ColorPalette: map[string]string{
-		"R": "#E8E8E8", // Bright silver
-		"L": "#C0C0C0", // Light silver
-		"F": "#FFFFFF", // White
-		"6": "#B8B8B8", // Light gray
-		"5": "#A0A0A0", // Medium gray
-		"4": "#888888", // Dark gray
-		"2": "#707070", // Darker gray
-		"1": "#505050", // Darkest gray
-	},
 	Patterns: []Frame{
 		{
 			Name: "base",

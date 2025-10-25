@@ -8,18 +8,9 @@ var jupiterCharacter = LibraryCharacter{
 	Name:        "jupiter",
 	Description: "jupiter - Storm power avatar (14 states)",
 	Author:      "Wildreason, Inc",
+	Color:       "#FFD700", // Gold
 	Width:       11,
 	Height:      3,
-	ColorPalette: map[string]string{
-		"R": "#FFD700", // Gold
-		"L": "#FFA500", // Orange
-		"F": "#FFFF00", // Yellow
-		"6": "#FFE066", // Light yellow
-		"5": "#FFCC33", // Medium gold
-		"4": "#FFB800", // Gold
-		"2": "#CC9A00", // Dark gold
-		"1": "#997300", // Darkest gold
-	},
 	Patterns: []Frame{
 		{
 			Name: "base",

@@ -8,18 +8,9 @@ var saturnCharacter = LibraryCharacter{
 	Name:        "saturn",
 	Description: "saturn - Orbital rings avatar (14 states)",
 	Author:      "Wildreason, Inc",
+	Color:       "#9370DB", // Medium purple
 	Width:       11,
 	Height:      3,
-	ColorPalette: map[string]string{
-		"R": "#9370DB", // Medium purple
-		"L": "#8A2BE2", // Blue violet
-		"F": "#DA70D6", // Orchid
-		"6": "#B19CD9", // Light purple
-		"5": "#9F7FD6", // Medium purple
-		"4": "#8D62D3", // Purple
-		"2": "#7B45D0", // Dark purple
-		"1": "#6928CD", // Darkest purple
-	},
 	Patterns: []Frame{
 		{
 			Name: "base",

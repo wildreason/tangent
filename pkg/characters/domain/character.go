@@ -6,6 +6,7 @@ import "strings"
 type Character struct {
 	Name        string
 	Personality string // Optional: "efficient", "friendly", "analytical", "creative"
+	Color       string // Hex color for the character (e.g., "#FF4500")
 	Width       int
 	Height      int
 	BaseFrame   Frame            // Idle/immutable base character
