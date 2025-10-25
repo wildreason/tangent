@@ -8,6 +8,7 @@ var fireCharacter = LibraryCharacter{
 	Name:        "fire",
 	Description: "fire - AI agent avatar (14 states)",
 	Author:      "Wildreason, Inc",
+	Color:       "#FF6B35", // Orange-red
 	Width:       11,
 	Height:      3,
 	Patterns: []Frame{

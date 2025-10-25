@@ -53,19 +53,21 @@ One line to load, and methods to give your agent presence.
 
 ## Available Avatars
 
-All avatars are 11x3 dimensions with 14 states each:
+All avatars are 11x3 dimensions with 14 states each, rendered in distinct colors:
 
-| Name | Theme | Color Palette | Agent Mapping | Description |
-|------|-------|---------------|---------------|-------------|
-| **fire** | Flames | Orange/red | `sa` (default) | High-energy, active agents |
-| **mercury** | Liquid metal | Silver/white | `ri` | Fast, fluid agents |
-| **neptune** | Ocean waves | Cyan/blue | `ga` | Deep-thinking, analytical agents |
-| **mars** | War energy | Red/crimson | `ma` | Aggressive, action-oriented agents |
-| **jupiter** | Storm power | Gold/yellow | `pa` | Powerful, commanding agents |
-| **saturn** | Orbital rings | Purple/violet | `da` | Organized, systematic agents |
-| **uranus** | Ice crystals | Teal/aqua | `ni` | Cool, methodical agents |
+| Name | Theme | Terminal Color | Agent | Description |
+|------|-------|----------------|-------|-------------|
+| **fire** | Flames | 🟠 Orange (#FF6B35) | `sa` | High-energy, active agents |
+| **mercury** | Liquid metal | ⚪ Silver (#C0C0C0) | `ri` | Fast, fluid agents |
+| **neptune** | Ocean waves | 🔵 Blue (#1E90FF) | `ga` | Deep-thinking, analytical agents |
+| **mars** | War energy | 🔴 Crimson (#DC143C) | `ma` | Aggressive, action-oriented agents |
+| **jupiter** | Storm power | 🟡 Gold (#FFD700) | `pa` | Powerful, commanding agents |
+| **saturn** | Orbital rings | 🟣 Purple (#9370DB) | `da` | Organized, systematic agents |
+| **uranus** | Ice crystals | 🔷 Teal (#20B2AA) | `ni` | Cool, methodical agents |
 
 **States:** wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked
+
+**Colors:** Terminal avatars render in true RGB color on terminals that support ANSI escape codes.
 
 ---
 

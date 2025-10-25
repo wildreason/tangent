@@ -4,12 +4,37 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/wildreason/tangent/pkg/characters/domain"
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
 )
+
+// hexToRGB converts hex color to RGB values
+func hexToRGB(hex string) (r, g, b int) {
+	// Remove # if present
+	hex = strings.TrimPrefix(hex, "#")
+
+	// Parse hex string
+	if len(hex) == 6 {
+		val, _ := strconv.ParseInt(hex, 16, 32)
+		r = int((val >> 16) & 0xFF)
+		g = int((val >> 8) & 0xFF)
+		b = int(val & 0xFF)
+	}
+	return
+}
+
+// colorize wraps text with ANSI RGB color codes
+func colorize(text string, hexColor string) string {
+	if hexColor == "" {
+		return text
+	}
+	r, g, b := hexToRGB(hexColor)
+	return fmt.Sprintf("\x1b[38;2;%d;%d;%dm%s\x1b[0m", r, g, b, text)
+}
 
 // AgentCharacter wraps a Character with state-based API methods for AI agents
 type AgentCharacter struct {
@@ -158,8 +183,13 @@ func (a *AgentCharacter) ShowBase(writer io.Writer) error {
 		return fmt.Errorf("character %s has no base frame defined", a.character.Name)
 	}
 
+	// Create pattern compiler for frame compilation
+	compiler := infrastructure.NewPatternCompiler()
+
 	for _, line := range a.character.BaseFrame.Lines {
-		fmt.Fprintln(writer, line)
+		compiledLine := compiler.Compile(line)
+		coloredLine := colorize(compiledLine, a.character.Color)
+		fmt.Fprintln(writer, coloredLine)
 	}
 
 	return nil
@@ -207,10 +237,11 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 
 	for loop := 0; loop < stateLoops; loop++ {
 		for _, frame := range state.Frames {
-			// Clear and print each line (compile pattern codes)
+			// Clear and print each line (compile pattern codes and apply color)
 			for _, line := range frame.Lines {
 				compiledLine := compiler.Compile(line)
-				fmt.Fprintf(writer, "\r\x1b[2K%s\n", compiledLine)
+				coloredLine := colorize(compiledLine, a.character.Color)
+				fmt.Fprintf(writer, "\r\x1b[2K%s\n", coloredLine)
 			}
 
 			// Move cursor back up
@@ -220,11 +251,12 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 		}
 	}
 
-	// Print final frame cleanly (compile pattern codes)
+	// Print final frame cleanly (compile pattern codes and apply color)
 	finalFrame := state.Frames[len(state.Frames)-1]
 	for _, line := range finalFrame.Lines {
 		compiledLine := compiler.Compile(line)
-		fmt.Fprintln(writer, compiledLine)
+		coloredLine := colorize(compiledLine, a.character.Color)
+		fmt.Fprintln(writer, coloredLine)
 	}
 
 	return nil

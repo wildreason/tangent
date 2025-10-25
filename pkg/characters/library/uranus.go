@@ -8,18 +8,9 @@ var uranusCharacter = LibraryCharacter{
 	Name:        "uranus",
 	Description: "uranus - Ice crystal avatar (14 states)",
 	Author:      "Wildreason, Inc",
+	Color:       "#20B2AA", // Light sea green / teal
 	Width:       11,
 	Height:      3,
-	ColorPalette: map[string]string{
-		"R": "#48D1CC", // Medium turquoise
-		"L": "#20B2AA", // Light sea green
-		"F": "#AFEEEE", // Pale turquoise
-		"6": "#68D8D6", // Light teal
-		"5": "#50C5C0", // Medium teal
-		"4": "#38B2AA", // Teal
-		"2": "#209F94", // Dark teal
-		"1": "#188C7E", // Darkest teal
-	},
 	Patterns: []Frame{
 		{
 			Name: "base",

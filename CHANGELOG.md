@@ -2,34 +2,40 @@
 
 ## [0.1.0-alpha.7] - 2025-10-24
 
-**Seven-Avatar Library Complete**
+**Seven-Avatar Library Complete with Terminal Colors**
 
-Expanded character library to support murmur's 7-agent system with color-themed avatars.
+Expanded character library to support murmur's 7-agent system with distinct colored avatars.
 
 ### Added
 
 - **6 new character avatars** (mercury, neptune, mars, jupiter, saturn, uranus)
-  - mercury: Silver/white liquid metal theme (ri agent)
-  - neptune: Cyan/blue ocean waves theme (ga agent)
-  - mars: Red/crimson war energy theme (ma agent)
-  - jupiter: Gold/yellow storm power theme (pa agent)
-  - saturn: Purple/violet orbital rings theme (da agent)
-  - uranus: Teal/aqua ice crystals theme (ni agent)
-- **ColorPalette metadata field** in LibraryCharacter struct
-  - Pattern code → hex color mapping for consumer guidance
-  - Optional field for backward compatibility
+  - mercury: Silver (#C0C0C0) - Liquid metal theme (ri agent)
+  - neptune: Dodger blue (#1E90FF) - Ocean waves theme (ga agent)
+  - mars: Crimson (#DC143C) - War energy theme (ma agent)
+  - jupiter: Gold (#FFD700) - Storm power theme (pa agent)
+  - saturn: Medium purple (#9370DB) - Orbital rings theme (da agent)
+  - uranus: Light sea green (#20B2AA) - Ice crystals theme (ni agent)
+- **Terminal color rendering** with ANSI RGB escape codes
+  - Each character has distinct color in terminal output
+  - Hex-to-RGB conversion for true-color terminals
+  - Backward compatible (graceful degradation)
+- **Color field** in LibraryCharacter and Character structs
+  - Single hex color per character
+  - Applied to all Unicode blocks uniformly
 - **14 states per character** (wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked)
 - **Consistent 11x3 dimensions** across all 7 avatars
 
 ### Changed
 
-- LibraryCharacter struct now includes optional ColorPalette field
+- LibraryCharacter struct now includes Color field (replaced ColorPalette)
+- domain.Character struct includes Color field
+- AnimateState() and ShowBase() now apply ANSI RGB colors
 - Updated README.md with complete character catalog table
-- Documentation reflects 7-character planetary theme
+- Documentation reflects 7-character planetary theme with colors
 
-### Notes
+### Technical
 
-All characters share identical animation patterns for consistency. Color differentiation is achieved through ColorPalette metadata, which consumers can use to apply theme-appropriate rendering.
+All characters share identical animation patterns for consistency. Color differentiation provides visual distinction between agent types in terminal UIs.
 
 ---
 
