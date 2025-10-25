@@ -13,12 +13,13 @@ type Frame struct {
 
 // LibraryCharacter represents a pre-built character from the library
 type LibraryCharacter struct {
-	Name        string
-	Description string
-	Author      string
-	Patterns    []Frame
-	Width       int
-	Height      int
+	Name         string
+	Description  string
+	Author       string
+	ColorPalette map[string]string // Pattern code → hex color mapping (optional)
+	Patterns     []Frame
+	Width        int
+	Height       int
 }
 
 // characters holds all available library characters

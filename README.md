@@ -1,6 +1,7 @@
 # Tangent - Terminal Avatars for AI Agents
 
-Give your AI agent a face. Expressive, state-based avatars that bring personality to AI agents in terminal applications.
+Give your AI agent a face. 
+Tangent provides expressive, state-based avatars that bring personality to AI agents in terminal environments
 
 Status: Alpha.6 | Go 1.21+
 
@@ -8,9 +9,10 @@ Status: Alpha.6 | Go 1.21+
 
 ## Why AI Agents Need Avatars
 
-When users interact with AI agents, they need more than text logs. They need to *see* the agent working - planning, thinking, executing. Tangent provides terminal-native avatars with semantic states that map directly to AI agent workflows.
+AI agents do more than print logs - they plan, think, execute and wait. Tangent gives that process a visible rhythm through avatars that reflect agent state in real time.
 
-**The Vision**: By v1.0, Tangent aims to be the single source for AI agent terminal avatars - the standard library every AI-native CLI application uses.
+**The Vision**:
+By v1, Tangent aims to be the standard library for terminal avatars - the shared visual language for every AI-native CLI and development agent.
 
 ---
 
@@ -28,6 +30,7 @@ curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh |
 # Browse avatars
 tangent browse              # List all available avatars
 tangent browse fire         # Preview fire avatar with states
+tangent browse fire --state success --fps 8 --loops 4 # Preview each live states
 ```
 
 ### Integrate with Your AI Agent
@@ -48,13 +51,21 @@ One line to load, and methods to give your agent presence.
 
 ---
 
-## Available Avatar
+## Available Avatars
 
-**fire** (11x3) - 14 states including:
-- Core: plan, think, execute, wait, error, success
-- Extended: bash, read, write, search, build, communicate, block, blocked
+All avatars are 11x3 dimensions with 14 states each:
 
-Additional avatars planned for Beta release.
+| Name | Theme | Color Palette | Agent Mapping | Description |
+|------|-------|---------------|---------------|-------------|
+| **fire** | Flames | Orange/red | `sa` (default) | High-energy, active agents |
+| **mercury** | Liquid metal | Silver/white | `ri` | Fast, fluid agents |
+| **neptune** | Ocean waves | Cyan/blue | `ga` | Deep-thinking, analytical agents |
+| **mars** | War energy | Red/crimson | `ma` | Aggressive, action-oriented agents |
+| **jupiter** | Storm power | Gold/yellow | `pa` | Powerful, commanding agents |
+| **saturn** | Orbital rings | Purple/violet | `da` | Organized, systematic agents |
+| **uranus** | Ice crystals | Teal/aqua | `ni` | Cool, methodical agents |
+
+**States:** wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked
 
 ---
 
@@ -83,13 +94,9 @@ AGENT LIFECYCLE STATES:
 - Lightweight, zero-config integration
 - Works with any Go CLI framework
 
-### AI-Native Philosophy
+### Build By AI Agents (Understory v0.1)
 
-Tangent is purpose-built for AI agents. Every design decision optimizes for:
-- Giving agents visible presence
-- Mapping states to AI workflows
-- Building trust through personality
-- Terminal-native simplicity
+Tangent was built entirely by AI coding agents through Wildreason's Understory autonomous coding platform. It's not a design experiment - its' proof that autonomous agents can design, build, and ship usabel tools for developers.
 
 ---
 
