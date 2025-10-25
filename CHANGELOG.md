@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.1.0-alpha.7] - 2025-10-24
+
+**Seven-Avatar Library Complete**
+
+Expanded character library to support murmur's 7-agent system with color-themed avatars.
+
+### Added
+
+- **6 new character avatars** (mercury, neptune, mars, jupiter, saturn, uranus)
+  - mercury: Silver/white liquid metal theme (ri agent)
+  - neptune: Cyan/blue ocean waves theme (ga agent)
+  - mars: Red/crimson war energy theme (ma agent)
+  - jupiter: Gold/yellow storm power theme (pa agent)
+  - saturn: Purple/violet orbital rings theme (da agent)
+  - uranus: Teal/aqua ice crystals theme (ni agent)
+- **ColorPalette metadata field** in LibraryCharacter struct
+  - Pattern code → hex color mapping for consumer guidance
+  - Optional field for backward compatibility
+- **14 states per character** (wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked)
+- **Consistent 11x3 dimensions** across all 7 avatars
+
+### Changed
+
+- LibraryCharacter struct now includes optional ColorPalette field
+- Updated README.md with complete character catalog table
+- Documentation reflects 7-character planetary theme
+
+### Notes
+
+All characters share identical animation patterns for consistency. Color differentiation is achieved through ColorPalette metadata, which consumers can use to apply theme-appropriate rendering.
+
+---
+
 ## [0.1.0-alpha.6] - 2025-10-16
 
 **Library Consolidation**
