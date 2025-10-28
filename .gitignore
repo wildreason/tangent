@@ -28,3 +28,12 @@ Thumbs.db
 .understory/messages/
 .understory/logs/
 .indexer/
+# Murmur configuration and runtime files
+.murmur/
+.murmur/config.json
+.murmur/agents/
+.murmur/events/
+.murmur/messages/
+.murmur/logs/
+# Claude Code settings (per-worktree, not project-wide)
+.claude/
