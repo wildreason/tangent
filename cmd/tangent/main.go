@@ -14,6 +14,7 @@ import (
 	"github.com/wildreason/tangent/pkg/characters"
 	"github.com/wildreason/tangent/pkg/characters/domain"
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
+	"github.com/wildreason/tangent/pkg/characters/library"
 	"github.com/wildreason/tangent/pkg/characters/patterns"
 )
 
@@ -935,7 +936,12 @@ func handleAdminCLI() {
 			printAdminUsage()
 			os.Exit(1)
 		}
-		adminRegister(os.Args[3])
+		// Check for --force flag
+		forceUpdate := false
+		if len(os.Args) > 4 && os.Args[4] == "--force" {
+			forceUpdate = true
+		}
+		adminRegister(os.Args[3], forceUpdate)
 	case "validate":
 		if len(os.Args) < 4 {
 			fmt.Println("Error: missing JSON file path")
@@ -943,6 +949,13 @@ func handleAdminCLI() {
 			os.Exit(1)
 		}
 		adminValidate(os.Args[3])
+	case "export":
+		if len(os.Args) < 4 {
+			fmt.Println("Error: missing character name")
+			printAdminUsage()
+			os.Exit(1)
+		}
+		adminExport(os.Args[3])
 	default:
 		fmt.Fprintf(os.Stderr, "Error: unknown admin command '%s'\n\n", subcommand)
 		printAdminUsage()
@@ -952,16 +965,24 @@ func handleAdminCLI() {
 
 func printAdminUsage() {
 	fmt.Println("Admin Commands:")
-	fmt.Println("  tangent admin register <json>     Register character to library")
-	fmt.Println("  tangent admin validate <json>     Validate character JSON")
+	fmt.Println("  tangent admin export <character>       Export library character to JSON")
+	fmt.Println("  tangent admin register <json>          Register new character to library")
+	fmt.Println("  tangent admin register <json> --force  Update existing character")
+	fmt.Println("  tangent admin validate <json>          Validate character JSON")
 	fmt.Println()
 	fmt.Println("Examples:")
-	fmt.Println("  tangent admin register egon.json")
-	fmt.Println("  tangent admin validate egon.json")
+	fmt.Println("  tangent admin export mercury           # Export to mercury.json")
+	fmt.Println("  tangent admin register egon.json       # Add new character")
+	fmt.Println("  tangent admin register mercury.json --force  # Update existing character")
+	fmt.Println("  tangent admin validate egon.json       # Validate before registering")
 }
 
-func adminRegister(jsonPath string) {
-	fmt.Printf("Registering character from %s...\n", jsonPath)
+func adminRegister(jsonPath string, forceUpdate bool) {
+	if forceUpdate {
+		fmt.Printf("Registering/Updating character from %s...\n", jsonPath)
+	} else {
+		fmt.Printf("Registering character from %s...\n", jsonPath)
+	}
 
 	// Load and parse JSON
 	data, err := os.ReadFile(jsonPath)
@@ -972,6 +993,9 @@ func adminRegister(jsonPath string) {
 
 	var charData struct {
 		Name        string `json:"name"`
+		Description string `json:"description"`
+		Author      string `json:"author"`
+		Color       string `json:"color"`
 		Personality string `json:"personality"`
 		Width       int    `json:"width"`
 		Height      int    `json:"height"`
@@ -1014,12 +1038,25 @@ func adminRegister(jsonPath string) {
 		os.Exit(1)
 	}
 
-	// Check if character already exists
-	availableChars := characters.ListLibrary()
-	for _, charName := range availableChars {
-		if charName == charData.Name {
-			fmt.Printf("Error: character '%s' already exists in library\n", charData.Name)
-			os.Exit(1)
+	// Check if character already exists (unless --force is used)
+	if !forceUpdate {
+		availableChars := characters.ListLibrary()
+		for _, charName := range availableChars {
+			if charName == charData.Name {
+				fmt.Printf("Error: character '%s' already exists in library\n", charData.Name)
+				fmt.Println("Use --force to update existing character:")
+				fmt.Printf("  tangent admin register %s --force\n", jsonPath)
+				os.Exit(1)
+			}
+		}
+	} else {
+		// Backup existing file before update
+		libraryFile := fmt.Sprintf("pkg/characters/library/%s.go", charData.Name)
+		if _, err := os.Stat(libraryFile); err == nil {
+			backupFile := libraryFile + ".backup"
+			data, _ := os.ReadFile(libraryFile)
+			os.WriteFile(backupFile, data, 0644)
+			fmt.Printf("📦 Backed up existing file to %s\n", backupFile)
 		}
 	}
 
@@ -1063,8 +1100,22 @@ func adminRegister(jsonPath string) {
 		}
 	}
 
+	// Use provided values or defaults
+	description := charData.Description
+	if description == "" {
+		description = fmt.Sprintf("%s - efficient AI Agent Character", charData.Name)
+	}
+	author := charData.Author
+	if author == "" {
+		author = "Wildreason, Inc"
+	}
+	color := charData.Color
+	if color == "" {
+		color = "#FFFFFF" // Default white
+	}
+
 	// Generate Go code
-	code := generateLibraryCode(charData.Name, personality, charData.Width, charData.Height, patterns)
+	code := generateLibraryCode(charData.Name, description, author, color, personality, charData.Width, charData.Height, patterns)
 
 	// Write file
 	if err := os.WriteFile(libraryFile, []byte(code), 0644); err != nil {
@@ -1093,6 +1144,9 @@ func adminValidate(jsonPath string) {
 
 	var charData struct {
 		Name        string `json:"name"`
+		Description string `json:"description"`
+		Author      string `json:"author"`
+		Color       string `json:"color"`
 		Personality string `json:"personality"`
 		Width       int    `json:"width"`
 		Height      int    `json:"height"`
@@ -1166,7 +1220,132 @@ func adminValidate(jsonPath string) {
 	}
 }
 
-func generateLibraryCode(name, personality string, width, height int, patterns []struct {
+func adminExport(characterName string) {
+	fmt.Printf("Exporting character '%s' to JSON...\n", characterName)
+
+	// Load character from library
+	char, err := library.Get(characterName)
+	if err != nil {
+		fmt.Printf("Error: character '%s' not found in library\n", characterName)
+		fmt.Println("Available characters:", strings.Join(characters.ListLibrary(), ", "))
+		os.Exit(1)
+	}
+
+	// Prepare JSON structure
+	type Frame struct {
+		Lines []string `json:"lines"`
+	}
+
+	type State struct {
+		Name   string  `json:"name"`
+		Frames []Frame `json:"frames"`
+	}
+
+	type CharacterExport struct {
+		Name        string `json:"name"`
+		Description string `json:"description,omitempty"`
+		Author      string `json:"author,omitempty"`
+		Color       string `json:"color,omitempty"`
+		Width       int    `json:"width"`
+		Height      int    `json:"height"`
+		BaseFrame   struct {
+			Name  string   `json:"name"`
+			Lines []string `json:"lines"`
+		} `json:"base_frame"`
+		States []State `json:"states"`
+	}
+
+	export := CharacterExport{
+		Name:        char.Name,
+		Description: char.Description,
+		Author:      char.Author,
+		Color:       char.Color,
+		Width:       char.Width,
+		Height:      char.Height,
+	}
+
+	// Extract base frame (first frame or frame named "base")
+	baseFound := false
+	for _, pattern := range char.Patterns {
+		if pattern.Name == "base" {
+			export.BaseFrame.Name = "base"
+			export.BaseFrame.Lines = pattern.Lines
+			baseFound = true
+			break
+		}
+	}
+	if !baseFound && len(char.Patterns) > 0 {
+		// Use first frame as base
+		export.BaseFrame.Name = "base"
+		export.BaseFrame.Lines = char.Patterns[0].Lines
+	}
+
+	// Group frames by state name
+	stateMap := make(map[string][]Frame)
+	stateOrder := []string{} // Preserve order
+
+	for _, pattern := range char.Patterns {
+		if pattern.Name == "base" {
+			continue // Skip base frame
+		}
+
+		// Extract state name from pattern name
+		// Examples: "wait_1" -> "wait", "plan_2" -> "plan", "arise" -> "arise"
+		stateName := pattern.Name
+		if idx := strings.LastIndex(pattern.Name, "_"); idx != -1 {
+			// Check if suffix is a number
+			suffix := pattern.Name[idx+1:]
+			if _, err := strconv.Atoi(suffix); err == nil {
+				stateName = pattern.Name[:idx]
+			}
+		}
+
+		// Add frame to state
+		if _, exists := stateMap[stateName]; !exists {
+			stateOrder = append(stateOrder, stateName)
+			stateMap[stateName] = []Frame{}
+		}
+
+		stateMap[stateName] = append(stateMap[stateName], Frame{
+			Lines: pattern.Lines,
+		})
+	}
+
+	// Build states array in order
+	for _, stateName := range stateOrder {
+		export.States = append(export.States, State{
+			Name:   stateName,
+			Frames: stateMap[stateName],
+		})
+	}
+
+	// Write JSON to file
+	outputFile := characterName + ".json"
+	data, err := json.MarshalIndent(export, "", "  ")
+	if err != nil {
+		fmt.Printf("Error marshaling JSON: %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := os.WriteFile(outputFile, data, 0644); err != nil {
+		fmt.Printf("Error writing file: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("✅ Character exported successfully!\n")
+	fmt.Printf("📁 Output file: %s\n", outputFile)
+	fmt.Println()
+	fmt.Println("Stats:")
+	fmt.Printf("  - Dimensions: %dx%d\n", char.Width, char.Height)
+	fmt.Printf("  - States: %d\n", len(export.States))
+	fmt.Printf("  - Total frames: %d\n", len(char.Patterns))
+	fmt.Println()
+	fmt.Println("Next steps:")
+	fmt.Println("  1. Edit the JSON file to add/modify states")
+	fmt.Println("  2. Run: tangent admin register " + outputFile + " --force")
+}
+
+func generateLibraryCode(name, description, author, color, personality string, width, height int, patterns []struct {
 	Name  string
 	Lines []string
 }) string {
@@ -1178,8 +1357,9 @@ func generateLibraryCode(name, personality string, width, height int, patterns [
 	sb.WriteString("}\n\n")
 	sb.WriteString(fmt.Sprintf("var %sCharacter = LibraryCharacter{\n", name))
 	sb.WriteString(fmt.Sprintf("\tName:        \"%s\",\n", name))
-	sb.WriteString(fmt.Sprintf("\tDescription: \"%s - %s AI Agent Character\",\n", name, personality))
-	sb.WriteString("\tAuthor:      \"Wildreason, Inc\",\n")
+	sb.WriteString(fmt.Sprintf("\tDescription: \"%s\",\n", description))
+	sb.WriteString(fmt.Sprintf("\tAuthor:      \"%s\",\n", author))
+	sb.WriteString(fmt.Sprintf("\tColor:       \"%s\",\n", color))
 	sb.WriteString(fmt.Sprintf("\tWidth:       %d,\n", width))
 	sb.WriteString(fmt.Sprintf("\tHeight:      %d,\n", height))
 	sb.WriteString("\tPatterns: []Frame{\n")
