@@ -53,11 +53,11 @@ One line to load, and methods to give your agent presence.
 
 ## Available Avatars
 
-All avatars are 11x3 dimensions with 14-15 states each, rendered in distinct colors:
+All avatars are 11x4 dimensions with 15 states each, rendered in distinct colors:
 
 | Name | Theme | Terminal Color | Agent | Description |
 |------|-------|----------------|-------|-------------|
-| **fire** | Flames | 🟠 Orange (#FF6B35) | `sa` | High-energy, active agents (11x4, 15 states) |
+| **fire** | Flames | 🟠 Orange (#FF6B35) | `sa` | High-energy, active agents |
 | **mercury** | Liquid metal | ⚪ Silver (#C0C0C0) | `ri` | Fast, fluid agents |
 | **neptune** | Ocean waves | 🔵 Blue (#1E90FF) | `ga` | Deep-thinking, analytical agents |
 | **mars** | War energy | 🔴 Crimson (#DC143C) | `ma` | Aggressive, action-oriented agents |
@@ -65,7 +65,7 @@ All avatars are 11x3 dimensions with 14-15 states each, rendered in distinct col
 | **saturn** | Orbital rings | 🟣 Purple (#9370DB) | `da` | Organized, systematic agents |
 | **uranus** | Ice crystals | 🔷 Teal (#20B2AA) | `ni` | Cool, methodical agents |
 
-**States:** wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked, arise (fire only)
+**States:** wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked, arise
 
 **Colors:** Terminal avatars render in true RGB color on terminals that support ANSI escape codes.
 

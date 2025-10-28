@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.1.0-alpha.11] - 2025-10-28
+
+**All Characters: Universal Arise State**
+
+Rolled out the "arise" state to all 7 character avatars, completing the unified animation system.
+
+### Changed
+
+- **All characters now 11x4 dimensions** (previously 11x3 for mercury, neptune, mars, jupiter, saturn, uranus)
+- **All characters now have 15 states** (previously 14 for non-fire characters)
+- **All characters now have 52 total frames** (1 base + 8 arise + 43 other = 15 states)
+
+### Updated Characters
+
+- **mercury**: 11x3 → 11x4, 14 → 15 states (added arise)
+- **neptune**: 11x3 → 11x4, 14 → 15 states (added arise)
+- **mars**: 11x3 → 11x4, 14 → 15 states (added arise)
+- **jupiter**: 11x3 → 11x4, 14 → 15 states (added arise)
+- **saturn**: 11x3 → 11x4, 14 → 15 states (added arise)
+- **uranus**: 11x3 → 11x4, 14 → 15 states (added arise)
+
+### Technical
+
+- All existing frames updated with empty top line for consistent 4-line height
+- Arise animation frames (8 frames) inserted after base frame for each character
+- Visual rendering unchanged for existing states (empty top line maintains appearance)
+
+### Notes
+
+- Backward compatible - no API changes
+- fire character already had arise state (alpha.10)
+- Complete parity across all 7 planetary-themed avatars
+
+---
+
 ## [0.1.0-alpha.10] - 2025-10-28
 
 **Fire Character: Arise State**
