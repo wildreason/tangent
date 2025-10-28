@@ -1,10 +1,128 @@
 {
+  "additionalDirectories": [
+    "/Users/btsznh/.murmur/hooks"
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/btsznh/.murmur/hooks/emit_state_post_tool.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/btsznh/.murmur/hooks/emit_state_pre_tool.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/btsznh/.murmur/hooks/emit_state_session_start.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/btsznh/.murmur/hooks/capture_response.sh"
+          },
+          {
+            "type": "command",
+            "command": "/Users/btsznh/.murmur/hooks/emit_state_stop.sh"
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
-      "Bash(curl:*)",
-      "Bash(gh release view:*)"
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Grep(*)",
+      "Glob(*)",
+      "Bash",
+      "ExternalCommand(*)",
+      "Bash(npm:*)",
+      "Bash(yarn:*)",
+      "Bash(pnpm:*)",
+      "Bash(go:*)",
+      "Bash(cargo:*)",
+      "Bash(make:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(wc:*)",
+      "Bash(echo:*)",
+      "Bash(pwd:*)",
+      "Bash(which:*)"
     ],
-    "deny": [],
-    "ask": []
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(git add:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(git reset:*)",
+      "Bash(rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(chmod:*)",
+      "Bash(chown:*)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(*.key)",
+      "Read(*.pem)",
+      "Read(*.p12)",
+      "Read(*.pfx)",
+      "Read(id_rsa)",
+      "Read(id_dsa)",
+      "Read(*.crt)",
+      "Read(.aws/**)",
+      "Read(.ssh/**)",
+      "Read(credentials)",
+      "Write(.env)",
+      "Write(.env.*)",
+      "Write(*.key)",
+      "Write(*.pem)",
+      "Write(.git/**)",
+      "Edit(.git/**)",
+      "Bash(rm -rf:*)",
+      "Bash(rm -fr:*)",
+      "Bash(rm -r:*)",
+      "Bash(sudo:*)",
+      "Bash(dd:*)",
+      "Bash(mkfs:*)",
+      "Bash(fdisk:*)",
+      "Bash(chmod 777:*)",
+      "Bash(\u003e /dev:*)"
+    ]
   }
 }
