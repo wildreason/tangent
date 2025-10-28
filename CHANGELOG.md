@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.1.0-alpha.10] - 2025-10-28
+
+**Fire Character: Arise State**
+
+Added "arise" state to Fire character for agent awakening/initialization animations.
+
+### Added
+
+- **Arise state** for Fire character with 8 animation frames
+- Agent lifecycle now includes awakening phase before wait/idle states
+
+### Changed
+
+- Fire character dimensions: 11x3 → 11x4 (added top line for arise animations)
+- Fire character states: 14 → 15 states (44 → 52 total frames)
+- All existing Fire frames updated with empty top line (visual rendering unchanged)
+
+### Notes
+
+- Other characters (mercury, neptune, mars, jupiter, saturn, uranus) remain at 11x3
+- Backward compatible - no API changes
+
+---
+
 ## [0.1.0-alpha.9] - 2025-10-24
 
 **Export Color Utilities for Consumer Integration**

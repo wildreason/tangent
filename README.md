@@ -3,7 +3,7 @@
 Give your AI agent a face. 
 Tangent provides expressive, state-based avatars that bring personality to AI agents in terminal environments
 
-Status: Alpha.6 | Go 1.21+
+Status: Alpha.10 | Go 1.21+
 
 ---
 
@@ -53,11 +53,11 @@ One line to load, and methods to give your agent presence.
 
 ## Available Avatars
 
-All avatars are 11x3 dimensions with 14 states each, rendered in distinct colors:
+All avatars are 11x3 dimensions with 14-15 states each, rendered in distinct colors:
 
 | Name | Theme | Terminal Color | Agent | Description |
 |------|-------|----------------|-------|-------------|
-| **fire** | Flames | 🟠 Orange (#FF6B35) | `sa` | High-energy, active agents |
+| **fire** | Flames | 🟠 Orange (#FF6B35) | `sa` | High-energy, active agents (11x4, 15 states) |
 | **mercury** | Liquid metal | ⚪ Silver (#C0C0C0) | `ri` | Fast, fluid agents |
 | **neptune** | Ocean waves | 🔵 Blue (#1E90FF) | `ga` | Deep-thinking, analytical agents |
 | **mars** | War energy | 🔴 Crimson (#DC143C) | `ma` | Aggressive, action-oriented agents |
@@ -65,7 +65,7 @@ All avatars are 11x3 dimensions with 14 states each, rendered in distinct colors
 | **saturn** | Orbital rings | 🟣 Purple (#9370DB) | `da` | Organized, systematic agents |
 | **uranus** | Ice crystals | 🔷 Teal (#20B2AA) | `ni` | Cool, methodical agents |
 
-**States:** wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked
+**States:** wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked, arise (fire only)
 
 **Colors:** Terminal avatars render in true RGB color on terminals that support ANSI escape codes.
 
@@ -76,6 +76,7 @@ All avatars are 11x3 dimensions with 14 states each, rendered in distinct colors
 ### State-Based Personality (Lifecycles)
 
 AGENT LIFECYCLE STATES:
+  - arising      → Agent awakening/initializing
   - waiting      → Agent idle, no task assigned
   - thinking     → Agent analyzing/reasoning (LLM inference)
   - planning     → Agent breaking down task into steps
