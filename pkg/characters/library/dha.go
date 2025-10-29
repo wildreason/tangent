@@ -1,26 +1,17 @@
 package library
 
 func init() {
-	register(sunCharacter)
+	register(dhaCharacter)
 }
 
-var sunCharacter = LibraryCharacter{
-	Name:        "sun",
-	Description: "sun - Radiant solar avatar (15 states)",
+var dhaCharacter = LibraryCharacter{
+	Name:        "dha",
+	Description: "dha - Musical note avatar (Purple)",
 	Author:      "Wildreason, Inc",
-	Color:       "#FDB813",
+	Color:       "#8800FF",
 	Width:       11,
 	Height:      4,
 	Patterns: []Frame{
-		{
-			Name: "base",
-			Lines: []string{
-				"___________",
-				"__R5FFF6L__",
-				"_26FFFFF51_",
-				"___11_22___",
-			},
-		},
 		{
 			Name: "arise_1",
 			Lines: []string{

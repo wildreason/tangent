@@ -1,26 +1,17 @@
 package library
 
 func init() {
-	register(fireCharacter)
+	register(paCharacter)
 }
 
-var fireCharacter = LibraryCharacter{
-	Name:        "fire",
-	Description: "fire - AI agent avatar (15 states)",
+var paCharacter = LibraryCharacter{
+	Name:        "pa",
+	Description: "pa - Musical note avatar (Blue)",
 	Author:      "Wildreason, Inc",
-	Color:       "#FF6B35", // Orange-red
+	Color:       "#0088FF",
 	Width:       11,
 	Height:      4,
 	Patterns: []Frame{
-		{
-			Name: "base",
-			Lines: []string{
-				"___________",
-				"__R5FFF6L__",
-				"_26FFFFF51_",
-				"___11_22___",
-			},
-		},
 		{
 			Name: "arise_1",
 			Lines: []string{
@@ -180,7 +171,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"_26:::::51_",
-			"__22___11__",
+				"__22___11__",
 			},
 		},
 		{
@@ -189,7 +180,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"_26:...:51_",
-			"__22___11__",
+				"__22___11__",
 			},
 		},
 		{
@@ -198,7 +189,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L  ",
 				" 26#####51 ",
-			"  22   11  ",
+				"  22   11  ",
 			},
 		},
 		{
@@ -207,7 +198,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RTTFTTL__",
 				"_26BBFBB51_",
-			"__2TTTTT1__",
+				"__2TTTTT1__",
 			},
 		},
 		{
@@ -216,7 +207,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RTTFTTL__",
 				"_26BBTBB51_",
-			"__2TTTTT1__",
+				"__2TTTTT1__",
 			},
 		},
 		{
@@ -225,7 +216,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RTTFTTL__",
 				"_26BBFBB51_",
-			"__2TTTTT1__",
+				"__2TTTTT1__",
 			},
 		},
 		{
@@ -234,7 +225,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"7B8FFFFF7B8",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -243,7 +234,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				" 78FFFFF78 ",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -252,7 +243,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"7B8FFFFF7B8",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -261,7 +252,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RFFFFFL__",
 				"_26FRFLF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -270,7 +261,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RFRFLFL__",
 				"_26FRFLF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -279,7 +270,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RFRFLFL__",
 				"_26FFFFF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -288,7 +279,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RF5FF5L__",
 				"__6FFFFF5T_",
-			"____11_22__",
+				"____11_22__",
 			},
 		},
 		{
@@ -297,7 +288,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RF5FF5L__",
 				"__6FFFFF5T_",
-			"___22__11__",
+				"___22__11__",
 			},
 		},
 		{
@@ -306,7 +297,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RF5FF5L__",
 				"__6FFFFF5T_",
-			"___2_2_1_1_",
+				"___2_2_1_1_",
 			},
 		},
 		{
@@ -315,7 +306,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RFFFFFL__",
 				"_266F6FF51_",
-			"__2TTTTT1__",
+				"__2TTTTT1__",
 			},
 		},
 		{
@@ -324,7 +315,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RFFFF##__",
 				"_266F65T___",
-			"__2TTT1____",
+				"__2TTT1____",
 			},
 		},
 		{
@@ -333,7 +324,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RFFF:::__",
 				"_265F51____",
-			"__2TTT_____",
+				"__2TTT_____",
 			},
 		},
 		{
@@ -342,7 +333,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"_26FFFFF511",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -351,7 +342,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"226FFFFF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -360,7 +351,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"_26FFFFF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -369,7 +360,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"_26FF#FF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -378,7 +369,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"_26FF.FF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -387,7 +378,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"_26FF:FF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -396,7 +387,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R57B86L__",
 				"_48FFFFF73_",
-			"____6T5____",
+				"____6T5____",
 			},
 		},
 		{
@@ -405,7 +396,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5L_R6L__",
 				"_48FFFFF73_",
-			"____6F5____",
+				"____6F5____",
 			},
 		},
 		{
@@ -414,7 +405,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"_26FFFFF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -423,7 +414,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RFFFFFL__",
 				"_26FFFFF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -432,7 +423,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RFFFFFL__",
 				"_26FFFFF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -441,7 +432,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__RFFBFFL__",
 				"_26FFFFF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -450,7 +441,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"_26FFFFF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -459,7 +450,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R5FFF6L__",
 				"_26FFFFF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 		{
@@ -468,7 +459,7 @@ var fireCharacter = LibraryCharacter{
 				"___________",
 				"__R6FFF5L__",
 				"_26FFFFF51_",
-			"___11_22___",
+				"___11_22___",
 			},
 		},
 	},

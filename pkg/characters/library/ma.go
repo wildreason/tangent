@@ -1,26 +1,17 @@
 package library
 
 func init() {
-	register(jupiterCharacter)
+	register(maCharacter)
 }
 
-var jupiterCharacter = LibraryCharacter{
-	Name:        "jupiter",
-	Description: "jupiter - Storm power avatar (15 states)",
+var maCharacter = LibraryCharacter{
+	Name:        "ma",
+	Description: "ma - Musical note avatar (Green)",
 	Author:      "Wildreason, Inc",
-	Color:       "#FFD700", // Gold
+	Color:       "#00FF00",
 	Width:       11,
 	Height:      4,
 	Patterns: []Frame{
-		{
-			Name: "base",
-			Lines: []string{
-				"___________",
-				"__R5FFF6L__",
-				"_26FFFFF51_",
-				"___11_22___",
-			},
-		},
 		{
 			Name: "arise_1",
 			Lines: []string{

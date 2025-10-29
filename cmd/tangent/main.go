@@ -956,6 +956,18 @@ func handleAdminCLI() {
 			os.Exit(1)
 		}
 		adminExport(os.Args[3])
+	case "batch-register":
+		if len(os.Args) < 4 {
+			fmt.Println("Error: missing template JSON file path")
+			printAdminUsage()
+			os.Exit(1)
+		}
+		if len(os.Args) < 5 {
+			fmt.Println("Error: missing colors JSON file path")
+			printAdminUsage()
+			os.Exit(1)
+		}
+		adminBatchRegister(os.Args[3], os.Args[4])
 	default:
 		fmt.Fprintf(os.Stderr, "Error: unknown admin command '%s'\n\n", subcommand)
 		printAdminUsage()
@@ -965,16 +977,18 @@ func handleAdminCLI() {
 
 func printAdminUsage() {
 	fmt.Println("Admin Commands:")
-	fmt.Println("  tangent admin export <character>       Export library character to JSON")
-	fmt.Println("  tangent admin register <json>          Register new character to library")
-	fmt.Println("  tangent admin register <json> --force  Update existing character")
-	fmt.Println("  tangent admin validate <json>          Validate character JSON")
+	fmt.Println("  tangent admin export <character>              Export library character to JSON")
+	fmt.Println("  tangent admin register <json>                 Register new character to library")
+	fmt.Println("  tangent admin register <json> --force         Update existing character")
+	fmt.Println("  tangent admin batch-register <template> <colors>  Register multiple characters from template")
+	fmt.Println("  tangent admin validate <json>                 Validate character JSON")
 	fmt.Println()
 	fmt.Println("Examples:")
-	fmt.Println("  tangent admin export mercury           # Export to mercury.json")
-	fmt.Println("  tangent admin register egon.json       # Add new character")
-	fmt.Println("  tangent admin register mercury.json --force  # Update existing character")
-	fmt.Println("  tangent admin validate egon.json       # Validate before registering")
+	fmt.Println("  tangent admin export mercury                  # Export to mercury.json")
+	fmt.Println("  tangent admin register egon.json              # Add new character")
+	fmt.Println("  tangent admin register mercury.json --force   # Update existing character")
+	fmt.Println("  tangent admin batch-register template.json colors.json  # Create all characters")
+	fmt.Println("  tangent admin validate egon.json              # Validate before registering")
 }
 
 func adminRegister(jsonPath string, forceUpdate bool) {
@@ -1343,6 +1357,113 @@ func adminExport(characterName string) {
 	fmt.Println("Next steps:")
 	fmt.Println("  1. Edit the JSON file to add/modify states")
 	fmt.Println("  2. Run: tangent admin register " + outputFile + " --force")
+}
+
+func adminBatchRegister(templatePath, colorsPath string) {
+	fmt.Printf("Batch registering characters from template: %s\n", templatePath)
+	fmt.Printf("Using color config: %s\n\n", colorsPath)
+
+	// Read template JSON
+	templateData, err := os.ReadFile(templatePath)
+	if err != nil {
+		fmt.Printf("Error reading template file: %v\n", err)
+		os.Exit(1)
+	}
+
+	var template struct {
+		Width  int    `json:"width"`
+		Height int    `json:"height"`
+		States []struct {
+			Name   string `json:"name"`
+			Frames []struct {
+				Lines []string `json:"lines"`
+			} `json:"frames"`
+		} `json:"states"`
+	}
+
+	if err := json.Unmarshal(templateData, &template); err != nil {
+		fmt.Printf("Error parsing template JSON: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Read colors config
+	colorsData, err := os.ReadFile(colorsPath)
+	if err != nil {
+		fmt.Printf("Error reading colors file: %v\n", err)
+		os.Exit(1)
+	}
+
+	var colors map[string]struct {
+		Color       string `json:"color"`
+		Description string `json:"description"`
+	}
+
+	if err := json.Unmarshal(colorsData, &colors); err != nil {
+		fmt.Printf("Error parsing colors JSON: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Process each character
+	successCount := 0
+	for charName, charConfig := range colors {
+		fmt.Printf("📝 Registering character: %s (color: %s)\n", charName, charConfig.Color)
+
+		// Prepare patterns from template states
+		var patterns []struct {
+			Name  string
+			Lines []string
+		}
+
+		for _, state := range template.States {
+			for i, frame := range state.Frames {
+				frameNum := i + 1
+				frameName := fmt.Sprintf("%s_%d", state.Name, frameNum)
+				patterns = append(patterns, struct {
+					Name  string
+					Lines []string
+				}{
+					Name:  frameName,
+					Lines: frame.Lines,
+				})
+			}
+		}
+
+		// Generate library code with character-specific color
+		code := generateLibraryCode(
+			charName,
+			charConfig.Description,
+			"Wildreason, Inc",
+			charConfig.Color,
+			"",
+			template.Width,
+			template.Height,
+			patterns,
+		)
+
+		// Write to library file (with backup if exists)
+		libraryFile := fmt.Sprintf("pkg/characters/library/%s.go", charName)
+		if _, err := os.Stat(libraryFile); err == nil {
+			backupFile := libraryFile + ".backup"
+			existingData, _ := os.ReadFile(libraryFile)
+			os.WriteFile(backupFile, existingData, 0644)
+			fmt.Printf("  📦 Backed up existing file to %s\n", backupFile)
+		}
+
+		if err := os.WriteFile(libraryFile, []byte(code), 0644); err != nil {
+			fmt.Printf("  ❌ Error writing library file: %v\n", err)
+			continue
+		}
+
+		fmt.Printf("  ✅ Successfully registered %s\n\n", charName)
+		successCount++
+	}
+
+	fmt.Printf("🎉 Batch registration complete!\n")
+	fmt.Printf("   Created/Updated: %d characters\n", successCount)
+	fmt.Printf("   Total in config: %d characters\n\n", len(colors))
+	fmt.Println("Next steps:")
+	fmt.Println("  1. Run: make build")
+	fmt.Println("  2. Test: tangent browse")
 }
 
 func generateLibraryCode(name, description, author, color, personality string, width, height int, patterns []struct {
