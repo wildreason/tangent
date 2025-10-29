@@ -534,5 +534,77 @@ var saCharacter = LibraryCharacter{
 				"_rf8f_f78l_",
 			},
 		},
+		{
+			Name: "approval_1",
+			Lines: []string{
+				"l_r5fff6l__",
+				"rbffffff51_",
+				"___11_22___",
+				"           ",
+			},
+		},
+		{
+			Name: "approval_2",
+			Lines: []string{
+				"___________",
+				"l_r5fff6l__",
+				"rbffffff51_",
+				"___11_22___",
+			},
+		},
+		{
+			Name: "approval_3",
+			Lines: []string{
+				"L_r5fff6l__",
+				"rbffffff51_",
+				"___11_22___",
+				"___________",
+			},
+		},
+		{
+			Name: "approval_4",
+			Lines: []string{
+				"___________",
+				"l_r5fff6l__",
+				"rbffffff51_",
+				"___11_22___",
+			},
+		},
+		{
+			Name: "approval_5",
+			Lines: []string{
+				"l_r5fff6l__",
+				"rbfff#ff51_",
+				"___11_22___",
+				"___________",
+			},
+		},
+		{
+			Name: "approval_6",
+			Lines: []string{
+				"r_r5fff6l__",
+				"rbfff.ff51_",
+				"___11_22___",
+				"___________",
+			},
+		},
+		{
+			Name: "approval_7",
+			Lines: []string{
+				"l_r5fff6l__",
+				"rbfff#ff51_",
+				"___11_22___",
+				"___________",
+			},
+		},
+		{
+			Name: "approval_8",
+			Lines: []string{
+				"r_r5fff6l__",
+				"rbfff.ff51_",
+				"___11_22___",
+				"___________",
+			},
+		},
 	},
 }
