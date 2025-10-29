@@ -1,15 +1,18 @@
 # Tangent Makefile
 # Easy development and release management
 
-.PHONY: build test clean install release help
+.PHONY: build build-cli test clean install release help
 
 # Default target
-all: build
+all: build-cli
 
-# Build with version injection
-build:
-	@echo "Building Tangent..."
+# Build internal CLI tool with version injection
+build-cli:
+	@echo "Building tangent-cli (internal tool)..."
 	@./scripts/build.sh
+
+# Legacy target (redirects to build-cli)
+build: build-cli
 
 # Run tests
 test:
@@ -19,15 +22,15 @@ test:
 # Clean build artifacts
 clean:
 	@echo "Cleaning..."
-	@rm -f tangent
+	@rm -f tangent tangent-cli
 	@go clean
 
-# Install locally
-install: build
-	@echo "Installing to ~/.local/bin..."
+# Install locally (internal tool)
+install: build-cli
+	@echo "Installing tangent-cli to ~/.local/bin..."
 	@mkdir -p ~/.local/bin
-	@cp tangent ~/.local/bin/
-	@echo "✓ Installed: ~/.local/bin/tangent"
+	@cp tangent-cli ~/.local/bin/
+	@echo "✓ Installed: ~/.local/bin/tangent-cli (internal tool)"
 
 # Create a new release
 # Usage: make release
@@ -45,9 +48,9 @@ help:
 	@echo "Tangent Makefile"
 	@echo ""
 	@echo "Commands:"
-	@echo "  make build     - Build with version injection"
+	@echo "  make build-cli - Build tangent-cli (internal development tool)"
 	@echo "  make test      - Run tests"
 	@echo "  make clean     - Clean build artifacts"
-	@echo "  make install   - Install to ~/.local/bin"
+	@echo "  make install   - Install tangent-cli to ~/.local/bin"
 	@echo "  make release   - Create new release"
 	@echo "  make help      - Show this help"

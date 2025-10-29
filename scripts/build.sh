@@ -8,14 +8,14 @@ VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
 COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-echo "Building Tangent..."
+echo "Building tangent-cli (internal tool)..."
 echo "  Version: $VERSION"
 echo "  Commit:  $COMMIT"
 echo "  Date:    $DATE"
 
 # Build with version injection
 go build -ldflags "-X main.version=$VERSION -X main.commit=$COMMIT -X main.date=$DATE" \
-  -o tangent ./cmd/tangent
+  -o tangent-cli ./cmd/tangent-cli
 
-echo "✓ Built: tangent"
-echo "  Run: ./tangent version"
+echo "✓ Built: tangent-cli"
+echo "  Run: ./tangent-cli version"
