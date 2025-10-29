@@ -1,27 +1,19 @@
 # Tangent
 
-Terminal avatars for AI agents
+Terminal avatars for AI agents. Go library only.
 
 ## Install
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/wildreason/tangent/main/install.sh | bash
+go get github.com/wildreason/tangent/pkg/characters
 ```
 
 ## Usage
 
-```bash
-tangent browse              # List all avatars
-tangent browse sa         # Preview fire avatar
-tangent browse sa --state resting --fps 5 --loop 5
-```
-
-## Integrate
-
 ```go
 import "github.com/wildreason/tangent/pkg/characters"
 
-agent, _ := characters.LibraryAgent("fire")
+agent, _ := characters.LibraryAgent("sa")
 agent.Plan(os.Stdout)       // Agent is planning
 agent.Think(os.Stdout)      // Agent is thinking
 agent.Success(os.Stdout)    // Agent succeeded
@@ -45,20 +37,14 @@ arise, wait, think, plan, execute, error, success, read, search, write, bash, bu
 
 ## For Contributors
 
-### Add New States
+States are defined in `pkg/characters/stateregistry/states/*.json`
 
-```bash
-# 1. Create state interactively
-tangent create
+To add a new state:
+1. Create JSON file in `pkg/characters/stateregistry/states/`
+2. Commit the JSON file
+3. State registry automatically loads it
 
-# 2. Export template
-tangent admin export sa -o template.json
-
-# 3. Add your state to template.json
-
-# 4. Batch register to all characters
-tangent admin batch-register template.json colors.json --force
-```
+Internal tools: `tangent-cli` (not distributed)
 
 ## License
 
