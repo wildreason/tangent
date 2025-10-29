@@ -1,26 +1,17 @@
 package library
 
 func init() {
-	register(mercuryCharacter)
+	register(riCharacter)
 }
 
-var mercuryCharacter = LibraryCharacter{
-	Name:        "mercury",
-	Description: "mercury - Liquid metal avatar (15 states)",
+var riCharacter = LibraryCharacter{
+	Name:        "ri",
+	Description: "ri - Musical note avatar (Orange)",
 	Author:      "Wildreason, Inc",
-	Color:       "#C0C0C0", // Silver
+	Color:       "#FF8800",
 	Width:       11,
 	Height:      4,
 	Patterns: []Frame{
-		{
-			Name: "base",
-			Lines: []string{
-				"___________",
-				"__R5FFF6L__",
-				"_26FFFFF51_",
-				"___11_22___",
-			},
-		},
 		{
 			Name: "arise_1",
 			Lines: []string{

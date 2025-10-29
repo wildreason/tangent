@@ -1,26 +1,17 @@
 package library
 
 func init() {
-	register(saturnCharacter)
+	register(niCharacter)
 }
 
-var saturnCharacter = LibraryCharacter{
-	Name:        "saturn",
-	Description: "saturn - Orbital rings avatar (15 states)",
+var niCharacter = LibraryCharacter{
+	Name:        "ni",
+	Description: "ni - Musical note avatar (Magenta)",
 	Author:      "Wildreason, Inc",
-	Color:       "#9370DB", // Medium purple
+	Color:       "#FF0088",
 	Width:       11,
 	Height:      4,
 	Patterns: []Frame{
-		{
-			Name: "base",
-			Lines: []string{
-				"___________",
-				"__R5FFF6L__",
-				"_26FFFFF51_",
-				"___11_22___",
-			},
-		},
 		{
 			Name: "arise_1",
 			Lines: []string{

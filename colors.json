@@ -1,0 +1,30 @@
+{
+  "sa": {
+    "color": "#FF0000",
+    "description": "sa - Musical note avatar (Pure Red)"
+  },
+  "ri": {
+    "color": "#FF8800",
+    "description": "ri - Musical note avatar (Orange)"
+  },
+  "ga": {
+    "color": "#FFD700",
+    "description": "ga - Musical note avatar (Gold)"
+  },
+  "ma": {
+    "color": "#00FF00",
+    "description": "ma - Musical note avatar (Green)"
+  },
+  "pa": {
+    "color": "#0088FF",
+    "description": "pa - Musical note avatar (Blue)"
+  },
+  "dha": {
+    "color": "#8800FF",
+    "description": "dha - Musical note avatar (Purple)"
+  },
+  "ni": {
+    "color": "#FF0088",
+    "description": "ni - Musical note avatar (Magenta)"
+  }
+}

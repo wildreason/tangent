@@ -1,26 +1,17 @@
 package library
 
 func init() {
-	register(uranusCharacter)
+	register(gaCharacter)
 }
 
-var uranusCharacter = LibraryCharacter{
-	Name:        "uranus",
-	Description: "uranus - Ice crystal avatar (15 states)",
+var gaCharacter = LibraryCharacter{
+	Name:        "ga",
+	Description: "ga - Musical note avatar (Gold)",
 	Author:      "Wildreason, Inc",
-	Color:       "#20B2AA", // Light sea green / teal
+	Color:       "#FFD700",
 	Width:       11,
 	Height:      4,
 	Patterns: []Frame{
-		{
-			Name: "base",
-			Lines: []string{
-				"___________",
-				"__R5FFF6L__",
-				"_26FFFFF51_",
-				"___11_22___",
-			},
-		},
 		{
 			Name: "arise_1",
 			Lines: []string{
