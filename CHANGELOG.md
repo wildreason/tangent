@@ -11,8 +11,18 @@
 - All examples from help text (-14 lines)
 - `docs/PATTERNS.md` (-2117 bytes)
 - Error messages with suggestions (-47 lines)
+- README marketing/philosophy sections (-126 lines)
 
-Total: -150 lines, -1 file. Following design principle: "Strip away everything until you hit silence."
+### Added
+
+- Smoke tests for critical functions (+293 lines)
+  - `TestGenerateLibraryCode_ValidGoCode`
+  - `TestAdminRegister_SmokeTest`
+  - `TestAdminBatchRegister_SmokeTest`
+
+Total: -276 lines of bloat, +293 lines of tests, -1 doc file
+
+Following design principles: "Strip away everything until you hit silence" + "If you can't test it, it will bite you later"
 
 ---
 
