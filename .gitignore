@@ -28,7 +28,7 @@ Thumbs.db
 .understory/messages/
 .understory/logs/
 .indexer/
-<<<<<<< HEAD
+
 # Murmur configuration and runtime files
 .murmur/
 .murmur/config.json
@@ -36,8 +36,15 @@ Thumbs.db
 .murmur/events/
 .murmur/messages/
 .murmur/logs/
+
 # Claude Code settings (per-worktree, not project-wide)
 .claude/
-=======
+
 /.agent-name
->>>>>>> adb4849 (Agent work from experiment: ri)
+
+# Test and temporary files
+test.json
+test-README.md
+*.backup
+sa.json
+template.json.backup
