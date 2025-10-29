@@ -1,23 +1,22 @@
-# Handover: Tangent alpha.17
+# Handover: Tangent v0.1.0-beta.0
 
 **To**: handwave team
 **From**: Tangent maintainers
 **Date**: 2025-10-29
-**Version**: alpha.17 (latest)
 
-## What Changed
+## TL;DR
 
-Tangent has transitioned to a library-first architecture. The CLI you may have used in alpha.16 is now an internal tool.
+**No code changes required.** Just update your dependency version.
 
-## Quick Migration
-
-### Before (alpha.16)
 ```bash
-tangent browse sa
-tangent create
+go get github.com/wildreason/tangent@v0.1.0-beta.0
+go mod tidy
 ```
 
-### After (alpha.17)
+## What's Unchanged
+
+Your existing code continues to work exactly the same:
+
 ```go
 import "github.com/wildreason/tangent/pkg/characters"
 
@@ -27,73 +26,26 @@ agent.Plan(os.Stdout)
 agent.Success(os.Stdout)
 ```
 
-## Installation
+All APIs are **100% backward compatible**:
+* `characters.LibraryAgent(name)` - Same
+* `agent.Think()`, `agent.Plan()`, `agent.Execute()` - Same
+* All 7 characters (sa, ri, ga, ma, pa, dha, ni) - Same
+* All 17 states - Same
+* Character colors - Same
 
-**Old way** (alpha.16):
-```bash
-go install github.com/wildreason/tangent/cmd/tangent@latest
-```
+## What Changed Internally
 
-**New way** (alpha.17):
-```bash
-go get github.com/wildreason/tangent/pkg/characters
-```
+These changes don't affect your code, but FYI:
 
-## What Still Works
-
-* All Go library APIs (LibraryAgent, state methods)
-* All 7 characters (sa, ri, ga, ma, pa, dha, ni)
-* All 17 states (arise, wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked, resting_face, approval)
-* Character colors and personalities
-* Animation functionality
-
-## What's Different
-
-### No More Distributed CLI
-
-The `tangent` binary is not distributed anymore. It's now `tangent-cli` (internal tool for Tangent contributors).
-
-**Impact**: If you were using `tangent browse` or `tangent create`, switch to the Go library API.
-
-### Library-First
-
-Tangent is now purely a Go package. All functionality is available through `pkg/characters` APIs.
-
-### State Registry System (New)
-
-States are now JSON-first with automatic loading:
-
-```go
-import "github.com/wildreason/tangent/pkg/characters/stateregistry"
-
-// Get specific state
-state, ok := stateregistry.Get("arise")
-
-// List all states
-names := stateregistry.List()
-
-// Get all states
-all := stateregistry.All()
-```
-
-## Documentation
-
-See these files for details:
-
-* `MIGRATION-alpha.16-to-alpha.17.md` - Complete migration guide
-* `README.md` - Updated library documentation
-* `docs/STATE-REGISTRY.md` - State registry workflow (if contributing states)
-
-## Support
-
-For issues or questions:
-* Open an issue at the repository
-* Check README.md for usage examples
-* Review MIGRATION guide for specific scenarios
+1. **Character generation**: Characters now auto-generate from a state registry (JSON files)
+2. **New states auto-included**: When we add new states to the registry, all 7 characters automatically get them
+3. **CLI moved**: The `tangent` CLI is now `tangent-cli` (internal tool, not distributed)
 
 ## Testing Your Integration
 
-Recommended test:
+Run your existing tests. Everything should pass without changes.
+
+If you want to verify manually:
 
 ```go
 package main
@@ -111,21 +63,24 @@ func main() {
 
     agent.Think(os.Stdout)
     agent.Plan(os.Stdout)
-    agent.Execute(os.Stdout)
     agent.Success(os.Stdout)
 }
 ```
 
-Run:
 ```bash
 go mod tidy
 go run main.go
 ```
 
-You should see the sa character animating through states.
+You should see the sa character animating through states (same as alpha.16).
 
-## Questions
+## Questions?
 
-Any questions about this handover? Open an issue or reach out to the maintainers.
+Open an issue at the repository if you encounter any problems.
 
-**Note**: alpha.16 is still available if you need time to migrate. Use `@v0.1.0-alpha.16` tag.
+## Rollback Option
+
+If needed, you can stay on alpha.16:
+```bash
+go get github.com/wildreason/tangent@v0.1.0-alpha.16
+```
