@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0-alpha.14] - 2025-10-29
+
+Removed state validation from `tangent create` - now works for single states.
+
+---
+
 ## [0.1.0-alpha.13] - 2025-10-28
 
 **Template-Based Batch Character System with Musical Notes**
