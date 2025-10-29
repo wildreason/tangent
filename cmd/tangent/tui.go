@@ -263,8 +263,12 @@ func (m *CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			case "enter":
 				return m.handleStateFrameLineSubmit()
+			case "ctrl+f":
+				return m.handleStateFinish()
 			case "ctrl+d":
-				return m.handleStateFrameLineDelete()
+				return m.handleStateFrameDuplicate()
+			case "ctrl+r":
+				return m.handleStateFrameLinePaste()
 			case "g", "G":
 				m.gridEnabled = !m.gridEnabled
 				status := "OFF"
@@ -378,17 +382,12 @@ func (m *CreationModel) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.textInput.Focus()
 			m.statusMsg = "Creating base character - Press Enter to confirm each line"
 		case 1: // Add agent state
-			if len(m.session.BaseFrame.Lines) == 0 {
-				m.statusMsg = "Create base character first!"
-				m.err = fmt.Errorf("base character required")
-			} else {
-				m.screen = ScreenStateNameInput
-				m.textInput.SetValue("")
-				m.textInput.CharLimit = 50 // Allow full state names
-				m.textInput.Placeholder = "Enter state name (plan, think, execute)"
-				m.textInput.Focus()
-				m.statusMsg = "Enter agent state name"
-			}
+			m.screen = ScreenStateNameInput
+			m.textInput.SetValue("")
+			m.textInput.CharLimit = 50 // Allow full state names
+			m.textInput.Placeholder = "Enter state name (plan, think, execute)"
+			m.textInput.Focus()
+			m.statusMsg = "Enter agent state name"
 		case 2: // Animate all states
 			if len(m.session.States) == 0 {
 				m.statusMsg = "No states to animate. Create some states first!"
@@ -496,8 +495,8 @@ func (m *CreationModel) handleStateNameSubmit() (tea.Model, tea.Cmd) {
 	}
 
 	m.currentStateName = stateName
-	m.stateFrameCount = 3 // Default to 3 frames (minimum)
-	m.stateFrames = make([][]string, 0, m.stateFrameCount)
+	m.stateFrameCount = 999 // No limit - user decides when done
+	m.stateFrames = make([][]string, 0, 10)
 	m.currentFrame = 0
 	m.currentFrameLine = 0
 	m.frameLines = make([]string, m.session.Height)
@@ -585,20 +584,76 @@ func (m *CreationModel) handleStateFrameLineSubmit() (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// handleStateFrameLineDelete handles Ctrl+D in state frame input
-func (m *CreationModel) handleStateFrameLineDelete() (tea.Model, tea.Cmd) {
-	if m.currentFrameLine > 0 {
-		m.currentFrameLine--
-		m.frameLines[m.currentFrameLine] = ""
-		m.statusMsg = fmt.Sprintf("Deleted line %d", m.currentFrameLine+1)
-	} else if m.currentFrame > 0 {
-		// Go back to previous frame
-		m.currentFrame--
-		if len(m.stateFrames) > m.currentFrame {
-			m.stateFrames = m.stateFrames[:m.currentFrame]
+// handleStateFinish handles Ctrl+F - finishes state creation
+func (m *CreationModel) handleStateFinish() (tea.Model, tea.Cmd) {
+	if len(m.stateFrames) == 0 {
+		m.statusMsg = "Create at least one frame before finishing"
+		return m, nil
+	}
+
+	// Save state to session
+	newState := StateSession{
+		Name:           m.currentStateName,
+		Description:    fmt.Sprintf("Agent %s state", m.currentStateName),
+		StateType:      m.currentStateType,
+		Frames:         make([]Frame, len(m.stateFrames)),
+		AnimationFPS:   5,
+		AnimationLoops: 1,
+	}
+
+	for i, frameLines := range m.stateFrames {
+		newState.Frames[i] = Frame{
+			Name:  fmt.Sprintf("%s_%d", m.currentStateName, i+1),
+			Lines: frameLines,
 		}
-		m.currentFrameLine = m.session.Height - 1
-		m.statusMsg = fmt.Sprintf("Back to frame %d", m.currentFrame+1)
+	}
+
+	m.session.States = append(m.session.States, newState)
+	m.session.Save()
+
+	m.screen = ScreenStatePreview
+	m.statusMsg = fmt.Sprintf("Preview '%s' state - Press Enter to confirm, Esc to discard", m.currentStateName)
+	m.currentFrame = 0
+	m.previewFrameIndex = 0
+	m.animating = true
+	return m, tick()
+}
+
+// handleStateFrameDuplicate handles Ctrl+D - duplicates previous frame
+func (m *CreationModel) handleStateFrameDuplicate() (tea.Model, tea.Cmd) {
+	if m.currentFrame > 0 && len(m.stateFrames) > 0 {
+		// Copy all lines from previous frame
+		prevFrame := m.stateFrames[m.currentFrame-1]
+		for i, line := range prevFrame {
+			if i < len(m.frameLines) {
+				m.frameLines[i] = line
+			}
+		}
+		m.currentFrameLine = len(prevFrame)
+		if m.currentFrameLine >= m.session.Height {
+			m.currentFrameLine = m.session.Height - 1
+		}
+		m.textInput.SetValue("")
+		m.statusMsg = fmt.Sprintf("Duplicated frame %d", m.currentFrame)
+	} else {
+		m.statusMsg = "No previous frame to duplicate"
+	}
+	return m, nil
+}
+
+// handleStateFrameLinePaste handles Ctrl+R - pastes line from previous frame
+func (m *CreationModel) handleStateFrameLinePaste() (tea.Model, tea.Cmd) {
+	if m.currentFrame > 0 && len(m.stateFrames) > 0 {
+		prevFrame := m.stateFrames[m.currentFrame-1]
+		if m.currentFrameLine < len(prevFrame) {
+			line := prevFrame[m.currentFrameLine]
+			m.textInput.SetValue(line)
+			m.statusMsg = fmt.Sprintf("Pasted line %d from frame %d", m.currentFrameLine+1, m.currentFrame)
+		} else {
+			m.statusMsg = "No line at this position in previous frame"
+		}
+	} else {
+		m.statusMsg = "No previous frame to paste from"
 	}
 	return m, nil
 }
@@ -733,7 +788,7 @@ func (m *CreationModel) renderCreateBase() string {
 	}
 
 	content.WriteString("\n")
-	content.WriteString(m.styles.helpText.Render("Enter: confirm line | Ctrl+D: delete last | G: grid | Esc: cancel"))
+	content.WriteString(m.styles.helpText.Render("Enter: confirm | Ctrl+D: duplicate frame | Ctrl+R: paste line | Ctrl+F: finish | G: grid | Esc: cancel"))
 
 	return content.String()
 }
@@ -816,7 +871,7 @@ func (m *CreationModel) renderStateFrameInput() string {
 	}
 
 	content.WriteString("\n")
-	content.WriteString(m.styles.helpText.Render("Enter: confirm line | Ctrl+D: delete last | G: grid | Esc: cancel"))
+	content.WriteString(m.styles.helpText.Render("Enter: confirm | Ctrl+D: duplicate frame | Ctrl+R: paste line | Ctrl+F: finish | G: grid | Esc: cancel"))
 
 	return content.String()
 }
@@ -909,41 +964,6 @@ func (m *CreationModel) renderExport() string {
 
 	content.WriteString(m.styles.title.Render("EXPORT FOR CONTRIBUTION"))
 	content.WriteString("\n\n")
-
-	// Validate character is complete
-	if len(m.session.BaseFrame.Lines) == 0 {
-		content.WriteString(m.styles.errorMsg.Render("✗ Cannot export: No base character"))
-		content.WriteString("\n\nCreate a base character first.")
-		return content.String()
-	}
-
-	if len(m.session.States) < 3 {
-		content.WriteString(m.styles.errorMsg.Render(fmt.Sprintf("✗ Cannot export: Only %d states (minimum 3 required)", len(m.session.States))))
-		content.WriteString("\n\nMinimum required states: plan, think, execute")
-		content.WriteString("\n\nCreate more states to export.")
-		return content.String()
-	}
-
-	// Check for required states
-	hasRequired := map[string]bool{"plan": false, "think": false, "execute": false}
-	for _, state := range m.session.States {
-		if _, ok := hasRequired[state.Name]; ok {
-			hasRequired[state.Name] = true
-		}
-	}
-
-	missingStates := []string{}
-	for state, has := range hasRequired {
-		if !has {
-			missingStates = append(missingStates, state)
-		}
-	}
-
-	if len(missingStates) > 0 {
-		content.WriteString(m.styles.errorMsg.Render(fmt.Sprintf("✗ Missing required states: %s", strings.Join(missingStates, ", "))))
-		content.WriteString("\n\nCreate these required states before exporting.")
-		return content.String()
-	}
 
 	// Show export summary
 	content.WriteString(fmt.Sprintf("Character: %s (%dx%d)\n\n", m.session.Name, m.session.Width, m.session.Height))
@@ -1099,7 +1119,7 @@ func (m *CreationModel) renderRightPane(width int) string {
 				preview.WriteString(fmt.Sprintf("\nFrame %d:\n", fi+1))
 				for _, line := range frame {
 					compiled := compiler.Compile(line)
-					preview.WriteString("  " + compiled + "\n")
+					preview.WriteString(fmt.Sprintf("  %s  %s\n", compiled, m.styles.helpText.Render(line)))
 				}
 			}
 		}

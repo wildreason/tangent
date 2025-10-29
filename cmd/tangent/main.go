@@ -1567,21 +1567,6 @@ func exportForContribution(session *Session) {
 	fmt.Println("╚══════════════════════════════════════════╝")
 	fmt.Println()
 
-	// Validate minimum required states
-	if !hasRequiredStates(session) {
-		missing := getMissingRequiredStates(session)
-		fmt.Println("✗ Cannot export: Missing required agent states")
-		fmt.Println()
-		fmt.Println("  Required states:")
-		for _, state := range missing {
-			fmt.Printf("    ✗ %s\n", state)
-		}
-		fmt.Println()
-		fmt.Println("  ◢ Tip: Add the missing states using 'Add new frame' option")
-		fmt.Println()
-		return
-	}
-
 	// Show character info
 	fmt.Printf("◢ Character: %s\n", session.Name)
 	fmt.Printf("◢ Dimensions: %dx%d\n", session.Width, session.Height)
