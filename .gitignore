@@ -12,8 +12,10 @@ internal_docs/
 
 # Binaries
 /cmd/tangent/tangent
+/cmd/tangent-cli/tangent-cli
 /tools/builder/builder
 /tangent
+/tangent-cli
 /builder
 
 # OS files
