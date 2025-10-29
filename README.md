@@ -3,7 +3,7 @@
 Give your AI agent a face. 
 Tangent provides expressive, state-based avatars that bring personality to AI agents in terminal environments
 
-Status: Alpha.10 | Go 1.21+
+Status: Alpha.14 | Go 1.21+
 
 ---
 
@@ -53,7 +53,7 @@ One line to load, and methods to give your agent presence.
 
 ## Available Avatars
 
-All avatars are 11x4 dimensions with 15 states each, rendered in distinct colors:
+All avatars are 11x4 dimensions with 16 states each, rendered in distinct colors:
 
 | Name | Theme | Terminal Color | Agent | Description |
 |------|-------|----------------|-------|-------------|
@@ -65,7 +65,7 @@ All avatars are 11x4 dimensions with 15 states each, rendered in distinct colors
 | **saturn** | Orbital rings | 🟣 Purple (#9370DB) | `da` | Organized, systematic agents |
 | **uranus** | Ice crystals | 🔷 Teal (#20B2AA) | `ni` | Cool, methodical agents |
 
-**States:** wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked, arise
+**States:** arise, wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked, resting
 
 **Colors:** Terminal avatars render in true RGB color on terminals that support ANSI escape codes.
 
@@ -156,6 +156,16 @@ func main() {
 Want to create custom avatars? Tangent includes a creation tool for contributors. See [docs/CREATORS.md](docs/CREATORS.md) for the full workflow.
 
 Character contributions welcome via GitHub PR. We curate all avatars to maintain quality and AI-agent focus.
+
+### Adding New States to All Characters
+
+To add a new state across all 7 characters:
+
+1. **Create the state** using `tangent create` - design frames interactively
+2. **Export a character** as template: `tangent admin export sa --format json -o template.json`
+3. **Add your state** to the exported template.json (copy frames from your test export)
+4. **Batch register** to all characters: `tangent admin batch-register template.json colors.json --force`
+5. All characters get the new state with their respective colors automatically applied
 
 ---
 
