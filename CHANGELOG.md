@@ -1,84 +1,12 @@
 # Changelog
 
-## [0.1.0-alpha.17] - 2025-10-29
+## [0.1.0-beta.0] - 2025-10-29
 
-**Library-First Architecture with State Registry System**
+API stable. No breaking changes from alpha.16.
 
-Major architectural refactor transitioning Tangent to pure Go library with JSON-first state management.
+**Migration**: Update dependency only - `go get github.com/wildreason/tangent@v0.1.0-beta.0`
 
-### Changed
-
-- **CLI moved to internal tools**: `tangent` → `tangent-cli` (not distributed)
-- **Library-first architecture**: Public API is Go package only
-- **State registry system**: JSON source of truth with embedded loader
-- **README simplified**: Library-focused (51 lines, was 191 in alpha.14)
-
-### Added
-
-- **State registry package**: `pkg/characters/stateregistry/`
-  - `loader.go` - Embedded JSON loader with `go:embed`
-  - `types.go` - StateDefinition, StateFrame, Registry types
-  - `states/*.json` - 17 state JSON files (single source of truth)
-  - Tests with automatic state loading validation
-- **Internal CLI tool**: `cmd/tangent-cli/` (4,400+ lines)
-  - Moved all creation/admin tools from public cmd/tangent
-  - `make build-cli` workflow
-  - Updated help text ("internal development tool")
-- **Documentation**:
-  - `MIGRATION-alpha.16-to-alpha.17.md` - Migration guide for handwave team
-  - `docs/TANGENT-CLI.md` - Internal tool documentation
-  - `docs/STATE-REGISTRY.md` - State addition workflow
-- **Build system**:
-  - `scripts/build.sh` - Version injection for tangent-cli
-  - `scripts/extract-states.go` - One-time state extraction utility
-
-### Removed
-
-- Public `cmd/tangent` CLI (moved to `cmd/tangent-cli`)
-- CLI installation instructions from README
-- Distribution of CLI binary
-
-### Technical
-
-- All 17 states extracted to JSON files
-- Embedded filesystem (`go:embed states`) for automatic loading
-- State registry loads on package init()
-- Tests verify all 17 states load correctly
-- Future: Character generation from state registry (deferred to cleanup phase)
-
-### Files Structure
-
-```
-pkg/characters/stateregistry/
-├── loader.go              # Embedded loader with DefaultRegistry
-├── loader_test.go         # Loading tests
-├── types.go               # StateDefinition, StateFrame, Registry
-└── states/
-    ├── arise.json         # 17 state JSON files
-    ├── wait.json
-    └── ...
-
-cmd/tangent-cli/           # Internal tool (not distributed)
-├── main.go                # Admin commands
-├── tui.go                 # Creation UI
-├── session.go             # Session management
-├── list.go                # Browse functionality
-├── view.go                # Preview helpers
-└── main_test.go           # Smoke tests
-```
-
-### Migration from alpha.16
-
-See `MIGRATION-alpha.16-to-alpha.17.md` for complete migration guide.
-
-**Breaking changes**:
-- No distributed CLI binary
-- Use Go library API instead: `characters.LibraryAgent("sa")`
-
-**No changes**:
-- All `pkg/characters` APIs remain identical
-- All 7 characters still available
-- All 17 states unchanged
+**Changed**: CLI no longer distributed (library-only package)
 
 ---
 
