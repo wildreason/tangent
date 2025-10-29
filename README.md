@@ -29,11 +29,11 @@ agent.Success(os.Stdout)    // Agent succeeded
 
 ## States
 
-arise, wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked, resting
+arise, wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked, resting, approval
 
 ## Avatars
 
-7 characters (sa, ri, ga, ma, pa, dha, ni) × 16 states × 11x4 dimensions
+7 characters (sa, ri, ga, ma, pa, dha, ni) × 17 states × 11x4 dimensions
 
 - **sa** - Pure Red (#FF0000)
 - **ri** - Orange (#FF8800)

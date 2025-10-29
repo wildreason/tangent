@@ -19,8 +19,9 @@
   - `TestGenerateLibraryCode_ValidGoCode`
   - `TestAdminRegister_SmokeTest`
   - `TestAdminBatchRegister_SmokeTest`
+- **New state**: `approval` (17th state) - 8-frame nodding animation for agent confirmation
 
-Total: -276 lines of bloat, +293 lines of tests, -1 doc file
+Total: -276 lines of bloat, +797 lines (293 tests + 504 state frames), -1 doc file
 
 Following design principles: "Strip away everything until you hit silence" + "If you can't test it, it will bite you later"
 
