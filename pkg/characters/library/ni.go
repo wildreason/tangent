@@ -462,5 +462,77 @@ var niCharacter = LibraryCharacter{
 				"___11_22___",
 			},
 		},
+		{
+			Name: "resting_face_1",
+			Lines: []string{
+				"           ",
+				" rfffffffl ",
+				"_rfffffffl_",
+				"_rf78_f8fl_",
+			},
+		},
+		{
+			Name: "resting_face_2",
+			Lines: []string{
+				"           ",
+				" rfffffffl ",
+				"_rfffffffl_",
+				"_rf78_f8fl_",
+			},
+		},
+		{
+			Name: "resting_face_3",
+			Lines: []string{
+				"           ",
+				" rfffffffl ",
+				"_rfffffffl_",
+				"_rf78_f8fl_",
+			},
+		},
+		{
+			Name: "resting_face_4",
+			Lines: []string{
+				"           ",
+				" rfffffffl ",
+				"_rfffffffl_",
+				"_rf78_f8fl_",
+			},
+		},
+		{
+			Name: "resting_face_5",
+			Lines: []string{
+				"           ",
+				" rfffffffl ",
+				"_rfffffffl_",
+				"_rf78_f8fl_",
+			},
+		},
+		{
+			Name: "resting_face_6",
+			Lines: []string{
+				"           ",
+				" rfffffffl ",
+				"_rfffffffl_",
+				"_rf78_f8fl_",
+			},
+		},
+		{
+			Name: "resting_face_7",
+			Lines: []string{
+				"           ",
+				" rfffffffl ",
+				"_rfffffffl_",
+				"_rf78_f8fl_",
+			},
+		},
+		{
+			Name: "resting_face_8",
+			Lines: []string{
+				"           ",
+				" rfffffffl ",
+				"_rfffffffl_",
+				"_rf8f_f78l_",
+			},
+		},
 	},
 }

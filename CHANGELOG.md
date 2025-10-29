@@ -2,7 +2,17 @@
 
 ## [0.1.0-alpha.14] - 2025-10-29
 
-Removed state validation from `tangent create` - now works for single states.
+### Changed
+
+- Removed state validation from `tangent create` - now works for single states
+- Added TUI improvements: Ctrl+D (duplicate frame), Ctrl+R (paste line), Ctrl+F (finish)
+- Display pattern codes next to Frame 1 in preview for easy screenshots
+
+### Added
+
+- **New state**: `resting` (16th state) - 8-frame subtle animation for idle/resting moments
+  - Frames 1-7: Eye blink pattern `_rf78_f8fl_`
+  - Frame 8: Alternate eye pattern `_rf8f_f78l_`
 
 ---
 
