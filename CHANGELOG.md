@@ -1,5 +1,87 @@
 # Changelog
 
+## [0.1.0-alpha.13] - 2025-10-28
+
+**Template-Based Batch Character System with Musical Notes**
+
+Major architectural refactor introducing template-based character generation and musical note naming system.
+
+### Added
+
+- **Batch registration command**: `tangent admin batch-register <template> <colors>`
+- **Template system**: Single `template.json` as source of truth for all pattern states
+- **Color configuration**: `colors.json` for centralized character metadata
+- **Musical note characters**: Sa, Ri, Ga, Ma, Pa, Dha, Ni (7 characters)
+
+### Changed
+
+- **Character naming**: Planetary names → Musical notes (Indian classical music scale)
+  - fire → sa (Shadja)
+  - jupiter → ri (Rishabha)
+  - mars → ga (Gandhara)
+  - neptune → ma (Madhyama)
+  - saturn → pa (Panchama)
+  - uranus → dha (Dhaivata)
+  - mercury → ni (Nishada)
+- **Color palette**: Spectrum-separated distinct colors
+  - sa: #FF0000 (Pure Red)
+  - ri: #FF8800 (Orange)
+  - ga: #FFD700 (Gold)
+  - ma: #00FF00 (Green)
+  - pa: #0088FF (Blue)
+  - dha: #8800FF (Purple)
+  - ni: #FF0088 (Magenta)
+
+### Removed
+
+- Planetary character names (fire, jupiter, mars, mercury, neptune, saturn, uranus, sun)
+
+### Technical
+
+- All characters share identical pattern structure (15 states, 51 frames, 11x4 dimensions)
+- Template-based workflow: Edit `template.json` → Run batch-register → All characters updated
+- Automatic backup of existing character files before updates
+- Centralized metadata in `colors.json` for easy character addition
+
+### Benefits
+
+- **Single source of truth**: One template file for all character patterns
+- **Easy updates**: Add new states by editing template.json and running batch command
+- **Scalable**: Add new characters by updating colors.json
+- **Maintainable**: No manual copying/editing of character files
+- **Consistent**: All characters guaranteed to have same states and dimensions
+
+---
+
+## [0.1.0-alpha.12] - 2025-10-28
+
+**Character Export/Update Workflow**
+
+Added bidirectional conversion between Go library files and JSON format for easier character management.
+
+### Added
+
+- **Export command**: `tangent admin export <character>` - Export library character to JSON
+- **Force update**: `tangent admin register <json> --force` - Update existing character
+- **Automatic backups**: Creates `.backup` file before updating existing characters
+- **Metadata preservation**: Exports/imports Description, Author, Color fields
+
+### Technical
+
+- Frame grouping: Converts flat pattern array to grouped state structure in JSON
+- State naming: Parses `{state}_{framenum}` convention for multi-frame states
+- Backward compatible: Works with existing character validation system
+
+### Workflow
+
+```bash
+tangent admin export mercury        # Export to mercury.json
+# Edit mercury.json
+tangent admin register mercury.json --force  # Update with backup
+```
+
+---
+
 ## [0.1.0-alpha.11] - 2025-10-28
 
 **All Characters: Universal Arise State**
