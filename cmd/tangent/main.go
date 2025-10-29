@@ -191,14 +191,6 @@ func characterBuilder(session *Session) {
 		fmt.Printf("  Base: %s | States: %d (%s)\n", baseStatus, len(session.States), stateList)
 		fmt.Println()
 
-		// Show appropriate tip
-		if len(session.BaseFrame.Lines) == 0 {
-			fmt.Println("  ◢ Tip: Start by creating the base character (idle state)!")
-			fmt.Println()
-		} else if len(session.States) == 0 {
-			fmt.Println("  ◢ Tip: Now add agent states (think, plan, search)!")
-			fmt.Println()
-		}
 
 		fmt.Println("  1. Create base character")
 		fmt.Println("  2. Add agent state")
@@ -380,11 +372,6 @@ func addFrame(session *Session) {
 			missingCount++
 		}
 	}
-	if missingCount > 0 {
-		fmt.Printf("  ◢ Tip: %d required state(s) remaining\n\n", missingCount)
-	} else {
-		fmt.Println("  ✓ All required states added! You can now export for contribution.\n")
-	}
 }
 
 func duplicateFrame(session *Session) {
@@ -454,8 +441,7 @@ func duplicateFrame(session *Session) {
 	for _, line := range newFrame.Lines {
 		fmt.Println(compilePattern(line))
 	}
-	fmt.Printf("\n✓ Frame '%s' duplicated as '%s'!\n", sourceFrame.Name, newName)
-	fmt.Println("◢ Tip: Use 'Edit frame' to modify it\n")
+	fmt.Printf("\n✓ Frame '%s' duplicated as '%s'\n", sourceFrame.Name, newName)
 }
 
 func editFrame(session *Session) {
@@ -562,8 +548,7 @@ func animateCharacter(session *Session) {
 	}
 
 	if len(session.Frames) == 1 {
-		fmt.Println("\n✗ Need at least 2 frames to animate (you have 1)\n")
-		fmt.Println("◢ Tip: Use 'Duplicate frame' to create variations for animation\n")
+		fmt.Println("\n✗ Need at least 2 frames\n")
 		return
 	}
 
@@ -894,31 +879,16 @@ func handleCLI() {
 		handleAdminCLI()
 	case "version", "--version", "-v":
 		fmt.Printf("tangent %s (commit: %s, built: %s)\n", version, commit, date)
-	case "help", "--help", "-h":
-		printUsage()
 	default:
-		fmt.Fprintf(os.Stderr, "Error: unknown command '%s'\n\n", command)
-		fmt.Fprintln(os.Stderr, "Try 'tangent help' for usage information")
+		fmt.Fprintf(os.Stderr, "Error: unknown command '%s'\n", command)
 		os.Exit(1)
 	}
 }
 
 func printUsage() {
-	fmt.Println("Tangent - Terminal Avatars for AI Agents")
-	fmt.Println()
-	fmt.Println("USAGE:")
-	fmt.Println("  tangent browse              List all avatars")
-	fmt.Println("  tangent browse <name>       Preview avatar with states")
-	fmt.Println("  tangent browse <name> [--state plan|think|execute] [--fps N] [--loops N]")
-	fmt.Println("  tangent version             Show version information")
-	fmt.Println("  tangent help                Show this help message")
-	fmt.Println()
-	fmt.Println("EXAMPLES:")
-	fmt.Println("  tangent browse              # Discover available avatars")
-	fmt.Println("  tangent browse mercury      # Preview mercury avatar")
-	fmt.Println("  tangent browse water --state plan --fps 8")
-	fmt.Println()
-	fmt.Println("For API integration: https://github.com/wildreason/tangent")
+	fmt.Println("tangent browse [name] [--state S] [--fps N] [--loops N]")
+	fmt.Println("tangent create")
+	fmt.Println("tangent version")
 }
 
 func handleAdminCLI() {
@@ -942,13 +912,6 @@ func handleAdminCLI() {
 			forceUpdate = true
 		}
 		adminRegister(os.Args[3], forceUpdate)
-	case "validate":
-		if len(os.Args) < 4 {
-			fmt.Println("Error: missing JSON file path")
-			printAdminUsage()
-			os.Exit(1)
-		}
-		adminValidate(os.Args[3])
 	case "export":
 		if len(os.Args) < 4 {
 			fmt.Println("Error: missing character name")
@@ -976,19 +939,9 @@ func handleAdminCLI() {
 }
 
 func printAdminUsage() {
-	fmt.Println("Admin Commands:")
-	fmt.Println("  tangent admin export <character>              Export library character to JSON")
-	fmt.Println("  tangent admin register <json>                 Register new character to library")
-	fmt.Println("  tangent admin register <json> --force         Update existing character")
-	fmt.Println("  tangent admin batch-register <template> <colors>  Register multiple characters from template")
-	fmt.Println("  tangent admin validate <json>                 Validate character JSON")
-	fmt.Println()
-	fmt.Println("Examples:")
-	fmt.Println("  tangent admin export mercury                  # Export to mercury.json")
-	fmt.Println("  tangent admin register egon.json              # Add new character")
-	fmt.Println("  tangent admin register mercury.json --force   # Update existing character")
-	fmt.Println("  tangent admin batch-register template.json colors.json  # Create all characters")
-	fmt.Println("  tangent admin validate egon.json              # Validate before registering")
+	fmt.Println("tangent admin export <character>")
+	fmt.Println("tangent admin register <json> [--force]")
+	fmt.Println("tangent admin batch-register <template> <colors>")
 }
 
 func adminRegister(jsonPath string, forceUpdate bool) {
@@ -1140,98 +1093,6 @@ func adminRegister(jsonPath string, forceUpdate bool) {
 	fmt.Printf("✅ Character '%s' registered successfully!\n", charData.Name)
 	fmt.Printf("📁 Library file: %s\n", libraryFile)
 	fmt.Println()
-	fmt.Println("Next steps:")
-	fmt.Println("1. Run: make build")
-	fmt.Println("2. Test: tangent gallery")
-	fmt.Println("3. Commit the changes")
-}
-
-func adminValidate(jsonPath string) {
-	fmt.Printf("Validating character JSON: %s\n", jsonPath)
-
-	// Load and parse JSON
-	data, err := os.ReadFile(jsonPath)
-	if err != nil {
-		fmt.Printf("Error reading file: %v\n", err)
-		os.Exit(1)
-	}
-
-	var charData struct {
-		Name        string `json:"name"`
-		Description string `json:"description"`
-		Author      string `json:"author"`
-		Color       string `json:"color"`
-		Personality string `json:"personality"`
-		Width       int    `json:"width"`
-		Height      int    `json:"height"`
-		BaseFrame   struct {
-			Name  string   `json:"name"`
-			Lines []string `json:"lines"`
-		} `json:"base_frame"`
-		States []struct {
-			Name   string `json:"name"`
-			Frames []struct {
-				Lines []string `json:"lines"`
-			} `json:"frames"`
-		} `json:"states"`
-	}
-
-	if err := json.Unmarshal(data, &charData); err != nil {
-		fmt.Printf("Error parsing JSON: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Validate required fields
-	valid := true
-
-	if charData.Name == "" {
-		fmt.Println("❌ Missing 'name' field")
-		valid = false
-	}
-	if charData.Width == 0 || charData.Height == 0 {
-		fmt.Println("❌ Missing or invalid 'width'/'height' fields")
-		valid = false
-	}
-	if len(charData.BaseFrame.Lines) == 0 {
-		fmt.Println("❌ Missing 'base_frame' field")
-		valid = false
-	}
-	if len(charData.States) == 0 {
-		fmt.Println("❌ Missing 'states' field")
-		valid = false
-	}
-
-	// Check required states and minimum frames
-	requiredStates := []string{"plan", "think", "execute"}
-	stateNames := make(map[string]bool)
-	minFrames := 3
-
-	for _, state := range charData.States {
-		stateNames[state.Name] = true
-
-		// Check minimum frames per state
-		if len(state.Frames) < minFrames {
-			fmt.Printf("❌ State '%s' has %d frames; minimum is %d\n", state.Name, len(state.Frames), minFrames)
-			valid = false
-		}
-	}
-
-	for _, required := range requiredStates {
-		if !stateNames[required] {
-			fmt.Printf("❌ Missing required state: %s\n", required)
-			valid = false
-		}
-	}
-
-	if valid {
-		fmt.Println("✅ Character JSON is valid!")
-		fmt.Printf("   Name: %s\n", charData.Name)
-		fmt.Printf("   Size: %dx%d\n", charData.Width, charData.Height)
-		fmt.Printf("   States: %d\n", len(charData.States))
-	} else {
-		fmt.Println("❌ Character JSON has validation errors")
-		os.Exit(1)
-	}
 }
 
 func adminExport(characterName string) {
@@ -1354,9 +1215,6 @@ func adminExport(characterName string) {
 	fmt.Printf("  - States: %d\n", len(export.States))
 	fmt.Printf("  - Total frames: %d\n", len(char.Patterns))
 	fmt.Println()
-	fmt.Println("Next steps:")
-	fmt.Println("  1. Edit the JSON file to add/modify states")
-	fmt.Println("  2. Run: tangent admin register " + outputFile + " --force")
 }
 
 func adminBatchRegister(templatePath, colorsPath string) {
@@ -1461,9 +1319,6 @@ func adminBatchRegister(templatePath, colorsPath string) {
 	fmt.Printf("🎉 Batch registration complete!\n")
 	fmt.Printf("   Created/Updated: %d characters\n", successCount)
 	fmt.Printf("   Total in config: %d characters\n\n", len(colors))
-	fmt.Println("Next steps:")
-	fmt.Println("  1. Run: make build")
-	fmt.Println("  2. Test: tangent browse")
 }
 
 func generateLibraryCode(name, description, author, color, personality string, width, height int, patterns []struct {
@@ -2015,11 +1870,6 @@ func addAgentStateWithBase(session *Session) {
 		if !existingStates[req] {
 			missingCount++
 		}
-	}
-	if missingCount > 0 {
-		fmt.Printf("  ◢ Tip: %d required state(s) remaining\n\n", missingCount)
-	} else {
-		fmt.Println("  ✓ All required states added! You can now export for contribution.\n")
 	}
 }
 

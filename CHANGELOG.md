@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.0-alpha.15] - 2025-10-29
+
+**Maximally Minimal** - Post-release ritual: strip everything unnecessary.
+
+### Removed
+
+- `tangent admin validate` command (-86 lines)
+- `tangent help` command (-3 lines)
+- All examples from help text (-14 lines)
+- `docs/PATTERNS.md` (-2117 bytes)
+- Error messages with suggestions (-47 lines)
+
+Total: -150 lines, -1 file. Following design principle: "Strip away everything until you hit silence."
+
+---
+
 ## [0.1.0-alpha.14] - 2025-10-29
 
 ### Changed
