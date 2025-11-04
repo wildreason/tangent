@@ -19,6 +19,77 @@ agent.Think(os.Stdout)
 agent.Success(os.Stdout)
 ```
 
+## Complete Example
+
+Here's a complete working example demonstrating an AI agent workflow with state transitions:
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"time"
+
+	"github.com/wildreason/tangent/pkg/characters"
+)
+
+func main() {
+	// Load the "sa" (Red) agent from the library
+	agent, err := characters.LibraryAgent("sa")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("🤖 AI Agent Workflow Demo\n")
+
+	// Agent starts planning
+	fmt.Println("📋 Planning task...")
+	agent.Plan(os.Stdout)
+	time.Sleep(500 * time.Millisecond)
+
+	// Agent processes information
+	fmt.Println("\n💭 Thinking...")
+	agent.Think(os.Stdout)
+	time.Sleep(500 * time.Millisecond)
+
+	// Agent executes the task
+	fmt.Println("\n⚡ Executing task...")
+	agent.Execute(os.Stdout)
+	time.Sleep(500 * time.Millisecond)
+
+	// Agent waits for results
+	fmt.Println("\n⏳ Waiting for completion...")
+	agent.Wait(os.Stdout)
+	time.Sleep(500 * time.Millisecond)
+
+	// Agent completes successfully
+	fmt.Println("\n✅ Success!")
+	agent.Success(os.Stdout)
+
+	fmt.Println("\n\n🎉 Agent workflow complete!")
+}
+```
+
+This example demonstrates a typical AI agent lifecycle:
+1. **Plan** - Agent analyzes and plans the task
+2. **Think** - Agent processes and contemplates the approach
+3. **Execute** - Agent actively performs the task
+4. **Wait** - Agent waits for results or feedback
+5. **Success** - Agent celebrates successful completion
+
+You can also handle errors in your workflow:
+
+```go
+// If something goes wrong
+if err != nil {
+	fmt.Println("\n❌ Error encountered!")
+	agent.Error(os.Stdout)
+	return
+}
+```
+
 ## API
 
 ```go

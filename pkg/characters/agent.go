@@ -29,37 +29,60 @@ func NewAgentCharacter(character *domain.Character) *AgentCharacter {
 	}
 }
 
-// Plan shows the planning state animation
+// Plan shows the planning state animation.
+// This state typically represents the agent analyzing and planning its next actions.
+// It's a convenience wrapper around ShowState(writer, "plan").
 func (a *AgentCharacter) Plan(writer io.Writer) error {
 	return a.ShowState(writer, "plan")
 }
 
-// Think shows the thinking state animation
+// Think shows the thinking state animation.
+// This state typically represents the agent processing information or contemplating.
+// It's a convenience wrapper around ShowState(writer, "think").
 func (a *AgentCharacter) Think(writer io.Writer) error {
 	return a.ShowState(writer, "think")
 }
 
-// Execute shows the executing state animation
+// Execute shows the executing state animation.
+// This state typically represents the agent actively performing actions or tasks.
+// It's a convenience wrapper around ShowState(writer, "execute").
 func (a *AgentCharacter) Execute(writer io.Writer) error {
 	return a.ShowState(writer, "execute")
 }
 
-// Wait shows the waiting state animation
+// Wait shows the waiting state animation.
+// This state typically represents the agent in an idle state, waiting for input or events.
+// It's a convenience wrapper around ShowState(writer, "wait").
 func (a *AgentCharacter) Wait(writer io.Writer) error {
 	return a.ShowState(writer, "wait")
 }
 
-// Error shows the error state animation
+// Error shows the error state animation.
+// This state typically represents the agent encountering or handling an error condition.
+// It's a convenience wrapper around ShowState(writer, "error").
 func (a *AgentCharacter) Error(writer io.Writer) error {
 	return a.ShowState(writer, "error")
 }
 
-// Success shows the success state animation
+// Success shows the success state animation.
+// This state typically represents the agent celebrating or acknowledging successful completion.
+// It's a convenience wrapper around ShowState(writer, "success").
 func (a *AgentCharacter) Success(writer io.Writer) error {
 	return a.ShowState(writer, "success")
 }
 
-// ShowState displays a specific agent state by name
+// ShowState displays a specific agent state by name.
+// It renders all frames in the state sequentially with a brief pause between frames.
+//
+// Parameters:
+//   - writer: The io.Writer to output the state animation to (typically os.Stdout)
+//   - stateName: The name of the state to display (e.g., "plan", "think", "execute")
+//
+// Returns an error if the state doesn't exist or the character has no states defined.
+//
+// Example:
+//
+//	agent.ShowState(os.Stdout, "plan")
 func (a *AgentCharacter) ShowState(writer io.Writer, stateName string) error {
 	if a.character == nil {
 		return fmt.Errorf("agent character is nil")
@@ -154,7 +177,20 @@ func (a *AgentCharacter) GetStateDescription(stateName string) (string, error) {
 	return state.Description, nil
 }
 
-// ShowBase displays the base (idle) character
+// ShowBase displays the base (idle) character.
+// The base frame represents the character's default resting state.
+//
+// Parameters:
+//   - writer: The io.Writer to output the base frame to (typically os.Stdout)
+//
+// Returns an error if the character is nil or has no base frame defined.
+//
+// The function compiles pattern codes to Unicode blocks and applies the character's
+// color to all rendered output.
+//
+// Example:
+//
+//	agent.ShowBase(os.Stdout)
 func (a *AgentCharacter) ShowBase(writer io.Writer) error {
 	if a.character == nil {
 		return fmt.Errorf("agent character is nil")
@@ -176,7 +212,28 @@ func (a *AgentCharacter) ShowBase(writer io.Writer) error {
 	return nil
 }
 
-// AnimateState animates a specific state with proper frame animation
+// AnimateState animates a specific state with proper frame animation.
+// It displays the state's frames in sequence with smooth transitions, hiding the cursor
+// during animation and showing it again when complete.
+//
+// Parameters:
+//   - writer: The io.Writer to output the animation to (typically os.Stdout)
+//   - stateName: The name of the state to animate (e.g., "plan", "think", "execute")
+//   - fps: Frames per second for the animation. If 0 or negative, uses the state's default AnimationFPS
+//   - loops: Number of times to loop the animation. If 0 or negative, uses the state's default AnimationLoops
+//
+// Returns an error if the state doesn't exist, has no frames, or the character has no states defined.
+//
+// The function compiles pattern codes to Unicode blocks and applies the character's color
+// to all rendered output. The cursor is hidden during animation for a smoother experience.
+//
+// Example:
+//
+//	// Animate the "plan" state at 5 FPS for 3 loops
+//	err := agent.AnimateState(os.Stdout, "plan", 5, 3)
+//	if err != nil {
+//	    log.Fatal(err)
+//	}
 func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps int, loops int) error {
 	if a.character == nil {
 		return fmt.Errorf("agent character is nil")

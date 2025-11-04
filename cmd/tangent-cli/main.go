@@ -217,11 +217,11 @@ func characterBuilder(session *Session) {
 			if err := session.Save(); err != nil {
 				handleError("Failed to save session", err)
 			} else {
-				fmt.Println("✓ Progress saved. Goodbye!\n")
+				fmt.Println("✓ Progress saved. Goodbye!")
 			}
 			os.Exit(0)
 		default:
-			fmt.Println("✗ Invalid option\n")
+			fmt.Println("✗ Invalid option")
 		}
 	}
 }
@@ -282,7 +282,7 @@ func addFrame(session *Session) {
 	frameName = strings.TrimSpace(frameName)
 
 	if frameName == "" {
-		fmt.Println("✗ State name cannot be empty\n")
+		fmt.Println("✗ State name cannot be empty")
 		return
 	}
 
@@ -376,7 +376,7 @@ func addFrame(session *Session) {
 
 func duplicateFrame(session *Session) {
 	if len(session.Frames) == 0 {
-		fmt.Println("\n✗ No frames to duplicate\n")
+		fmt.Println("\n✗ No frames to duplicate")
 		return
 	}
 
@@ -398,7 +398,7 @@ func duplicateFrame(session *Session) {
 	}
 
 	if frameIdx == -1 {
-		fmt.Println("✗ Invalid frame\n")
+		fmt.Println("✗ Invalid frame")
 		return
 	}
 
@@ -410,7 +410,7 @@ func duplicateFrame(session *Session) {
 	newName = strings.TrimSpace(newName)
 
 	if newName == "" {
-		fmt.Println("✗ Frame name cannot be empty\n")
+		fmt.Println("✗ Frame name cannot be empty")
 		return
 	}
 
@@ -446,7 +446,7 @@ func duplicateFrame(session *Session) {
 
 func editFrame(session *Session) {
 	if len(session.Frames) == 0 {
-		fmt.Println("\n✗ No frames to edit\n")
+		fmt.Println("\n✗ No frames to edit")
 		return
 	}
 
@@ -468,7 +468,7 @@ func editFrame(session *Session) {
 	}
 
 	if frameIdx == -1 {
-		fmt.Println("✗ Invalid frame\n")
+		fmt.Println("✗ Invalid frame")
 		return
 	}
 
@@ -495,7 +495,7 @@ func editFrame(session *Session) {
 	}
 
 	if lineIdx == -1 {
-		fmt.Println("✗ Invalid line\n")
+		fmt.Println("✗ Invalid line")
 		return
 	}
 
@@ -518,13 +518,13 @@ func editFrame(session *Session) {
 	if strings.ToLower(strings.TrimSpace(confirm)) == "y" {
 		frame.Lines[lineIdx] = newLine
 		session.Save()
-		fmt.Println("✓ Line updated!\n")
+		fmt.Println("✓ Line updated!")
 	}
 }
 
 func previewCharacter(session *Session) {
 	if len(session.Frames) == 0 {
-		fmt.Println("\n✗ No frames to preview\n")
+		fmt.Println("\n✗ No frames to preview")
 		return
 	}
 
@@ -543,12 +543,12 @@ func previewCharacter(session *Session) {
 
 func animateCharacter(session *Session) {
 	if len(session.Frames) == 0 {
-		fmt.Println("\n✗ No frames to animate\n")
+		fmt.Println("\n✗ No frames to animate")
 		return
 	}
 
 	if len(session.Frames) == 1 {
-		fmt.Println("\n✗ Need at least 2 frames\n")
+		fmt.Println("\n✗ Need at least 2 frames")
 		return
 	}
 
@@ -566,7 +566,7 @@ func animateCharacter(session *Session) {
 	}
 
 	fmt.Printf("◢ Animating '%s' with %d frames at 5 FPS for 3 cycles\n", session.Name, len(session.Frames))
-	fmt.Println("◢ Press Ctrl+C to stop\n")
+	fmt.Println("◢ Press Ctrl+C to stop")
 
 	// Animate using AgentCharacter
 	agent := characters.NewAgentCharacter(character)
@@ -575,12 +575,12 @@ func animateCharacter(session *Session) {
 		return
 	}
 
-	fmt.Println("\n✓ Animation complete!\n")
+	fmt.Println("\n✓ Animation complete!")
 }
 
 func exportCode(session *Session) {
 	if len(session.Frames) == 0 {
-		fmt.Println("\n✗ No frames to export\n")
+		fmt.Println("\n✗ No frames to export")
 		return
 	}
 
@@ -615,7 +615,7 @@ func exportCode(session *Session) {
 
 func saveToFile(session *Session) {
 	if len(session.Frames) == 0 {
-		fmt.Println("\n✗ No frames to export\n")
+		fmt.Println("\n✗ No frames to export")
 		return
 	}
 
@@ -656,7 +656,7 @@ func saveToFile(session *Session) {
 	fmt.Print("◢ Confirm? (y/n): ")
 	confirm, _ := reader.ReadString('\n')
 	if strings.ToLower(strings.TrimSpace(confirm)) != "y" {
-		fmt.Println("✗ Cancelled\n")
+		fmt.Println("✗ Cancelled")
 		return
 	}
 
@@ -730,7 +730,7 @@ func capitalize(s string) string {
 
 func deleteFrame(session *Session) {
 	if len(session.Frames) == 0 {
-		fmt.Println("\n✗ No frames to delete\n")
+		fmt.Println("\n✗ No frames to delete")
 		return
 	}
 
@@ -752,7 +752,7 @@ func deleteFrame(session *Session) {
 	}
 
 	if frameIdx == -1 {
-		fmt.Println("✗ Invalid frame\n")
+		fmt.Println("✗ Invalid frame")
 		return
 	}
 
@@ -763,7 +763,7 @@ func deleteFrame(session *Session) {
 	if strings.ToLower(strings.TrimSpace(confirm)) == "y" {
 		session.Frames = append(session.Frames[:frameIdx], session.Frames[frameIdx+1:]...)
 		session.Save()
-		fmt.Println("✓ Frame deleted\n")
+		fmt.Println("✓ Frame deleted")
 	}
 }
 
@@ -1626,13 +1626,13 @@ func createBaseCharacter(session *Session) {
 		Lines: lines,
 	}
 	session.Save()
-	fmt.Println("\n✓ Base character created! Now add animated states.\n")
+	fmt.Println("\n✓ Base character created! Now add animated states.")
 }
 
 // previewBaseCharacter shows the base character
 func previewBaseCharacter(session *Session) {
 	if len(session.BaseFrame.Lines) == 0 {
-		fmt.Println("\n✗ No base character created yet\n")
+		fmt.Println("\n✗ No base character created yet")
 		return
 	}
 
@@ -1652,7 +1652,7 @@ func addAgentStateWithBase(session *Session) {
 
 	// Check if base exists
 	if len(session.BaseFrame.Lines) == 0 {
-		fmt.Println("\n✗ Create base character first!\n")
+		fmt.Println("\n✗ Create base character first!")
 		return
 	}
 
@@ -1709,7 +1709,7 @@ func addAgentStateWithBase(session *Session) {
 	stateName = strings.TrimSpace(stateName)
 
 	if stateName == "" {
-		fmt.Println("✗ State name cannot be empty\n")
+		fmt.Println("✗ State name cannot be empty")
 		return
 	}
 
@@ -1768,9 +1768,9 @@ func addAgentStateWithBase(session *Session) {
 		if startFromBase == "y" {
 			// Copy base lines
 			copy(lines, session.BaseFrame.Lines)
-			fmt.Println("  ✓ Copied base. Edit lines as needed (press Enter to keep):\n")
+			fmt.Println("  ✓ Copied base. Edit lines as needed (press Enter to keep):")
 		} else {
-			fmt.Println("  Creating from scratch:\n")
+			fmt.Println("  Creating from scratch:")
 		}
 
 		fmt.Println(patterns.GetPatternHelp())
@@ -1971,7 +1971,7 @@ func previewDualPane(session *Session, stateName string) {
 	fmt.Println("╚══════════════════════════════════════════════════════════════╝")
 	fmt.Println()
 	fmt.Println("  Left: Formation (what you're building now)")
-	fmt.Println("  Right: End-state (as it will animate)\n")
+	fmt.Println("  Right: End-state (as it will animate)")
 
 	// Hide cursor
 	fmt.Print("\x1b[?25l")
@@ -2015,7 +2015,7 @@ func previewDualPane(session *Session, stateName string) {
 		}
 		fmt.Printf("\r\x1b[2K  %-*s    %s\n", width, lc, rc)
 	}
-	fmt.Println("\n✓ Preview complete. Press Enter to return.\n")
+	fmt.Println("\n✓ Preview complete. Press Enter to return.")
 	bufio.NewReader(os.Stdin).ReadString('\n')
 }
 
@@ -2104,7 +2104,7 @@ func repeatString(s string, count int) string {
 // editAgentState edits an existing agent state
 func editAgentState(session *Session) {
 	if len(session.States) == 0 {
-		fmt.Println("\n✗ No states to edit\n")
+		fmt.Println("\n✗ No states to edit")
 		return
 	}
 
@@ -2129,7 +2129,7 @@ func editAgentState(session *Session) {
 	}
 
 	if stateIdx == -1 {
-		fmt.Println("✗ Invalid state\n")
+		fmt.Println("✗ Invalid state")
 		return
 	}
 
@@ -2164,19 +2164,19 @@ func editAgentState(session *Session) {
 			session.Save()
 			fmt.Printf("\n  ✓ Animation speed updated to %d FPS\n\n", fps)
 		} else {
-			fmt.Println("\n  ✗ Invalid FPS\n")
+			fmt.Println("\n  ✗ Invalid FPS")
 		}
 	case "5":
 		return
 	default:
-		fmt.Println("\n✗ Invalid option\n")
+		fmt.Println("\n✗ Invalid option")
 	}
 }
 
 // previewStateAnimation previews a single state's animation
 func previewStateAnimation(session *Session) {
 	if len(session.States) == 0 {
-		fmt.Println("\n✗ No states to preview\n")
+		fmt.Println("\n✗ No states to preview")
 		return
 	}
 
@@ -2201,14 +2201,14 @@ func previewStateAnimation(session *Session) {
 	}
 
 	if stateIdx == -1 {
-		fmt.Println("✗ Invalid state\n")
+		fmt.Println("✗ Invalid state")
 		return
 	}
 
 	state := session.States[stateIdx]
 
 	fmt.Printf("\n◢ Animating '%s' state with %d frames at %d FPS for 2 cycles\n", state.Name, len(state.Frames), state.AnimationFPS)
-	fmt.Println("◢ Press Ctrl+C to stop\n")
+	fmt.Println("◢ Press Ctrl+C to stop")
 
 	// Create temporary character for animation
 	tempChar := &domain.Character{
@@ -2232,13 +2232,13 @@ func previewStateAnimation(session *Session) {
 		return
 	}
 
-	fmt.Println("\n✓ Animation complete!\n")
+	fmt.Println("\n✓ Animation complete!")
 }
 
 // previewAllStates previews all states in sequence
 func previewAllStates(session *Session) {
 	if len(session.States) == 0 {
-		fmt.Println("\n✗ No states to preview\n")
+		fmt.Println("\n✗ No states to preview")
 		return
 	}
 
@@ -2292,5 +2292,5 @@ func previewAllStates(session *Session) {
 		fmt.Println()
 	}
 
-	fmt.Println("✓ All states previewed!\n")
+	fmt.Println("✓ All states previewed!")
 }
