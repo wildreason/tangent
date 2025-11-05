@@ -7,6 +7,7 @@ import (
 	"github.com/wildreason/tangent/pkg/characters/domain"
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
 	"github.com/wildreason/tangent/pkg/characters/library"
+	"github.com/wildreason/tangent/pkg/characters/stateregistry"
 )
 
 // Package characters provides a simple API for terminal character animation.
@@ -138,12 +139,18 @@ func LibraryAgent(name string) (*AgentCharacter, error) {
 
 	// Create states from grouped frames
 	for stateName, stateFramesList := range stateFrames {
+		// Get FPS from state registry if available, default to 5
+		fps := 5
+		if stateDef, ok := stateregistry.Get(stateName); ok && stateDef.FPS > 0 {
+			fps = stateDef.FPS
+		}
+
 		states[stateName] = domain.State{
 			Name:           stateName,
 			Description:    fmt.Sprintf("%s state", stateName),
 			Frames:         stateFramesList,
 			StateType:      "standard",
-			AnimationFPS:   5,
+			AnimationFPS:   fps,
 			AnimationLoops: 1,
 		}
 	}

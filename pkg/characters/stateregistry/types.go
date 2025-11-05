@@ -9,6 +9,7 @@ type StateFrame struct {
 type StateDefinition struct {
 	Name   string       `json:"name"`
 	Frames []StateFrame `json:"frames"`
+	FPS    int          `json:"fps,omitempty"` // Optional FPS override (default: 5)
 }
 
 // Registry holds all available states

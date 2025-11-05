@@ -51,7 +51,7 @@ hasState := agent.HasState("think")
 - **ga** - Gold (#FFD700)
 - **ma** - Green (#00FF00)
 - **pa** - Blue (#0088FF)
-- **dha** - Purple (#8800FF)
+- **da** - Purple (#8800FF)
 - **ni** - Pink (#FF0088)
 
 ## States
