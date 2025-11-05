@@ -66,15 +66,15 @@ func TestGetCurrentTheme(t *testing.T) {
 		SetTheme(originalTheme) // Restore original theme
 	}()
 
-	// Default should be "bright"
-	if GetCurrentTheme() != "bright" {
-		t.Errorf("Default theme = %v, want bright", GetCurrentTheme())
+	// Default should be "latte"
+	if GetCurrentTheme() != "latte" {
+		t.Errorf("Default theme = %v, want latte", GetCurrentTheme())
 	}
 
 	// Change theme and verify
-	SetTheme("latte")
-	if GetCurrentTheme() != "latte" {
-		t.Errorf("After SetTheme('latte'), GetCurrentTheme() = %v, want latte", GetCurrentTheme())
+	SetTheme("bright")
+	if GetCurrentTheme() != "bright" {
+		t.Errorf("After SetTheme('bright'), GetCurrentTheme() = %v, want bright", GetCurrentTheme())
 	}
 }
 
@@ -109,28 +109,28 @@ func TestLibraryAgentUsesTheme(t *testing.T) {
 		SetTheme(originalTheme) // Restore original theme
 	}()
 
-	// Test with bright theme
-	SetTheme("bright")
+	// Test with latte theme (default)
+	SetTheme("latte")
 	agent, err := LibraryAgent("sa")
 	if err != nil {
 		t.Fatalf("LibraryAgent() error = %v", err)
 	}
 
 	char := agent.GetCharacter()
-	if char.Color != library.Theme1ColorSa {
-		t.Errorf("LibraryAgent with bright theme: color = %v, want %v", char.Color, library.Theme1ColorSa)
+	if char.Color != library.Theme2ColorSa {
+		t.Errorf("LibraryAgent with latte theme: color = %v, want %v", char.Color, library.Theme2ColorSa)
 	}
 
-	// Test with latte theme
-	SetTheme("latte")
+	// Test with bright theme
+	SetTheme("bright")
 	agent2, err := LibraryAgent("sa")
 	if err != nil {
 		t.Fatalf("LibraryAgent() error = %v", err)
 	}
 
 	char2 := agent2.GetCharacter()
-	if char2.Color != library.Theme2ColorSa {
-		t.Errorf("LibraryAgent with latte theme: color = %v, want %v", char2.Color, library.Theme2ColorSa)
+	if char2.Color != library.Theme1ColorSa {
+		t.Errorf("LibraryAgent with bright theme: color = %v, want %v", char2.Color, library.Theme1ColorSa)
 	}
 }
 

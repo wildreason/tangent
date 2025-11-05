@@ -5,8 +5,8 @@
 ### Added
 
 - **Theme system**: 4 color themes for all 7 characters (28 colors total)
-  - `bright` (default) - Original 100% saturation colors
-  - `latte` - Catppuccin-inspired warm pastels, GUI-friendly for non-technical users
+  - `latte` (default) - Catppuccin-inspired warm pastels, GUI-friendly for non-technical users
+  - `bright` - Original 100% saturation colors
   - `garden` - Earthy natural colors that reduce terminal intimidation
   - `cozy` - Modern GUI hybrid with professional warmth
 - Theme API functions:
