@@ -116,10 +116,10 @@ tangent-cli browse sa --state approval
 
 ## Current States
 
-17 states available:
+16 states available:
 
 * arise, wait, think, plan, execute
-* error, success
+* error
 * read, search, write, bash, build, communicate
 * block, blocked
 * resting_face, approval

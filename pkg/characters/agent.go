@@ -54,11 +54,6 @@ func (a *AgentCharacter) Error(writer io.Writer) error {
 	return a.ShowState(writer, "error")
 }
 
-// Success shows the success state animation
-func (a *AgentCharacter) Success(writer io.Writer) error {
-	return a.ShowState(writer, "success")
-}
-
 // ShowState displays a specific agent state by name
 func (a *AgentCharacter) ShowState(writer io.Writer, stateName string) error {
 	if a.character == nil {

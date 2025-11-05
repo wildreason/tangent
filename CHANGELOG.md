@@ -31,6 +31,13 @@
   - `write` - Writing animation with fade effect (5 frames) - progressive text fade with ##, ::, ..
   - `approval` - Approval expression animation (6 frames) - shows eyes and mouth changes with ##, .., bb, tt patterns
 
+### Removed
+
+- **`success` state**: Consolidated into `resting` state
+  - Rationale: Success is transitional; resting is the definitive task completion anchor
+  - Use `resting` state or `ShowState(writer, "resting")` instead
+  - Total states reduced from 17 to 16
+
 ### Fixed
 
 - **Character naming**: Renamed `dha` to `da` for consistency across all 7 musical note characters
