@@ -17,8 +17,23 @@
 - Comprehensive theme tests (17 test cases)
 - Theme research documentation in `docs/research/themes.md`
 - Example usage in `examples/themes/main.go`
+- **Per-state FPS control**: States can now define custom animation speeds via `fps` field in JSON
+- Character name constants in `pkg/characters/library/constants.go` (sa, ri, ga, ma, pa, da, ni)
 
 **Research**: Color psychology for developer vs GUI users, designed for longevity and sustained engagement
+
+### Changed
+
+- **State upgrades**: Redesigned 4 core animation states with improved visual feedback
+  - `arise` - New wave animation (7 frames, 2 FPS) - replaces eyes-opening animation
+  - `wait` - Simplified horizontal bars (3 frames) - cleaner idle state
+  - `read` - Reading animation with dynamic text patterns (5 frames) - shows ::, .., ## indicators
+  - `write` - Writing animation with fade effect (5 frames) - progressive text fade with ##, ::, ..
+
+### Fixed
+
+- **Character naming**: Renamed `dha` to `da` for consistency across all 7 musical note characters
+  - All characters now follow consistent naming: sa, ri, ga, ma, pa, da, ni
 
 ---
 
