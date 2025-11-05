@@ -1,0 +1,64 @@
+{
+  "name": "approval",
+  "width": 11,
+  "height": 4,
+  "base_frame": {
+    "name": "",
+    "lines": null
+  },
+  "states": [
+    {
+      "name": "approval",
+      "frames": [
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf78__7fl_",
+            "_rfffbbffl_"
+          ]
+        },
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf78##7fl_",
+            "_rfff##ffl_"
+          ]
+        },
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf78##7fl_",
+            "_rfff..ffl_"
+          ]
+        },
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf78..7fl_",
+            "_rfff..ffl_"
+          ]
+        },
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf78..7fl_",
+            "_rfffbbffl_"
+          ]
+        },
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf78tt7fl_",
+            "_rfffbbffl_"
+          ]
+        }
+      ]
+    }
+  ]
+}
