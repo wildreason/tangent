@@ -8,7 +8,7 @@
 
 ## States
 
-- **approval** (custom): 8 frames
+- **approval** (custom): 6 frames
 
 ## Preview
 
