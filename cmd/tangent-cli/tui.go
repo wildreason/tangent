@@ -65,6 +65,9 @@ type CreationModel struct {
 	// Grid overlay toggle
 	gridEnabled bool
 
+	// Clipboard for Ctrl+D (persists across character switches)
+	copiedLine string
+
 	// Styles
 	styles Styles
 
@@ -621,16 +624,21 @@ func (m *CreationModel) handleStateFinish() (tea.Model, tea.Cmd) {
 
 // handleStateFrameDuplicate handles Ctrl+D - copies current line from previous frame
 func (m *CreationModel) handleStateFrameDuplicate() (tea.Model, tea.Cmd) {
+	// Try to copy from the previous frame
 	if m.currentFrame > 0 && len(m.stateFrames) > 0 {
-		// Copy only the current line from previous frame
 		prevFrame := m.stateFrames[m.currentFrame-1]
 		if m.currentFrameLine < len(prevFrame) {
-			line := prevFrame[m.currentFrameLine]
-			m.textInput.SetValue(line)
+			// Store the copied line (persists across character switches)
+			m.copiedLine = prevFrame[m.currentFrameLine]
+			m.textInput.SetValue(m.copiedLine)
 			m.statusMsg = fmt.Sprintf("Copied line %d from frame %d", m.currentFrameLine+1, m.currentFrame)
 		} else {
 			m.statusMsg = "No line at this position in previous frame"
 		}
+	} else if m.copiedLine != "" {
+		// No previous frame, but we have a copied line from earlier - paste it
+		m.textInput.SetValue(m.copiedLine)
+		m.statusMsg = "Pasted previously copied line"
 	} else {
 		m.statusMsg = "No previous frame to copy from"
 	}
