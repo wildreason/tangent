@@ -1,5 +1,27 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **Theme system**: 4 color themes for all 7 characters (28 colors total)
+  - `bright` (default) - Original 100% saturation colors
+  - `latte` - Catppuccin-inspired warm pastels, GUI-friendly for non-technical users
+  - `garden` - Earthy natural colors that reduce terminal intimidation
+  - `cozy` - Modern GUI hybrid with professional warmth
+- Theme API functions:
+  - `characters.SetTheme(name)` - Set global theme
+  - `characters.GetCurrentTheme()` - Get active theme name
+  - `characters.ListThemes()` - List all available themes
+- Theme constants in `pkg/characters/library/constants.go` (Theme1-4 color sets)
+- Comprehensive theme tests (17 test cases)
+- Theme research documentation in `docs/research/themes.md`
+- Example usage in `examples/themes/main.go`
+
+**Research**: Color psychology for developer vs GUI users, designed for longevity and sustained engagement
+
+---
+
 ## [0.1.0-beta.0] - 2025-10-29
 
 API stable. No breaking changes from alpha.16.
