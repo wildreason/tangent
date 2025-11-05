@@ -1,48 +1,50 @@
 # Changelog
 
+## [0.1.0-beta.1] - 2025-11-05
+
+**Scenario**: State system redesign. 6 states upgraded, success removed.
+
+**Breaking Changes**:
+- `agent.Success()` removed → use `agent.ShowState(writer, "resting")`
+- State count: 17 → 16
+- Character `dha` → `da`
+
+**States Upgraded** (6):
+- arise (7 frames, 2 FPS)
+- wait (3 frames, 5 FPS)
+- read (5 frames, 5 FPS)
+- write (5 frames, 5 FPS)
+- approval (6 frames, 5 FPS)
+- search (6 frames, 5 FPS)
+
+**Theme System** (4 themes):
+- latte (default) - Catppuccin-inspired warm pastels
+- bright - Original 100% saturation colors
+- garden - Earthy natural colors
+- cozy - Modern GUI hybrid
+
+**Added**:
+- Per-state FPS control via JSON `fps` field
+- Character name constants (sa, ri, ga, ma, pa, da, ni)
+- Theme API: `SetTheme()`, `GetCurrentTheme()`, `ListThemes()`
+
+**Migration**:
+```go
+// Before
+agent.Success(writer)
+
+// After
+agent.ShowState(writer, "resting")
+```
+
+**Stats**:
+- 7 characters × 4 themes = 28 combinations
+- 16 states total
+- Legacy backups: 6 states preserved as -legacy.json
+
+---
+
 ## [Unreleased]
-
-### Added
-
-- **Theme system**: 4 color themes for all 7 characters (28 colors total)
-  - `latte` (default) - Catppuccin-inspired warm pastels, GUI-friendly for non-technical users
-  - `bright` - Original 100% saturation colors
-  - `garden` - Earthy natural colors that reduce terminal intimidation
-  - `cozy` - Modern GUI hybrid with professional warmth
-- Theme API functions:
-  - `characters.SetTheme(name)` - Set global theme
-  - `characters.GetCurrentTheme()` - Get active theme name
-  - `characters.ListThemes()` - List all available themes
-- Theme constants in `pkg/characters/library/constants.go` (Theme1-4 color sets)
-- Comprehensive theme tests (17 test cases)
-- Theme research documentation in `docs/research/themes.md`
-- Example usage in `examples/themes/main.go`
-- **Per-state FPS control**: States can now define custom animation speeds via `fps` field in JSON
-- Character name constants in `pkg/characters/library/constants.go` (sa, ri, ga, ma, pa, da, ni)
-
-**Research**: Color psychology for developer vs GUI users, designed for longevity and sustained engagement
-
-### Changed
-
-- **State upgrades**: Redesigned 6 core animation states with improved visual feedback
-  - `arise` - New wave animation (7 frames, 2 FPS) - replaces eyes-opening animation
-  - `wait` - Simplified horizontal bars (3 frames) - cleaner idle state
-  - `read` - Reading animation with dynamic text patterns (5 frames) - shows ::, .., ## indicators
-  - `write` - Writing animation with fade effect (5 frames) - progressive text fade with ##, ::, ..
-  - `approval` - Approval expression animation (6 frames) - shows eyes and mouth changes with ##, .., bb, tt patterns
-  - `search` - Search animation with scanning effect (6 frames) - shows face searching then particles
-
-### Removed
-
-- **`success` state**: Consolidated into `resting` state
-  - Rationale: Success is transitional; resting is the definitive task completion anchor
-  - Use `resting` state or `ShowState(writer, "resting")` instead
-  - Total states reduced from 17 to 16
-
-### Fixed
-
-- **Character naming**: Renamed `dha` to `da` for consistency across all 7 musical note characters
-  - All characters now follow consistent naming: sa, ri, ga, ma, pa, da, ni
 
 ---
 
