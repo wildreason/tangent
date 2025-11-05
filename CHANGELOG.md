@@ -60,8 +60,6 @@ API stable. No breaking changes from alpha.16.
 
 ## [0.1.0-alpha.15] - 2025-10-29
 
-**Maximally Minimal** - Post-release ritual: strip everything unnecessary.
-
 ### Removed
 
 - `tangent admin validate` command (-86 lines)
@@ -69,7 +67,7 @@ API stable. No breaking changes from alpha.16.
 - All examples from help text (-14 lines)
 - `docs/PATTERNS.md` (-2117 bytes)
 - Error messages with suggestions (-47 lines)
-- README marketing/philosophy sections (-126 lines)
+- README marketing sections (-126 lines)
 
 ### Added
 
@@ -79,9 +77,7 @@ API stable. No breaking changes from alpha.16.
   - `TestAdminBatchRegister_SmokeTest`
 - **New state**: `approval` (17th state) - 8-frame nodding animation for agent confirmation
 
-Total: -276 lines of bloat, +797 lines (293 tests + 504 state frames), -1 doc file
-
-Following design principles: "Strip away everything until you hit silence" + "If you can't test it, it will bite you later"
+Total: -276 lines removed, +797 lines added (293 tests + 504 state frames), -1 doc file
 
 ---
 
@@ -382,17 +378,15 @@ Alpha.5 repositions Tangent with laser focus on its true purpose: providing term
 ### Strategic Positioning Changes
 
 - **NEW TAGLINE**: "Terminal Avatars for AI Agents" (was "Terminal Agent Designer")
-- **NEW PHILOSOPHY**: Give your AI agent a face - not "add animations to CLIs"
 - **NEW MESSAGING**: All documentation emphasizes AI-native, terminal-first design
 - **NEW VISION**: By v1.0, become the standard library for AI agent terminal avatars
 
 ### Documentation Overhaul
 
-- **REWRITTEN**: README.md with AI-native positioning and Stripe-like clarity
-  - Clear value prop: "Give your AI agent a face"
-  - Browse → pick → integrate workflow emphasized
+- **REWRITTEN**: README.md with AI-native positioning
+  - Clear value prop and workflow emphasized
+  - Browse → pick → integrate workflow
   - Available avatars showcased with personality descriptions
-  - Philosophy section explains terminal-first, AI-native approach
 - **RENAMED**: docs/CLI.md → docs/CREATORS.md (for advanced users/contributors)
 - **ENHANCED**: docs/API.md with discovery workflow and AI agent context
   - Added "Why Terminal Avatars?" section
@@ -418,7 +412,7 @@ Alpha.5 repositions Tangent with laser focus on its true purpose: providing term
 
 **What This Changes:**
 - From: "A tool to design and use CLI character animations"
-- To: "The definitive terminal avatar system for AI agents"
+- To: "Terminal avatar system for AI agents"
 
 **Target Audience:**
 - Developers building AI-native CLI applications
@@ -457,11 +451,7 @@ Alpha.5 repositions Tangent with laser focus on its true purpose: providing term
 - Export → PR process maintained
 - Focus on AI-agent-appropriate avatars
 
-### Philosophy
-
-Tangent is purpose-built for AI agents in terminal applications. Every design decision optimizes for giving agents visible presence, mapping states to AI workflows, building trust through personality, and maintaining terminal-native simplicity.
-
-**The Vision**: By v1.0, become "the Stripe of terminal agent faces" - the single source every AI-native CLI reaches for when their agent needs a face.
+Tangent provides terminal avatars for AI agents. Design decisions optimize for visible presence, state-to-workflow mapping, and terminal-native simplicity.
 
 ---
 

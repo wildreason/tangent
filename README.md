@@ -16,7 +16,7 @@ import "github.com/wildreason/tangent/pkg/characters"
 agent, _ := characters.LibraryAgent("sa")
 agent.Plan(os.Stdout)
 agent.Think(os.Stdout)
-agent.Success(os.Stdout)
+agent.Execute(os.Stdout)
 ```
 
 ## API
@@ -48,7 +48,7 @@ current := characters.GetCurrentTheme()  // "latte"
 
 ## Avatars
 
-7 characters × 17 states × 4 themes
+7 characters × 16 states × 4 themes
 
 ### Characters
 
