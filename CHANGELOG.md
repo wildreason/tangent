@@ -24,12 +24,13 @@
 
 ### Changed
 
-- **State upgrades**: Redesigned 5 core animation states with improved visual feedback
+- **State upgrades**: Redesigned 6 core animation states with improved visual feedback
   - `arise` - New wave animation (7 frames, 2 FPS) - replaces eyes-opening animation
   - `wait` - Simplified horizontal bars (3 frames) - cleaner idle state
   - `read` - Reading animation with dynamic text patterns (5 frames) - shows ::, .., ## indicators
   - `write` - Writing animation with fade effect (5 frames) - progressive text fade with ##, ::, ..
   - `approval` - Approval expression animation (6 frames) - shows eyes and mouth changes with ##, .., bb, tt patterns
+  - `search` - Search animation with scanning effect (6 frames) - shows face searching then particles
 
 ### Removed
 
