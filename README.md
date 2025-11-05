@@ -31,7 +31,6 @@ agent.Think(writer)
 agent.Execute(writer)
 agent.Wait(writer)
 agent.Error(writer)
-agent.Success(writer)
 
 // Custom states
 agent.ShowState(writer, "arise")
@@ -77,7 +76,7 @@ current := characters.GetCurrentTheme()  // "latte"
 
 ## States
 
-arise, wait, think, plan, execute, error, success, read, search, write, bash, build, communicate, block, blocked, resting, approval
+arise, wait, think, plan, execute, error, read, search, write, bash, build, communicate, block, blocked, resting, approval
 
 ## License
 
