@@ -6,7 +6,7 @@ import (
 
 func TestGenerateFromRegistry(t *testing.T) {
 	// Test that all 7 characters are generated
-	chars := []string{"sa", "ri", "ga", "ma", "pa", "dha", "ni"}
+	chars := AllCharacterNames()
 
 	for _, name := range chars {
 		char, err := Get(name)
@@ -66,13 +66,13 @@ func TestAllCharactersSamePatterns(t *testing.T) {
 
 func TestCharacterColors(t *testing.T) {
 	expectedColors := map[string]string{
-		"sa":  "#FF0000",
-		"ri":  "#FF8800",
-		"ga":  "#FFD700",
-		"ma":  "#00FF00",
-		"pa":  "#0088FF",
-		"dha": "#8800FF",
-		"ni":  "#FF0088",
+		CharacterSa: ColorSa,
+		CharacterRi: ColorRi,
+		CharacterGa: ColorGa,
+		CharacterMa: ColorMa,
+		CharacterPa: ColorPa,
+		CharacterDa: ColorDa,
+		CharacterNi: ColorNi,
 	}
 
 	for name, expectedColor := range expectedColors {

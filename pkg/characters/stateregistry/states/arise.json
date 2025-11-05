@@ -1,68 +1,61 @@
 {
   "name": "arise",
+  "fps": 2,
   "frames": [
     {
       "lines": [
         "___________",
-        "__rfffffl__",
-        "_26fffff51_",
-        "___11_22___"
+        "_rfffffffl_",
+        "_rfffffffl_",
+        "_rf78_f8fl_"
       ]
     },
     {
       "lines": [
         "___________",
-        "__r5ffffl__",
-        "_26fffff51_",
-        "___11_22___"
+        "_rfffffffl_",
+        "_rf78_f8fl_",
+        "_rfff_fffl_"
       ]
     },
     {
       "lines": [
         "___________",
-        "__r5ffffl__",
-        "_26fffff51_",
-        "___11_22___"
+        "_rfffffffl_",
+        "_rf78_f8fl_",
+        "_rfff_fffl_"
       ]
     },
     {
       "lines": [
         "___________",
-        "__r5ffffl__",
-        "_26fffff51_",
-        "___11_22___"
-      ]
-    },
-    {
-      "lines": [
-        "___5l______",
-        "__rfffffl__",
-        "_26fffff51_",
-        "___11_22___"
-      ]
-    },
-    {
-      "lines": [
-        "___r6______",
-        "__rfffffl__",
-        "_26fffff51_",
-        "___11_22___"
-      ]
-    },
-    {
-      "lines": [
-        "___5l______",
-        "__rfffffl__",
-        "_26fffff51_",
-        "___11_22___"
+        "_rfffffffl_",
+        "_rf78_f8fl_",
+        "_rfff_fffl_"
       ]
     },
     {
       "lines": [
         "___________",
-        "__r5ffffl__",
-        "_26fffff51_",
-        "___11_22___"
+        "_rfffffffl_",
+        "_rf78_f8fl_",
+        "_rfff_fffl_"
+      ]
+    },
+    {
+      "lines": [
+        "___________",
+        "_rfffffffl_",
+        "_rf78_f8fl_",
+        "_rfff_fffl_"
+      ]
+    },
+    {
+      "lines": [
+        "___________",
+        "_rfffffffl_",
+        "_rf78_f8fl_",
+        "_rfff_fffl_"
       ]
     }
   ]

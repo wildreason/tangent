@@ -74,7 +74,7 @@ Major architectural refactor introducing template-based character generation and
   - mars → ga (Gandhara)
   - neptune → ma (Madhyama)
   - saturn → pa (Panchama)
-  - uranus → dha (Dhaivata)
+  - uranus → da (Dhaivata)
   - mercury → ni (Nishada)
 - **Color palette**: Spectrum-separated distinct colors
   - sa: #FF0000 (Pure Red)
@@ -82,7 +82,7 @@ Major architectural refactor introducing template-based character generation and
   - ga: #FFD700 (Gold)
   - ma: #00FF00 (Green)
   - pa: #0088FF (Blue)
-  - dha: #8800FF (Purple)
+  - da: #8800FF (Purple)
   - ni: #FF0088 (Magenta)
 
 ### Removed
