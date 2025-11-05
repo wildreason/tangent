@@ -1,0 +1,56 @@
+{
+  "name": "read",
+  "width": 11,
+  "height": 4,
+  "base_frame": {
+    "name": "",
+    "lines": null
+  },
+  "states": [
+    {
+      "name": "write",
+      "frames": [
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf6f6f::l_",
+            "_rflfffffl_"
+          ]
+        },
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf6f6f..l_",
+            "_rflfffffl_"
+          ]
+        },
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf6f6f##l_",
+            "_rflfffffl_"
+          ]
+        },
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf6f6f##l_",
+            "_rflfffffl_"
+          ]
+        },
+        {
+          "lines": [
+            "___________",
+            "_rfffffffl_",
+            "_rf6f6fffl_",
+            "_rflfffffl_"
+          ]
+        }
+      ]
+    }
+  ]
+}
