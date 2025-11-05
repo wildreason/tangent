@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recursive Mono Font Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Recursive:wght,CASL,MONO@300..1000,0..1,0..1&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Recursive', monospace;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 0.5em;
+            font-variation-settings: 'MONO' 1, 'CASL' 0;
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 3em;
+            font-variation-settings: 'MONO' 1, 'CASL' 0;
+            font-weight: 400;
+            color: #888;
+        }
+
+        .section {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-variation-settings: 'MONO' 1, 'CASL' 0;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #4a9eff;
+            font-size: 1.5em;
+        }
+
+        .sample {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 4px;
+            border-left: 3px solid #4a9eff;
+        }
+
+        .label {
+            font-size: 0.85em;
+            color: #888;
+            margin-bottom: 8px;
+            font-variation-settings: 'MONO' 1, 'CASL' 0;
+        }
+
+        .text {
+            font-size: 1.1em;
+            font-variation-settings: 'MONO' 1, 'CASL' 0;
+        }
+
+        /* Weight variations */
+        .light { font-weight: 300; }
+        .regular { font-weight: 400; }
+        .medium { font-weight: 500; }
+        .semibold { font-weight: 600; }
+        .bold { font-weight: 700; }
+        .extrabold { font-weight: 800; }
+
+        /* Casual variations */
+        .casual-0 { font-variation-settings: 'MONO' 1, 'CASL' 0; }
+        .casual-5 { font-variation-settings: 'MONO' 1, 'CASL' 0.5; }
+        .casual-10 { font-variation-settings: 'MONO' 1, 'CASL' 1; }
+
+        .code-example {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.95em;
+            border: 1px solid #333;
+        }
+
+        .keyword { color: #ff79c6; }
+        .function { color: #50fa7b; }
+        .string { color: #f1fa8c; }
+        .comment { color: #6272a4; }
+        .number { color: #bd93f9; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .grid-item {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Recursive Mono</h1>
+        <p class="subtitle">A variable monospace font for code & UI</p>
+
+        <div class="section">
+            <h2>Weight Variations</h2>
+            <div class="sample">
+                <div class="label">Light (300)</div>
+                <div class="text light">The quick brown fox jumps over the lazy dog 0123456789</div>
+            </div>
+            <div class="sample">
+                <div class="label">Regular (400)</div>
+                <div class="text regular">The quick brown fox jumps over the lazy dog 0123456789</div>
+            </div>
+            <div class="sample">
+                <div class="label">Medium (500)</div>
+                <div class="text medium">The quick brown fox jumps over the lazy dog 0123456789</div>
+            </div>
+            <div class="sample">
+                <div class="label">Semibold (600)</div>
+                <div class="text semibold">The quick brown fox jumps over the lazy dog 0123456789</div>
+            </div>
+            <div class="sample">
+                <div class="label">Bold (700)</div>
+                <div class="text bold">The quick brown fox jumps over the lazy dog 0123456789</div>
+            </div>
+            <div class="sample">
+                <div class="label">Extrabold (800)</div>
+                <div class="text extrabold">The quick brown fox jumps over the lazy dog 0123456789</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Casual Axis (CASL)</h2>
+            <div class="sample">
+                <div class="label">Linear (CASL 0)</div>
+                <div class="text casual-0 regular">abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ</div>
+            </div>
+            <div class="sample">
+                <div class="label">Moderate (CASL 0.5)</div>
+                <div class="text casual-5 regular">abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ</div>
+            </div>
+            <div class="sample">
+                <div class="label">Casual (CASL 1)</div>
+                <div class="text casual-10 regular">abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Code Example</h2>
+            <div class="code-example regular">
+<span class="comment">// Calculate factorial recursively</span>
+<span class="keyword">function</span> <span class="function">factorial</span>(n) {
+    <span class="keyword">if</span> (n &lt;= <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;
+    <span class="keyword">return</span> n * <span class="function">factorial</span>(n - <span class="number">1</span>);
+}
+
+<span class="comment">// Test the function</span>
+<span class="keyword">const</span> result = <span class="function">factorial</span>(<span class="number">5</span>);
+console.<span class="function">log</span>(<span class="string">`Factorial of 5 is: ${result}`</span>);
+
+<span class="comment">// Array operations</span>
+<span class="keyword">const</span> numbers = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>];
+<span class="keyword">const</span> doubled = numbers.<span class="function">map</span>(n => n * <span class="number">2</span>);
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Special Characters & Symbols</h2>
+            <div class="grid">
+                <div class="grid-item regular">
+                    <div class="label">Programming Symbols</div>
+                    <div class="text">{ } [ ] ( ) &lt; &gt; / \ | &amp; ^ ~ @ # $ % *</div>
+                </div>
+                <div class="grid-item regular">
+                    <div class="label">Operators</div>
+                    <div class="text">+ - = != == === &lt;= &gt;= =&gt; -&gt; ++ --</div>
+                </div>
+                <div class="grid-item regular">
+                    <div class="label">Punctuation</div>
+                    <div class="text">. , ; : ! ? " ' ` - _ ... :: || &amp;&amp;</div>
+                </div>
+                <div class="grid-item regular">
+                    <div class="label">Numbers & Math</div>
+                    <div class="text">0123456789 × ÷ ± ≤ ≥ ≠ ≈ ∞</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Terminal/CLI Style Text</h2>
+            <div class="code-example regular">
+$ npm install recursive-mono
+<span class="function">✓</span> Package installed successfully
+
+$ <span class="function">git</span> status
+On branch main
+Your branch is up to date with <span class="string">'origin/main'</span>.
+
+nothing to commit, working tree clean
+
+$ <span class="function">ls</span> -la
+drwxr-xr-x  <span class="number">5</span> user staff  <span class="number">160</span> Nov  <span class="number">5</span> <span class="number">12</span>:<span class="number">30</span> .
+drwxr-xr-x <span class="number">15</span> user staff  <span class="number">480</span> Nov  <span class="number">4</span> <span class="number">10</span>:<span class="number">15</span> ..
+-rw-r--r--  <span class="number">1</span> user staff <span class="number">1234</span> Nov  <span class="number">5</span> <span class="number">12</span>:<span class="number">29</span> README.md
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Comparing Similar Characters</h2>
+            <div class="sample">
+                <div class="label">Character Distinction Test</div>
+                <div class="text regular" style="font-size: 1.3em;">
+                    Il1| O0 rn m {} [] () &lt;&gt; `` '' "" .,:;
+                </div>
+            </div>
+            <div class="sample">
+                <div class="label">Zero vs Letter O</div>
+                <div class="text bold" style="font-size: 1.5em;">
+                    0O 00 OO 0o Oo o0
+                </div>
+            </div>
+            <div class="sample">
+                <div class="label">One, I, l, and pipe</div>
+                <div class="text bold" style="font-size: 1.5em;">
+                    1 I l | 1Il| iIl1
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
