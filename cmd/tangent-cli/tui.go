@@ -619,24 +619,20 @@ func (m *CreationModel) handleStateFinish() (tea.Model, tea.Cmd) {
 	return m, tick()
 }
 
-// handleStateFrameDuplicate handles Ctrl+D - duplicates previous frame
+// handleStateFrameDuplicate handles Ctrl+D - copies current line from previous frame
 func (m *CreationModel) handleStateFrameDuplicate() (tea.Model, tea.Cmd) {
 	if m.currentFrame > 0 && len(m.stateFrames) > 0 {
-		// Copy all lines from previous frame
+		// Copy only the current line from previous frame
 		prevFrame := m.stateFrames[m.currentFrame-1]
-		for i, line := range prevFrame {
-			if i < len(m.frameLines) {
-				m.frameLines[i] = line
-			}
+		if m.currentFrameLine < len(prevFrame) {
+			line := prevFrame[m.currentFrameLine]
+			m.textInput.SetValue(line)
+			m.statusMsg = fmt.Sprintf("Copied line %d from frame %d", m.currentFrameLine+1, m.currentFrame)
+		} else {
+			m.statusMsg = "No line at this position in previous frame"
 		}
-		m.currentFrameLine = len(prevFrame)
-		if m.currentFrameLine >= m.session.Height {
-			m.currentFrameLine = m.session.Height - 1
-		}
-		m.textInput.SetValue("")
-		m.statusMsg = fmt.Sprintf("Duplicated frame %d", m.currentFrame)
 	} else {
-		m.statusMsg = "No previous frame to duplicate"
+		m.statusMsg = "No previous frame to copy from"
 	}
 	return m, nil
 }
@@ -788,7 +784,7 @@ func (m *CreationModel) renderCreateBase() string {
 	}
 
 	content.WriteString("\n")
-	content.WriteString(m.styles.helpText.Render("Enter: confirm | Ctrl+D: duplicate frame | Ctrl+R: paste line | Ctrl+F: finish | G: grid | Esc: cancel"))
+	content.WriteString(m.styles.helpText.Render("Enter: confirm | Ctrl+D: copy line from prev | Ctrl+R: paste line | Ctrl+F: finish | G: grid | Esc: cancel"))
 
 	return content.String()
 }
@@ -871,7 +867,7 @@ func (m *CreationModel) renderStateFrameInput() string {
 	}
 
 	content.WriteString("\n")
-	content.WriteString(m.styles.helpText.Render("Enter: confirm | Ctrl+D: duplicate frame | Ctrl+R: paste line | Ctrl+F: finish | G: grid | Esc: cancel"))
+	content.WriteString(m.styles.helpText.Render("Enter: confirm | Ctrl+D: copy line from prev | Ctrl+R: paste line | Ctrl+F: finish | G: grid | Esc: cancel"))
 
 	return content.String()
 }
