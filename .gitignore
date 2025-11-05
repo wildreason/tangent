@@ -4,6 +4,7 @@ archive/
 
 # Internal docs - reference materials for maintainers only
 internal_docs/
+dev/
 
 # Build artifacts
 *.exe
