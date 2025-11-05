@@ -22,6 +22,10 @@ import (
 //	agent.Think(os.Stdout)
 //	agent.Execute(os.Stdout)
 //
+//	// Theme support
+//	characters.SetTheme("latte")  // Set global theme
+//	themes := characters.ListThemes()  // List available themes
+//
 // Library characters available:
 // - alien: Animated character (3 frames)
 // - robot: Static character (1 frame)
@@ -30,6 +34,30 @@ import (
 // - rocket: Launch sequence (4 frames)
 //
 // Pattern characters: F=█ T=▀ B=▄ L=▌ R=▐ 1-8=quadrants _=space
+
+// Global theme state
+var currentTheme = "bright" // Default theme
+
+// SetTheme sets the global theme for all characters
+func SetTheme(themeName string) error {
+	// Validate theme exists
+	_, err := library.GetTheme(themeName)
+	if err != nil {
+		return err
+	}
+	currentTheme = themeName
+	return nil
+}
+
+// GetCurrentTheme returns the name of the currently active theme
+func GetCurrentTheme() string {
+	return currentTheme
+}
+
+// ListThemes returns all available theme names
+func ListThemes() []string {
+	return library.ListThemes()
+}
 
 // CharacterService provides character creation functionality
 type CharacterService struct {
@@ -155,11 +183,26 @@ func LibraryAgent(name string) (*AgentCharacter, error) {
 		}
 	}
 
+	// Get color from current theme
+	theme, err := library.GetTheme(currentTheme)
+	if err != nil {
+		// Fallback to library color if theme not found
+		theme = library.ThemeDefinition{
+			Colors: map[string]string{name: libChar.Color},
+		}
+	}
+
+	color, err := theme.GetColor(name)
+	if err != nil {
+		// Fallback to library color if character not in theme
+		color = libChar.Color
+	}
+
 	// Create domain character
 	domainChar := &domain.Character{
 		Name:        libChar.Name,
 		Personality: "", // No personality for library characters
-		Color:       libChar.Color,
+		Color:       color, // Use theme color
 		Width:       libChar.Width,
 		Height:      libChar.Height,
 		BaseFrame:   baseFrame,
