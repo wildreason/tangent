@@ -63,11 +63,11 @@ current := characters.GetCurrentTheme()  // "latte"
 
 ### Themes
 
-**bright** (default) - Original bright colors, 100% saturation
-- sa: #FF0000 | ri: #FF8800 | ga: #FFD700 | ma: #00FF00 | pa: #0088FF | da: #8800FF | ni: #FF0088
-
-**latte** - Catppuccin-inspired warm pastels, GUI-friendly
+**latte** (default) - Catppuccin-inspired warm pastels, GUI-friendly
 - sa: #E78284 | ri: #EF9F76 | ga: #E5C890 | ma: #A6D189 | pa: #85C1DC | da: #CA9EE6 | ni: #F4B8E4
+
+**bright** - Original bright colors, 100% saturation
+- sa: #FF0000 | ri: #FF8800 | ga: #FFD700 | ma: #00FF00 | pa: #0088FF | da: #8800FF | ni: #FF0088
 
 **garden** - Earthy natural colors, reduces terminal intimidation
 - sa: #D4787D | ri: #D89C6A | ga: #C9B68C | ma: #8FB378 | pa: #7CA8B8 | da: #A888BA | ni: #C895A8

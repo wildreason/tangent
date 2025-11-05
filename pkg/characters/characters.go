@@ -36,7 +36,7 @@ import (
 // Pattern characters: F=█ T=▀ B=▄ L=▌ R=▐ 1-8=quadrants _=space
 
 // Global theme state
-var currentTheme = "bright" // Default theme
+var currentTheme = "latte" // Default theme
 
 // SetTheme sets the global theme for all characters
 func SetTheme(themeName string) error {
