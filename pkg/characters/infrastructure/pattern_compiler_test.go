@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -48,8 +49,8 @@ func TestPatternValidation(t *testing.T) {
 		{"Valid with spaces", "F_R_F", false},
 		{"Valid with unknown chars", "FXF", true}, // Should now fail with enhanced validation
 		{"Valid with tab", "F\tR\tF", false},      // Tab is allowed
-		{"Pattern too long", string(make([]byte, 101)), true}, // Over 100 chars
-		{"Pattern exactly 100", string(make([]byte, 100)), false}, // Exactly 100 is OK
+		{"Pattern too long", strings.Repeat("F", 101), true}, // Over 100 chars
+		{"Pattern exactly 100", strings.Repeat("F", 100), false}, // Exactly 100 is OK
 	}
 
 	for _, test := range tests {
