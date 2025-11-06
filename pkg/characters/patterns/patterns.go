@@ -33,8 +33,7 @@ type PatternCodes struct {
 	DiagonalForward  rune // /
 
 	// Special
-	Space  rune // _
-	Mirror rune // X
+	Space rune // _
 }
 
 // DefaultPatternCodes returns the standard pattern code mapping
@@ -69,17 +68,16 @@ func DefaultPatternCodes() PatternCodes {
 		DiagonalForward:  '▞', // /
 
 		// Special
-		Space:  ' ', // _
-		Mirror: '◐', // X
+		Space: ' ', // _
 	}
 }
 
 // GetPatternHelp returns a formatted help string for pattern codes
 func GetPatternHelp() string {
 	codes := DefaultPatternCodes()
-	return fmt.Sprintf("Pattern codes: F=%c T=%c B=%c L=%c R=%c 1-8=quads .=%c :=%c #=%c _=%c X=%c",
+	return fmt.Sprintf("Pattern codes: F=%c T=%c B=%c L=%c R=%c 1-8=quads .=%c :=%c #=%c _=%c",
 		codes.FullBlock, codes.TopHalf, codes.BottomHalf, codes.LeftHalf, codes.RightHalf,
-		codes.LightShade, codes.MediumShade, codes.DarkShade, codes.Space, codes.Mirror)
+		codes.LightShade, codes.MediumShade, codes.DarkShade, codes.Space)
 }
 
 // GetPatternDescription returns a detailed description of pattern codes
@@ -88,9 +86,9 @@ func GetPatternDescription() string {
 	return fmt.Sprintf(`Pattern codes:
   F=%c  T=%c  B=%c  L=%c  R=%c  (basic blocks)
   1-8=quads: %c%c%c%c %c%c%c%c
-  .=%c :=%c #=%c (shades) _=%c X=%c (special)`,
+  .=%c :=%c #=%c (shades) _=%c (special)`,
 		codes.FullBlock, codes.TopHalf, codes.BottomHalf, codes.LeftHalf, codes.RightHalf,
 		codes.Quad1, codes.Quad2, codes.Quad3, codes.Quad4,
 		codes.Quad5, codes.Quad6, codes.Quad7, codes.Quad8,
-		codes.LightShade, codes.MediumShade, codes.DarkShade, codes.Space, codes.Mirror)
+		codes.LightShade, codes.MediumShade, codes.DarkShade, codes.Space)
 }
