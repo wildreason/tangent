@@ -59,7 +59,8 @@ func NewPatternCompiler() domain.PatternCompiler {
 			'/':  codes.DiagonalForward,  // Diagonal Forward
 
 			// Special
-			'_': codes.Space, // Space
+			'_': codes.Space,  // Space
+			'X': codes.Mirror, // Mirror
 		},
 		validators: []PatternValidator{
 			&LengthValidator{},
