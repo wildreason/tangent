@@ -15,7 +15,7 @@
 - read (5 frames, 5 FPS)
 - write (5 frames, 5 FPS)
 - approval (6 frames, 5 FPS)
-- search (6 frames, 5 FPS)
+- search (3 frames, 5 FPS)
 
 **Theme System** (4 themes):
 - latte (default) - Catppuccin-inspired warm pastels
