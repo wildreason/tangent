@@ -134,19 +134,103 @@ pa: #78AED4  da: #B592D4  ni: #DE99B8
 
 ## Advanced Usage
 
+### Bubble Tea Integration (Recommended)
+
+Use the pre-built Bubble Tea component for plug-and-play animation:
+
+```go
+import (
+    tea "github.com/charmbracelet/bubbletea"
+    "github.com/wildreason/tangent/pkg/characters"
+    "github.com/wildreason/tangent/pkg/characters/bubbletea"
+)
+
+// Load character
+agent, _ := characters.LibraryAgent("sam")
+
+// Create animated component (10 FPS)
+char := bubbletea.NewAnimatedCharacter(agent, 100*time.Millisecond)
+
+// Set initial state
+char.SetState("plan")
+
+// Use in Bubble Tea program
+program := tea.NewProgram(char)
+program.Run()
+```
+
+**AnimatedCharacter API:**
+
+```go
+// State management
+char.SetState("think")          // Change state
+char.GetState()                 // Get current state
+char.ListStates()               // List available states
+
+// Animation control
+char.Play()                     // Start animation
+char.Pause()                    // Pause animation
+char.IsPlaying()                // Check if playing
+char.Reset()                    // Reset to first frame
+
+// Configuration
+char.SetTickInterval(200*time.Millisecond)  // Change speed
+char.GetTickInterval()                      // Get current speed
+char.GetWidth()                             // Get character width
+char.GetHeight()                            // Get character height
+```
+
+### Frame Cache API (Performance)
+
+Pre-render all frames for O(1) access during animation:
+
+```go
+agent, _ := characters.LibraryAgent("sam")
+
+// Get frame cache (pre-rendered and pre-colored)
+cache := agent.GetFrameCache()
+
+// Get base frame ([]string)
+baseLines := cache.GetBaseFrame()
+for _, line := range baseLines {
+    fmt.Println(line)  // Already compiled and colored
+}
+
+// Get state frames ([][]string)
+planFrames := cache.GetStateFrames("plan")
+for frameIdx, frame := range planFrames {
+    for _, line := range frame {
+        fmt.Println(line)  // Already compiled and colored
+    }
+}
+
+// Cache introspection
+cache.HasState("think")         // Check state exists
+cache.ListStates()              // List all states
+cache.GetCharacterName()        // Get character name
+cache.GetColor()                // Get hex color
+```
+
+**Performance benefit:** Pre-rendering eliminates pattern compilation and colorization during animation, reducing CPU usage during 60 FPS animations.
+
 ### Custom TUI Integration
 
-For Bubble Tea or custom TUI frameworks:
+For custom TUI frameworks (tview, etc.):
 
 ```go
 import "github.com/wildreason/tangent/pkg/characters/domain"
 
-// Get frames directly
+// Option 1: Use Frame Cache (recommended)
+cache := agent.GetFrameCache()
+frames := cache.GetStateFrames("think")
+// frames[i] is []string (pre-colored lines)
+
+// Option 2: Manual frame access
 char := agent.GetCharacter()
 state := char.States["think"]
 frames := state.Frames  // []domain.Frame
 
-// Colorize frames
+// Colorize frames manually
 for _, frame := range frames {
     coloredLines := characters.ColorizeFrame(frame, char.Color)
     // Use coloredLines in your TUI

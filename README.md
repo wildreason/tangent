@@ -44,6 +44,45 @@ hasState := agent.HasState("think")
 characters.SetTheme("latte")        // Switch to latte theme
 themes := characters.ListThemes()   // ["bright", "cozy", "garden", "latte"]
 current := characters.GetCurrentTheme()  // "latte"
+
+// Frame Cache API - pre-rendered frames for performance
+cache := agent.GetFrameCache()
+baseLines := cache.GetBaseFrame()      // []string (pre-colored)
+planFrames := cache.GetStateFrames("plan")  // [][]string (pre-colored)
+```
+
+## TUI Framework Integration
+
+### Bubble Tea (Plug-and-Play)
+
+```go
+import (
+    tea "github.com/charmbracelet/bubbletea"
+    "github.com/wildreason/tangent/pkg/characters"
+    "github.com/wildreason/tangent/pkg/characters/bubbletea"
+)
+
+// Load character
+agent, _ := characters.LibraryAgent("sam")
+
+// Create animated component
+char := bubbletea.NewAnimatedCharacter(agent, 100*time.Millisecond)
+char.SetState("plan")
+
+// Run in Bubble Tea
+program := tea.NewProgram(char)
+program.Run()
+```
+
+See [examples/bubbletea_demo](examples/bubbletea_demo/main.go) for full demo.
+
+### Custom TUI Frameworks (tview, etc.)
+
+```go
+// Use Frame Cache for O(1) frame access
+cache := agent.GetFrameCache()
+frames := cache.GetStateFrames("think")
+// frames[i] is []string (pre-colored, ready to render)
 ```
 
 ## Avatars
