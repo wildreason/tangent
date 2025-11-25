@@ -111,7 +111,7 @@ func TestLibraryAgentUsesTheme(t *testing.T) {
 
 	// Test with latte theme (default)
 	SetTheme("latte")
-	agent, err := LibraryAgent("sa")
+	agent, err := LibraryAgent("sam")
 	if err != nil {
 		t.Fatalf("LibraryAgent() error = %v", err)
 	}
@@ -123,7 +123,7 @@ func TestLibraryAgentUsesTheme(t *testing.T) {
 
 	// Test with bright theme
 	SetTheme("bright")
-	agent2, err := LibraryAgent("sa")
+	agent2, err := LibraryAgent("sam")
 	if err != nil {
 		t.Fatalf("LibraryAgent() error = %v", err)
 	}
@@ -148,15 +148,15 @@ func TestLibraryAgentThemeColors(t *testing.T) {
 		wantColor string
 	}{
 		{
-			name:      "bright theme sa",
+			name:      "bright theme sam",
 			themeName: "bright",
-			character: "sa",
+			character: "sam",
 			wantColor: library.Theme1ColorSa,
 		},
 		{
-			name:      "latte theme sa",
+			name:      "latte theme sam",
 			themeName: "latte",
-			character: "sa",
+			character: "sam",
 			wantColor: library.Theme2ColorSa,
 		},
 		{
@@ -208,7 +208,7 @@ func TestThemeAPIMinimal(t *testing.T) {
 	}
 
 	// Step 2: Create agent (automatically uses current theme)
-	agent, err := LibraryAgent("sa")
+	agent, err := LibraryAgent("sam")
 	if err != nil {
 		t.Fatalf("LibraryAgent() error = %v", err)
 	}

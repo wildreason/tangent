@@ -29,7 +29,7 @@ func main() {
 		}
 
 		// Create an agent - it automatically uses the current theme
-		agent, err := characters.LibraryAgent("sa")
+		agent, err := characters.LibraryAgent("sam")
 		if err != nil {
 			fmt.Printf("Error creating agent: %v\n", err)
 			continue
@@ -37,7 +37,7 @@ func main() {
 
 		// Display the character color
 		char := agent.GetCharacter()
-		fmt.Printf("Character 'sa' color: %s\n", char.Color)
+		fmt.Printf("Character 'sam' color: %s\n", char.Color)
 
 		// Show a state
 		agent.Think(os.Stdout)

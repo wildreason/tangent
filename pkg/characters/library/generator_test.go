@@ -36,32 +36,32 @@ func TestGenerateFromRegistry(t *testing.T) {
 
 func TestAllCharactersSamePatterns(t *testing.T) {
 	// All characters should have identical patterns (same states)
-	sa, _ := Get("sa")
-	ri, _ := Get("ri")
+	sam, _ := Get("sam")
+	rio, _ := Get("rio")
 
-	if len(sa.Patterns) != len(ri.Patterns) {
-		t.Errorf("sa and ri have different pattern counts: %d vs %d", len(sa.Patterns), len(ri.Patterns))
+	if len(sam.Patterns) != len(rio.Patterns) {
+		t.Errorf("sam and rio have different pattern counts: %d vs %d", len(sam.Patterns), len(rio.Patterns))
 	}
 
 	// Verify frame names are identical
-	for i := range sa.Patterns {
-		if sa.Patterns[i].Name != ri.Patterns[i].Name {
-			t.Errorf("Frame %d has different names: %s vs %s", i, sa.Patterns[i].Name, ri.Patterns[i].Name)
+	for i := range sam.Patterns {
+		if sam.Patterns[i].Name != rio.Patterns[i].Name {
+			t.Errorf("Frame %d has different names: %s vs %s", i, sam.Patterns[i].Name, rio.Patterns[i].Name)
 		}
 
 		// Verify frame content is identical
-		if len(sa.Patterns[i].Lines) != len(ri.Patterns[i].Lines) {
+		if len(sam.Patterns[i].Lines) != len(rio.Patterns[i].Lines) {
 			t.Errorf("Frame %d has different line counts", i)
 		}
 
-		for j := range sa.Patterns[i].Lines {
-			if sa.Patterns[i].Lines[j] != ri.Patterns[i].Lines[j] {
-				t.Errorf("Frame %d line %d differs: %s vs %s", i, j, sa.Patterns[i].Lines[j], ri.Patterns[i].Lines[j])
+		for j := range sam.Patterns[i].Lines {
+			if sam.Patterns[i].Lines[j] != rio.Patterns[i].Lines[j] {
+				t.Errorf("Frame %d line %d differs: %s vs %s", i, j, sam.Patterns[i].Lines[j], rio.Patterns[i].Lines[j])
 			}
 		}
 	}
 
-	t.Logf("All characters have identical %d patterns", len(sa.Patterns))
+	t.Logf("All characters have identical %d patterns", len(sam.Patterns))
 }
 
 func TestCharacterColors(t *testing.T) {

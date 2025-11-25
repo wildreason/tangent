@@ -20,7 +20,7 @@ import (
 
 func main() {
     // Load agent
-    agent, err := characters.LibraryAgent("sa")
+    agent, err := characters.LibraryAgent("sam")
     if err != nil {
         panic(err)
     }
@@ -39,7 +39,7 @@ func main() {
 agent, err := characters.LibraryAgent(name)
 ```
 
-**Available characters**: sa, ri, ga, ma, pa, da, ni
+**Available characters**: sam, rio, ga, ma, pa, da, ni
 
 ### State Methods
 
@@ -110,25 +110,25 @@ themes := characters.ListThemes()  // ["bright", "cozy", "garden", "latte"]
 
 **latte** (default) - Catppuccin-inspired warm pastels, GUI-friendly
 ```
-sa: #E78284  ri: #EF9F76  ga: #E5C890  ma: #A6D189
+sam: #E78284  rio: #EF9F76  ga: #E5C890  ma: #A6D189
 pa: #85C1DC  da: #CA9EE6  ni: #F4B8E4
 ```
 
 **bright** - Original bright colors, 100% saturation
 ```
-sa: #FF0000  ri: #FF8800  ga: #FFD700  ma: #00FF00
+sam: #FF0000  rio: #FF8800  ga: #FFD700  ma: #00FF00
 pa: #0088FF  da: #8800FF  ni: #FF0088
 ```
 
 **garden** - Earthy natural colors, reduces terminal intimidation
 ```
-sa: #D4787D  ri: #D89C6A  ga: #C9B68C  ma: #8FB378
+sam: #D4787D  rio: #D89C6A  ga: #C9B68C  ma: #8FB378
 pa: #7CA8B8  da: #A888BA  ni: #C895A8
 ```
 
 **cozy** - Modern GUI hybrid with professional warmth
 ```
-sa: #E18B8B  ri: #E5A679  ga: #E6CC94  ma: #99C794
+sam: #E18B8B  rio: #E5A679  ga: #E6CC94  ma: #99C794
 pa: #78AED4  da: #B592D4  ni: #DE99B8
 ```
 
@@ -167,7 +167,7 @@ output := strings.Join(coloredLines, "\n")
 ### AI Agent Workflow
 
 ```go
-agent, _ := characters.LibraryAgent("sa")
+agent, _ := characters.LibraryAgent("sam")
 
 agent.Wait(os.Stdout)           // Idle
 agent.Think(os.Stdout)          // Processing

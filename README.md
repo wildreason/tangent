@@ -13,7 +13,7 @@ go get github.com/wildreason/tangent/pkg/characters
 ```go
 import "github.com/wildreason/tangent/pkg/characters"
 
-agent, _ := characters.LibraryAgent("sa")
+agent, _ := characters.LibraryAgent("sam")
 agent.Plan(os.Stdout)
 agent.Think(os.Stdout)
 agent.Execute(os.Stdout)

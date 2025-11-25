@@ -2,8 +2,8 @@ package library
 
 func init() {
 	register(GenerateFromRegistry(CharacterMetadata{
-		Name:        "ri",
-		Description: "ri - Musical note avatar (Orange)",
+		Name:        "rio",
+		Description: "rio - Musical note avatar (Orange)",
 		Author:      "Wildreason, Inc",
 		Color:       "#FF8800",
 		Width:       11,

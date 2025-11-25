@@ -169,20 +169,20 @@ func TestColorizeFrame(t *testing.T) {
 
 func TestColorizeFrameIntegration(t *testing.T) {
 	// Test with real character from library
-	agent, err := LibraryAgent("sa")
+	agent, err := LibraryAgent("sam")
 	if err != nil {
-		t.Fatalf("failed to load sa: %v", err)
+		t.Fatalf("failed to load sam: %v", err)
 	}
 
 	char := agent.GetCharacter()
 	if char.Color == "" {
-		t.Fatal("sa character has no color")
+		t.Fatal("sam character has no color")
 	}
 
 	// Get a frame from wait state
 	waitState, exists := char.States["wait"]
 	if !exists {
-		t.Fatal("sa has no wait state")
+		t.Fatal("sam has no wait state")
 	}
 
 	if len(waitState.Frames) == 0 {

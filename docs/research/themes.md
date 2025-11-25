@@ -12,8 +12,8 @@ This document contains research on color themes for the Wave terminal windows, f
 The original bright, saturated colors designed for maximum distinction:
 
 ```
-sa: #FF0000  (pure red)
-ri: #FF8800  (bright orange)
+sam: #FF0000  (pure red)
+rio: #FF8800  (bright orange)
 ga: #FFD700  (gold)
 ma: #00FF00  (pure green)
 pa: #0088FF  (bright blue)
@@ -45,8 +45,8 @@ ni: #FF0088  (bright pink)
 **Focus:** Low contrast warmth with depth, maximum comfort
 
 ```
-sa: #BF616A  (muted coral red)
-ri: #D08770  (soft rust orange)
+sam: #BF616A  (muted coral red)
+rio: #D08770  (soft rust orange)
 ga: #EBCB8B  (warm sand)
 ma: #A3BE8C  (sage green)
 pa: #5E81AC  (slate blue)
@@ -65,8 +65,8 @@ ni: #D896AB  (mauve pink)
 **Focus:** Desaturated jewel tones with balanced luminance
 
 ```
-sa: #E06C75  (rose)
-ri: #D19A66  (amber)
+sam: #E06C75  (rose)
+rio: #D19A66  (amber)
 ga: #E5C07B  (honey)
 ma: #98C379  (moss)
 pa: #61AFEF  (sky)
@@ -86,8 +86,8 @@ ni: #E88EB3  (blush)
 **Focus:** Monochromatic base with strategic accent pops
 
 ```
-sa: #DA6A6A  (clay red)
-ri: #CF8D5C  (terracotta)
+sam: #DA6A6A  (clay red)
+rio: #CF8D5C  (terracotta)
 ga: #D4B86A  (brass)
 ma: #7FB07F  (fern)
 pa: #6B9FD1  (steel)
@@ -131,8 +131,8 @@ ni: #D17BA3  (rose quartz)
 **Psychology:** Warm pastels that feel playful yet professional
 
 ```
-sa: #E78284  (soft coral - approachable warmth)
-ri: #EF9F76  (peach - friendly energy)
+sam: #E78284  (soft coral - approachable warmth)
+rio: #EF9F76  (peach - friendly energy)
 ga: #E5C890  (warm sand - comfort)
 ma: #A6D189  (sage - growth/trust)
 pa: #85C1DC  (sky blue - calm clarity)
@@ -154,8 +154,8 @@ ni: #F4B8E4  (rose - welcoming)
 **Psychology:** Grounding, organic, reduces "computer anxiety"
 
 ```
-sa: #D4787D  (terracotta rose - earthy warmth)
-ri: #D89C6A  (clay orange - natural)
+sam: #D4787D  (terracotta rose - earthy warmth)
+rio: #D89C6A  (clay orange - natural)
 ga: #C9B68C  (wheat - harvest calm)
 ma: #8FB378  (moss green - forest trust)
 pa: #7CA8B8  (river blue - flowing ease)
@@ -176,8 +176,8 @@ ni: #C895A8  (dusty mauve - soft dusk)
 **Psychology:** Professional warmth - serious without being intimidating
 
 ```
-sa: #E18B8B  (rose quartz - gentle strength)
-ri: #E5A679  (amber glow - warm energy)
+sam: #E18B8B  (rose quartz - gentle strength)
+rio: #E5A679  (amber glow - warm energy)
 ga: #E6CC94  (honey - productive sweetness)
 ma: #99C794  (balanced green - growth)
 pa: #78AED4  (clear sky - open possibility)

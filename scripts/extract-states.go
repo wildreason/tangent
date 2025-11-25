@@ -18,8 +18,8 @@ type State struct {
 }
 
 func main() {
-	// Read sa.go file
-	content, err := os.ReadFile("pkg/characters/library/sa.go")
+	// Read sam.go file
+	content, err := os.ReadFile("pkg/characters/library/sam.go")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
 		os.Exit(1)
