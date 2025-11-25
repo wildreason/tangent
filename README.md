@@ -199,8 +199,8 @@ See [CODEGEN.md](pkg/characters/library/CODEGEN.md) for details.
 
 ## Version
 
-Current: **v0.2.0** (unreleased)
-- v0.2.0: Frame Cache API + Bubble Tea + Code Generation
+Current: **v0.2.0-alpha** (2025-11-25)
+- v0.2.0-alpha: Frame Cache API + Bubble Tea + Code Generation
 - v0.1.1: Character name updates (sam, rio)
 - v0.1.0: Initial stable release
 
