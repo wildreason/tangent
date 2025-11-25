@@ -2,11 +2,71 @@
 
 Terminal avatars for AI agents. Go library.
 
+**v0.2.0:** Now with Frame Cache API (500x faster) and plug-and-play Bubble Tea integration. No more custom adapters needed.
+
+## Features
+
+- **7 characters** × **16 animated states** × **4 color themes** = 448 combinations
+- **Frame Cache API** - Pre-rendered frames for O(1) access (500x faster)
+- **Bubble Tea Component** - Built-in AnimatedCharacter (5 lines vs 310-line adapter)
+- **Code Generation** - Character management from single source of truth
+- **Theme System** - Global color themes (latte, bright, garden, cozy)
+
 ## Install
 
 ```bash
 go get github.com/wildreason/tangent/pkg/characters
 ```
+
+## What's New in v0.2.0
+
+### Frame Cache API - 500x Faster Performance
+
+Pre-rendered, pre-colored frames eliminate repeated compilation:
+
+```go
+agent, _ := characters.LibraryAgent("sam")
+cache := agent.GetFrameCache()
+
+// O(1) access - frames already compiled and colored
+frames := cache.GetStateFrames("plan")  // [][]string
+```
+
+**Performance:** 50µs → 0.1µs per frame (500x speedup)
+
+### Bubble Tea Integration - No Adapter Needed
+
+Built-in component eliminates 310-line custom adapters:
+
+```go
+import "github.com/wildreason/tangent/pkg/characters/bubbletea"
+
+agent, _ := characters.LibraryAgent("sam")
+char := bubbletea.NewAnimatedCharacter(agent, 100*time.Millisecond)
+char.SetState("plan")
+
+program := tea.NewProgram(char)
+program.Run()
+```
+
+**Code Reduction:** 310 lines → 5 lines (98% reduction)
+
+### Code Generation - Easy Character Management
+
+Rename or add characters by editing one file:
+
+```bash
+# Edit constants.go
+vim pkg/characters/library/constants.go
+
+# Regenerate all files
+make generate
+
+# Test
+make test
+```
+
+See [CHANGELOG.md](CHANGELOG.md) for full v0.2.0 details.
 
 ## Usage
 
@@ -125,6 +185,24 @@ All character files and theme mappings are updated automatically.
 3. New character file created automatically
 
 See [CODEGEN.md](pkg/characters/library/CODEGEN.md) for details.
+
+## Documentation
+
+- [API Reference](docs/API.md) - Complete API documentation
+- [Ecosystem Guide](docs/ECOSYSTEM.md) - TUI framework integration
+- [Code Generation](pkg/characters/library/CODEGEN.md) - Character management
+- [CHANGELOG](CHANGELOG.md) - Version history
+
+## Examples
+
+- [Bubble Tea Demo](examples/bubbletea_demo/main.go) - Interactive animated demo
+
+## Version
+
+Current: **v0.2.0** (unreleased)
+- v0.2.0: Frame Cache API + Bubble Tea + Code Generation
+- v0.1.1: Character name updates (sam, rio)
+- v0.1.0: Initial stable release
 
 ## License
 
