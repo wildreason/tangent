@@ -1,10 +1,23 @@
 # Tangent Makefile
 # Easy development and release management
 
-.PHONY: build build-cli test clean install release help
+.PHONY: build build-cli test clean install release help generate verify-generate
 
 # Default target
 all: build-cli
+
+# Generate character code from constants
+generate:
+	@echo "Generating character files from constants..."
+	@cd pkg/characters/library && go generate
+	@go fmt ./pkg/characters/library > /dev/null 2>&1
+	@echo "✓ Generated 7 character files + themes"
+
+# Verify generated code is up-to-date (for CI)
+verify-generate:
+	@echo "Verifying generated code..."
+	@cd pkg/characters/library && go run generator_codegen.go -verify
+	@echo "✓ Generated code is up-to-date"
 
 # Build internal CLI tool with version injection
 build-cli:
@@ -14,8 +27,8 @@ build-cli:
 # Legacy target (redirects to build-cli)
 build: build-cli
 
-# Run tests
-test:
+# Run tests (with verification that generated code is up-to-date)
+test: verify-generate
 	@echo "Running tests..."
 	@go test ./...
 
@@ -48,9 +61,11 @@ help:
 	@echo "Tangent Makefile"
 	@echo ""
 	@echo "Commands:"
-	@echo "  make build-cli - Build tangent-cli (internal development tool)"
-	@echo "  make test      - Run tests"
-	@echo "  make clean     - Clean build artifacts"
-	@echo "  make install   - Install tangent-cli to ~/.local/bin"
-	@echo "  make release   - Create new release"
-	@echo "  make help      - Show this help"
+	@echo "  make generate        - Generate character files from constants.go"
+	@echo "  make verify-generate - Verify generated code is up-to-date"
+	@echo "  make build-cli       - Build tangent-cli (internal development tool)"
+	@echo "  make test            - Run tests (with generate verification)"
+	@echo "  make clean           - Clean build artifacts"
+	@echo "  make install         - Install tangent-cli to ~/.local/bin"
+	@echo "  make release         - Create new release"
+	@echo "  make help            - Show this help"

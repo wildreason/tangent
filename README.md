@@ -54,6 +54,39 @@ current := characters.GetCurrentTheme()  // "latte"
 
 arise, wait, think, plan, execute, error, read, search, write, bash, build, communicate, block, blocked, resting, approval
 
+## Character Management
+
+Characters are auto-generated from `pkg/characters/library/constants.go`.
+
+### Renaming a Character
+
+```bash
+# 1. Edit constants.go
+vim pkg/characters/library/constants.go
+# Change: CharacterGa = "ga" → CharacterGa = "gabe"
+
+# 2. Regenerate
+make generate
+
+# 3. Test and commit
+make test
+git add .
+git commit -m "Rename ga to gabe"
+```
+
+All character files and theme mappings are updated automatically.
+
+### Adding a Character
+
+1. Add character constants to `constants.go`:
+   - Name constant (e.g., `CharacterNew = "newchar"`)
+   - Color constant (e.g., `ColorNew = "#ABCDEF"`)
+   - Theme colors for all 4 themes
+2. Run `make generate`
+3. New character file created automatically
+
+See [CODEGEN.md](pkg/characters/library/CODEGEN.md) for details.
+
 ## License
 
 MIT © 2025 Wildreason, Inc

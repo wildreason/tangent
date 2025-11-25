@@ -1,5 +1,7 @@
 package library
 
+//go:generate go run generator_codegen.go
+
 // Character name constants
 // The seven musical notes (sargam) representing the standard character set
 const (
