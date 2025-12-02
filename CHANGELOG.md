@@ -1,10 +1,8 @@
 # Changelog
 
-## [0.2.0-alpha] - 2025-11-25
+## [0.2.0] - 2025-12-01
 
 **Major Release: Ecosystem Integration & Code Generation**
-
-**Alpha Release:** Internal testing with Handwave before public v0.2.0 release.
 
 This release makes Tangent plug-and-play with TUI frameworks, eliminating the need for custom 300+ line adapters.
 
