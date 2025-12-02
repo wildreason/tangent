@@ -124,11 +124,11 @@ func parseConstants(filename string) ([]CharacterDef, []ThemeDef, error) {
 	}
 
 	var characters []CharacterDef
-	charNames := make(map[string]string)      // CharacterSa -> "sam"
-	charColors := make(map[string]string)     // ColorSa -> "#FF0000"
-	themeColors := make(map[string]string)    // Theme1ColorSa -> "#FF0000"
-	themeDescs := make(map[string]string)     // "bright" -> description
-	charComments := make(map[string]string)   // CharacterSa -> "Shadja (Red)"
+	charNames := make(map[string]string)    // CharacterSa -> "sam"
+	charColors := make(map[string]string)   // ColorSa -> "#FF0000"
+	themeColors := make(map[string]string)  // Theme1ColorSa -> "#FF0000"
+	themeDescs := make(map[string]string)   // "bright" -> description
+	charComments := make(map[string]string) // CharacterSa -> "Shadja (Red)"
 
 	// First pass: extract all constants
 	for _, decl := range node.Decls {
