@@ -7,6 +7,7 @@ import (
 	"github.com/wildreason/tangent/pkg/characters/domain"
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
 	"github.com/wildreason/tangent/pkg/characters/library"
+	"github.com/wildreason/tangent/pkg/characters/microstateregistry"
 	"github.com/wildreason/tangent/pkg/characters/stateregistry"
 )
 
@@ -226,6 +227,124 @@ func LibraryInfo(name string) (string, error) {
 		return "", err
 	}
 	return libChar.Description, nil
+}
+
+// LibraryAgentMicro retrieves a micro (10x2) character variant from the library
+func LibraryAgentMicro(name string) (*AgentCharacter, error) {
+	libChar, err := library.GetMicro(name)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert library character to domain character
+	compiler := infrastructure.NewPatternCompiler()
+
+	// Convert frames
+	frames := make([]domain.Frame, len(libChar.Patterns))
+	for i, frame := range libChar.Patterns {
+		// Compile patterns to actual character lines
+		lines := make([]string, len(frame.Lines))
+		for j, pattern := range frame.Lines {
+			compiled := compiler.Compile(pattern)
+			lines[j] = compiled
+		}
+
+		frames[i] = domain.Frame{
+			Name:  frame.Name,
+			Lines: lines,
+		}
+	}
+
+	// Separate base frame from state frames
+	var baseFrame domain.Frame
+	states := make(map[string]domain.State)
+
+	// Find base frame (first frame named "base" or first frame if no "base")
+	baseFrameFound := false
+	for _, frame := range frames {
+		if frame.Name == "base" {
+			baseFrame = frame
+			baseFrameFound = true
+			break
+		}
+	}
+
+	// If no "base" frame found, use the first frame as base
+	if !baseFrameFound && len(frames) > 0 {
+		baseFrame = frames[0]
+	}
+
+	// Group remaining frames by state name
+	stateFrames := make(map[string][]domain.Frame)
+	for _, frame := range frames {
+		if frame.Name != "base" && frame.Name != baseFrame.Name {
+			// Extract state name from pattern name
+			stateName := frame.Name
+			if strings.Contains(frame.Name, "_") {
+				// Handle patterns like "plan_1", "think_2" -> "plan", "think"
+				parts := strings.Split(frame.Name, "_")
+				if len(parts) >= 2 {
+					stateName = parts[0]
+				}
+			}
+			stateFrames[stateName] = append(stateFrames[stateName], frame)
+		}
+	}
+
+	// Create states from grouped frames
+	for stateName, stateFramesList := range stateFrames {
+		// Get FPS from micro state registry if available, default to 5
+		fps := 5
+		if microState := microstateregistry.GetState(stateName); microState != nil && microState.FPS > 0 {
+			fps = microState.FPS
+		}
+
+		states[stateName] = domain.State{
+			Name:           stateName,
+			Description:    fmt.Sprintf("%s state", stateName),
+			Frames:         stateFramesList,
+			StateType:      "standard",
+			AnimationFPS:   fps,
+			AnimationLoops: 1,
+		}
+	}
+
+	// Get color from current theme
+	// Extract base name (remove -micro suffix)
+	baseName := strings.TrimSuffix(name, "-micro")
+	theme, err := library.GetTheme(currentTheme)
+	if err != nil {
+		// Fallback to library color if theme not found
+		theme = library.ThemeDefinition{
+			Colors: map[string]string{baseName: libChar.Color},
+		}
+	}
+
+	color, err := theme.GetColor(baseName)
+	if err != nil {
+		// Fallback to library color if character not in theme
+		color = libChar.Color
+	}
+
+	// Create domain character
+	domainChar := &domain.Character{
+		Name:        libChar.Name,
+		Personality: "",
+		Color:       color,
+		Width:       libChar.Width,
+		Height:      libChar.Height,
+		BaseFrame:   baseFrame,
+		States:      states,
+		Frames:      frames,
+	}
+
+	// Wrap in AgentCharacter for state-based API
+	return NewAgentCharacter(domainChar), nil
+}
+
+// ListMicroLibrary returns all available micro character names
+func ListMicroLibrary() []string {
+	return library.ListMicro()
 }
 
 

@@ -1,0 +1,187 @@
+{
+  "name": "resting",
+  "width": 10,
+  "height": 2,
+  "base_frame": {
+    "name": "base",
+    "lines": [
+      "_rffffffl_",
+      "_rf7f_f7l_"
+    ]
+  },
+  "states": [
+    {
+      "name": "resting",
+      "frames": [
+        {
+          "lines": [
+            "_rffffffl_",
+            "_rf8lr8fl_"
+          ]
+        },
+        {
+          "lines": [
+            "_rffffffl_",
+            "_rf7lr7fl_"
+          ]
+        },
+        {
+          "lines": [
+            "_rffffffl_",
+            "_rf7lr8fl_"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "arise",
+      "frames": [
+        {
+          "lines": [
+            "_rffffffl_",
+            "_rfblrbfl_"
+          ]
+        },
+        {
+          "lines": [
+            "_rffffffl_",
+            "_rfblfbfl_"
+          ]
+        },
+        {
+          "lines": [
+            "_rffffffl_",
+            "_rfbfrbfl_"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "wait",
+      "frames": [
+        {
+          "lines": [
+            "_rffffffl_",
+            "_rftfftfl_"
+          ]
+        },
+        {
+          "lines": [
+            "_rffffffl_",
+            "_rffffffl_"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "read",
+      "frames": [
+        {
+          "lines": [
+            "_rlfffffl_",
+            "_r##fff7l_"
+          ]
+        },
+        {
+          "lines": [
+            "_rlfffffl_",
+            "_r::fff7l_"
+          ]
+        },
+        {
+          "lines": [
+            "_rlfffffl_",
+            "_r..fff7l_"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "write",
+      "frames": [
+        {
+          "lines": [
+            "_rffffffl_",
+            "_rfbr78fl_"
+          ]
+        },
+        {
+          "lines": [
+            "_rfffff##_",
+            "_rfbr78f#_"
+          ]
+        },
+        {
+          "lines": [
+            "_rfff##::_",
+            "_rfbr78::_"
+          ]
+        },
+        {
+          "lines": [
+            "_rf##::.._",
+            "_rfbr7:.._"
+          ]
+        },
+        {
+          "lines": [
+            "_r:::...._",
+            "_rfbr...._"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "search",
+      "frames": [
+        {
+          "lines": [
+            "_rffffffl_",
+            "_r7fr7ffl_"
+          ]
+        },
+        {
+          "lines": [
+            "_rffffffl_",
+            "_r8fr7ffl_"
+          ]
+        },
+        {
+          "lines": [
+            "_rffffffl_",
+            "_r8fr8ffl_"
+          ]
+        },
+        {
+          "lines": [
+            "_rffffffl_",
+            "_rff8r7fl_"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "approval",
+      "frames": [
+        {
+          "lines": [
+            "_rffffffl_",
+            "_r7f__f8l_"
+          ]
+        },
+        {
+          "lines": [
+            "_rffffffl_",
+            "_r7f##f8l_"
+          ]
+        },
+        {
+          "lines": [
+            "_rffffffl_",
+            "_r7f..f8l_"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/wildreason/tangent/pkg/characters/microstateregistry"
 	"github.com/wildreason/tangent/pkg/characters/stateregistry"
 )
 
@@ -49,6 +50,44 @@ func GenerateFromRegistry(metadata CharacterMetadata) LibraryCharacter {
 		Color:       metadata.Color,
 		Width:       metadata.Width,
 		Height:      metadata.Height,
+		Patterns:    frames,
+	}
+}
+
+// GenerateMicroFromRegistry creates a micro LibraryCharacter from the micro state registry
+func GenerateMicroFromRegistry(metadata CharacterMetadata) LibraryCharacter {
+	def := microstateregistry.Get()
+	if def == nil {
+		return LibraryCharacter{}
+	}
+
+	// Build frames from all states
+	var frames []Frame
+
+	// Add base frame first
+	frames = append(frames, Frame{
+		Name:  "base",
+		Lines: def.BaseFrame.Lines,
+	})
+
+	// Convert micro state frames to library frames
+	for _, state := range def.States {
+		for i, stateFrame := range state.Frames {
+			frame := Frame{
+				Name:  fmt.Sprintf("%s_%d", state.Name, i+1),
+				Lines: stateFrame.Lines,
+			}
+			frames = append(frames, frame)
+		}
+	}
+
+	return LibraryCharacter{
+		Name:        metadata.Name,
+		Description: metadata.Description,
+		Author:      metadata.Author,
+		Color:       metadata.Color,
+		Width:       def.Width,
+		Height:      def.Height,
 		Patterns:    frames,
 	}
 }
