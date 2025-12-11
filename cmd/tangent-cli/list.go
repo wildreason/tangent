@@ -37,6 +37,7 @@ func handleListAgent(name string) {
 	var targetState string
 	var overrideFPS int
 	var overrideLoops int
+	var useMicro bool
 
 	// Parse flags from os.Args starting from index 3 (after "tangent browse <name>")
 	for i := 3; i < len(os.Args); i++ {
@@ -60,19 +61,36 @@ func handleListAgent(name string) {
 				}
 				i++
 			}
+		case "--micro":
+			useMicro = true
 		}
 	}
 
-	// Load character
-	agent, err := characters.LibraryAgent(name)
-	if err != nil {
-		fmt.Printf("Error: agent '%s' not found\n", name)
-		fmt.Println("Available agents:")
-		names := characters.ListLibrary()
-		for _, name := range names {
-			fmt.Printf("  • %s\n", name)
+	// Load character (micro or standard)
+	var agent *characters.AgentCharacter
+	var err error
+	if useMicro {
+		agent, err = characters.LibraryAgentMicro(name)
+		if err != nil {
+			fmt.Printf("Error: micro agent '%s' not found\n", name)
+			fmt.Println("Available micro agents:")
+			names := characters.ListMicroLibrary()
+			for _, n := range names {
+				fmt.Printf("  • %s\n", n)
+			}
+			os.Exit(1)
 		}
-		os.Exit(1)
+	} else {
+		agent, err = characters.LibraryAgent(name)
+		if err != nil {
+			fmt.Printf("Error: agent '%s' not found\n", name)
+			fmt.Println("Available agents:")
+			names := characters.ListLibrary()
+			for _, n := range names {
+				fmt.Printf("  • %s\n", n)
+			}
+			os.Exit(1)
+		}
 	}
 
 	char := agent.GetCharacter()

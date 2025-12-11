@@ -21,8 +21,8 @@ func TestLibraryAgentMicro_AllCharacters(t *testing.T) {
 
 			// Verify dimensions
 			char := agent.GetCharacter()
-			if char.Width != 10 {
-				t.Errorf("Width = %d, expected 10", char.Width)
+			if char.Width != 8 {
+				t.Errorf("Width = %d, expected 8", char.Width)
 			}
 			if char.Height != 2 {
 				t.Errorf("Height = %d, expected 2", char.Height)

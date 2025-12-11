@@ -888,10 +888,13 @@ func handleCLI() {
 func printUsage() {
 	fmt.Println("tangent-cli - Internal development tool for Tangent")
 	fmt.Println()
-	fmt.Println("tangent-cli browse [name] [--state S] [--fps N] [--loops N]")
+	fmt.Println("tangent-cli browse [name] [--state S] [--fps N] [--loops N] [--micro]")
 	fmt.Println("tangent-cli create")
 	fmt.Println("tangent-cli admin <command>")
 	fmt.Println("tangent-cli version")
+	fmt.Println()
+	fmt.Println("Flags:")
+	fmt.Println("  --micro    Use micro (8x2) avatar variant")
 }
 
 func handleAdminCLI() {

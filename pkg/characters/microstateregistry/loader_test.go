@@ -15,8 +15,8 @@ func TestLoadEmbedded(t *testing.T) {
 	}
 
 	// Test dimensions
-	if def.Width != 10 {
-		t.Errorf("Expected width 10, got %d", def.Width)
+	if def.Width != 8 {
+		t.Errorf("Expected width 8, got %d", def.Width)
 	}
 	if def.Height != 2 {
 		t.Errorf("Expected height 2, got %d", def.Height)
@@ -68,17 +68,17 @@ func TestBaseFrame(t *testing.T) {
 		t.Errorf("Base frame has %d lines, expected 2", len(base.Lines))
 	}
 
-	// Each line should be 10 chars wide
+	// Each line should be 8 chars wide
 	for i, line := range base.Lines {
-		if len(line) != 10 {
-			t.Errorf("Base frame line %d has %d chars, expected 10", i, len(line))
+		if len(line) != 8 {
+			t.Errorf("Base frame line %d has %d chars, expected 8", i, len(line))
 		}
 	}
 }
 
 func TestDimensions(t *testing.T) {
-	if Width() != 10 {
-		t.Errorf("Width() returned %d, expected 10", Width())
+	if Width() != 8 {
+		t.Errorf("Width() returned %d, expected 8", Width())
 	}
 	if Height() != 2 {
 		t.Errorf("Height() returned %d, expected 2", Height())
