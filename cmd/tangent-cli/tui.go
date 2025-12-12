@@ -508,6 +508,7 @@ func (m *CreationModel) handleEditMenuSelect() (tea.Model, tea.Cmd) {
 			}
 			m.currentFrame = 0
 			m.currentFrameLine = 0
+			m.frameLines = make([]string, m.session.Height)
 			if len(m.stateFrames) > 0 && len(m.stateFrames[0]) > 0 {
 				m.textInput.SetValue(m.stateFrames[0][0])
 			}

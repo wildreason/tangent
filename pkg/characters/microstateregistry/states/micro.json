@@ -1,5 +1,5 @@
 {
-  "name": "resting",
+  "name": "micro",
   "width": 8,
   "height": 2,
   "base_frame": {
@@ -179,6 +179,29 @@
           "lines": [
             "rffffffl",
             "r7f..f8l"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "resting (copy)",
+      "frames": [
+        {
+          "lines": [
+            "rffffffl",
+            "rf8lr8fl"
+          ]
+        },
+        {
+          "lines": [
+            "rffffffl",
+            "rf7lr7fl"
+          ]
+        },
+        {
+          "lines": [
+            "rffffffl",
+            "rf7lr8fl"
           ]
         }
       ]
