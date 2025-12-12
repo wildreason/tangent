@@ -740,7 +740,50 @@ func (m *CreationModel) handleStateFrameLineSubmit() (tea.Model, tea.Cmd) {
 		m.currentFrameLine = 0
 		m.frameLines = make([]string, m.session.Height)
 
-		// Check if all frames are complete
+		// In edit mode, check if editing completed frames (always show preview after first frame)
+		if m.editMode {
+			// Save state to session
+			newState := StateSession{
+				Name:           m.currentStateName,
+				Description:    fmt.Sprintf("Agent %s state", m.currentStateName),
+				StateType:      m.currentStateType,
+				AnimationFPS:   5,
+				AnimationLoops: 1,
+				Frames:         make([]Frame, len(m.stateFrames)),
+			}
+
+			for i, frameLines := range m.stateFrames {
+				newState.Frames[i] = Frame{
+					Name:  fmt.Sprintf("%s_%d", m.currentStateName, i+1),
+					Lines: frameLines,
+				}
+			}
+
+			// In edit mode, update existing state instead of appending
+			if m.editStateIndex >= 0 && m.editStateIndex < len(m.session.States) {
+				m.session.States[m.editStateIndex] = newState
+			}
+
+			// Save to source file in edit mode
+			if m.sourcePath != "" {
+				if err := m.saveToSourceFile(); err != nil {
+					m.statusMsg = fmt.Sprintf("Error saving: %v", err)
+					m.err = err
+					return m, nil
+				}
+			} else {
+				m.session.Save()
+			}
+
+			m.screen = ScreenStatePreview
+			m.statusMsg = fmt.Sprintf("Preview '%s' state - Press Enter to confirm, Esc to discard", m.currentStateName)
+			m.currentFrame = 0
+			m.previewFrameIndex = 0
+			m.animating = true
+			return m, tick()
+		}
+
+		// Check if all frames are complete (create mode)
 		if m.currentFrame >= m.stateFrameCount {
 			// Save state to session temporarily
 			newState := StateSession{
