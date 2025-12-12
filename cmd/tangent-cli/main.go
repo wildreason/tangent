@@ -867,6 +867,8 @@ func handleCLI() {
 	case "create":
 		showBanner()
 		createCharacter()
+	case "edit":
+		handleEdit()
 	case "browse":
 		if len(os.Args) > 2 {
 			handleListAgent(os.Args[2])
@@ -890,6 +892,7 @@ func printUsage() {
 	fmt.Println()
 	fmt.Println("tangent-cli browse [name] [--state S] [--fps N] [--loops N] [--micro]")
 	fmt.Println("tangent-cli create")
+	fmt.Println("tangent-cli edit [state] --micro")
 	fmt.Println("tangent-cli admin <command>")
 	fmt.Println("tangent-cli version")
 	fmt.Println()

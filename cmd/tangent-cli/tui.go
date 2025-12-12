@@ -74,6 +74,11 @@ type CreationModel struct {
 	// Status message
 	statusMsg string
 	err       error
+
+	// Edit mode fields
+	editMode       bool
+	sourcePath     string // Path to save back to (for edit mode)
+	editStateIndex int    // Index of state being edited (-1 = none)
 }
 
 // Styles holds all lipgloss styles
@@ -293,22 +298,34 @@ func (m *CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Save and go back to menu
 				m.animating = false
 				m.screen = ScreenMenu
+
+				// In edit mode, rebuild menu options
+				if m.editMode {
+					m.rebuildEditMenu()
+				}
+
 				m.statusMsg = fmt.Sprintf("✓ State '%s' saved!", m.currentStateName)
 				m.currentStateName = ""
 				m.stateFrames = nil
+				m.editStateIndex = -1
 				return m, nil
 			case "esc":
 				// Discard and go back to menu
 				m.animating = false
-				// Remove the last state
-				if len(m.session.States) > 0 {
-					m.session.States = m.session.States[:len(m.session.States)-1]
-					m.session.Save()
+
+				// Only remove if not in edit mode (editing doesn't add new state)
+				if !m.editMode {
+					if len(m.session.States) > 0 {
+						m.session.States = m.session.States[:len(m.session.States)-1]
+						m.session.Save()
+					}
 				}
+
 				m.screen = ScreenMenu
 				m.statusMsg = "State discarded"
 				m.currentStateName = ""
 				m.stateFrames = nil
+				m.editStateIndex = -1
 				return m, nil
 			}
 
@@ -375,6 +392,11 @@ func (m *CreationModel) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			m.menuCursor++
 		}
 	case "enter":
+		// Handle edit mode menu differently
+		if m.editMode {
+			return m.handleEditMenuSelect()
+		}
+
 		switch m.menuCursor {
 		case 0: // Create base character
 			m.screen = ScreenCreateBase
@@ -412,6 +434,120 @@ func (m *CreationModel) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 	}
 	return m, nil
+}
+
+// handleEditMenuSelect handles menu selection in edit mode
+func (m *CreationModel) handleEditMenuSelect() (tea.Model, tea.Cmd) {
+	numStates := len(m.session.States)
+
+	if m.menuCursor < numStates {
+		// Edit existing state
+		stateIdx := m.menuCursor
+		state := m.session.States[stateIdx]
+
+		m.editStateIndex = stateIdx
+		m.currentStateName = state.Name
+		m.stateFrames = make([][]string, len(state.Frames))
+		for i, frame := range state.Frames {
+			m.stateFrames[i] = make([]string, len(frame.Lines))
+			copy(m.stateFrames[i], frame.Lines)
+		}
+		m.currentFrame = 0
+		m.currentFrameLine = 0
+		if len(m.stateFrames) > 0 && len(m.stateFrames[0]) > 0 {
+			m.textInput.SetValue(m.stateFrames[0][0])
+		}
+		m.textInput.CharLimit = m.session.Width
+		m.textInput.Focus()
+
+		m.screen = ScreenStateFrameInput
+		m.statusMsg = fmt.Sprintf("Editing state: %s (frame 1/%d, line 1/%d)", state.Name, len(state.Frames), m.session.Height)
+		return m, nil
+	} else if m.menuCursor == numStates {
+		// Add new state
+		m.screen = ScreenStateNameInput
+		m.textInput.SetValue("")
+		m.textInput.CharLimit = 50
+		m.textInput.Placeholder = "Enter state name"
+		m.textInput.Focus()
+		m.editStateIndex = -1
+		m.statusMsg = "Enter new state name"
+		return m, nil
+	} else if m.menuCursor == numStates+1 {
+		// Preview all states
+		if len(m.session.States) == 0 {
+			m.statusMsg = "No states to preview"
+			return m, nil
+		}
+		m.screen = ScreenAnimateAll
+		m.currentStateIndex = 0
+		m.previewFrameIndex = 0
+		m.animating = true
+		m.statusMsg = "Previewing all states - Use ←/→ to switch, Esc to exit"
+		return m, tick()
+	} else if m.menuCursor == numStates+2 {
+		// Save and exit
+		if m.sourcePath != "" {
+			if err := m.saveToSourceFile(); err != nil {
+				m.statusMsg = fmt.Sprintf("Error saving: %v", err)
+				m.err = err
+				return m, nil
+			}
+			m.statusMsg = fmt.Sprintf("Saved to %s", m.sourcePath)
+		}
+		return m, tea.Quit
+	}
+
+	return m, nil
+}
+
+// rebuildEditMenu rebuilds menu options for edit mode after changes
+func (m *CreationModel) rebuildEditMenu() {
+	menuOptions := []string{}
+	for _, state := range m.session.States {
+		menuOptions = append(menuOptions, fmt.Sprintf("Edit %s (%d frames)", state.Name, len(state.Frames)))
+	}
+	menuOptions = append(menuOptions, "Add new state")
+	menuOptions = append(menuOptions, "Preview all states")
+	menuOptions = append(menuOptions, "Save and exit")
+	m.menuOptions = menuOptions
+
+	// Ensure cursor is in bounds
+	if m.menuCursor >= len(m.menuOptions) {
+		m.menuCursor = len(m.menuOptions) - 1
+	}
+}
+
+// saveToSourceFile saves the session back to the source JSON file
+func (m *CreationModel) saveToSourceFile() error {
+	if m.sourcePath == "" {
+		return fmt.Errorf("no source path set")
+	}
+
+	// Convert session to micro JSON format
+	micro := &MicroJSON{
+		Name:   m.session.Name,
+		Width:  m.session.Width,
+		Height: m.session.Height,
+		BaseFrame: MicroJSONFrame{
+			Name:  m.session.BaseFrame.Name,
+			Lines: m.session.BaseFrame.Lines,
+		},
+	}
+
+	for _, state := range m.session.States {
+		microState := MicroJSONState{
+			Name: state.Name,
+		}
+		for _, frame := range state.Frames {
+			microState.Frames = append(microState.Frames, MicroJSONFrame{
+				Lines: frame.Lines,
+			})
+		}
+		micro.States = append(micro.States, microState)
+	}
+
+	return saveMicroJSON(micro, m.sourcePath)
 }
 
 // handleBaseLineSubmit handles Enter key in base creation
@@ -587,14 +723,14 @@ func (m *CreationModel) handleStateFrameLineSubmit() (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-// handleStateFinish handles Ctrl+F - finishes state creation
+// handleStateFinish handles Ctrl+F - finishes state creation or edit
 func (m *CreationModel) handleStateFinish() (tea.Model, tea.Cmd) {
 	if len(m.stateFrames) == 0 {
 		m.statusMsg = "Create at least one frame before finishing"
 		return m, nil
 	}
 
-	// Save state to session
+	// Build the state
 	newState := StateSession{
 		Name:           m.currentStateName,
 		Description:    fmt.Sprintf("Agent %s state", m.currentStateName),
@@ -611,8 +747,23 @@ func (m *CreationModel) handleStateFinish() (tea.Model, tea.Cmd) {
 		}
 	}
 
-	m.session.States = append(m.session.States, newState)
-	m.session.Save()
+	// In edit mode, update existing state instead of appending
+	if m.editMode && m.editStateIndex >= 0 && m.editStateIndex < len(m.session.States) {
+		m.session.States[m.editStateIndex] = newState
+	} else {
+		m.session.States = append(m.session.States, newState)
+	}
+
+	// Save to source file in edit mode
+	if m.editMode && m.sourcePath != "" {
+		if err := m.saveToSourceFile(); err != nil {
+			m.statusMsg = fmt.Sprintf("Error saving: %v", err)
+			m.err = err
+			return m, nil
+		}
+	} else {
+		m.session.Save()
+	}
 
 	m.screen = ScreenStatePreview
 	m.statusMsg = fmt.Sprintf("Preview '%s' state - Press Enter to confirm, Esc to discard", m.currentStateName)
@@ -1379,4 +1530,76 @@ func StartCreationTUI(session *Session) error {
 
 	_, err := p.Run()
 	return err
+}
+
+// StartEditTUI starts the Bubbletea TUI for editing existing characters
+func StartEditTUI(session *Session, sourcePath string, targetStateIdx int) error {
+	model := NewEditModel(session, sourcePath, targetStateIdx)
+	p := tea.NewProgram(
+		&model,
+		tea.WithAltScreen(),
+	)
+
+	_, err := p.Run()
+	return err
+}
+
+// NewEditModel creates a model for editing existing characters
+func NewEditModel(session *Session, sourcePath string, targetStateIdx int) CreationModel {
+	ti := textinput.New()
+	ti.Placeholder = "Enter pattern (e.g., rffffffl)"
+	ti.Focus()
+	ti.CharLimit = 50
+	ti.Width = 40
+
+	vp := viewport.New(40, 20)
+	vp.Style = lipgloss.NewStyle()
+
+	// Build menu options for edit mode
+	menuOptions := []string{}
+	for _, state := range session.States {
+		menuOptions = append(menuOptions, fmt.Sprintf("Edit %s (%d frames)", state.Name, len(state.Frames)))
+	}
+	menuOptions = append(menuOptions, "Add new state")
+	menuOptions = append(menuOptions, "Preview all states")
+	menuOptions = append(menuOptions, "Save and exit")
+
+	model := CreationModel{
+		session:         session,
+		screen:          ScreenMenu,
+		menuCursor:      0,
+		menuOptions:     menuOptions,
+		baseLines:       make([]string, session.Height),
+		textInput:       ti,
+		previewViewport: vp,
+		styles:          NewStyles(),
+		editMode:        true,
+		sourcePath:      sourcePath,
+		editStateIndex:  -1,
+	}
+
+	// If target state specified, jump directly to editing it
+	if targetStateIdx >= 0 && targetStateIdx < len(session.States) {
+		model.menuCursor = targetStateIdx
+		model.editStateIndex = targetStateIdx
+
+		// Set up for editing this state's frames
+		state := session.States[targetStateIdx]
+		model.currentStateName = state.Name
+		model.stateFrames = make([][]string, len(state.Frames))
+		for i, frame := range state.Frames {
+			model.stateFrames[i] = make([]string, len(frame.Lines))
+			copy(model.stateFrames[i], frame.Lines)
+		}
+		model.currentFrame = 0
+		model.currentFrameLine = 0
+		if len(model.stateFrames) > 0 && len(model.stateFrames[0]) > 0 {
+			model.textInput.SetValue(model.stateFrames[0][0])
+		}
+
+		model.screen = ScreenStateFrameInput
+		model.statusMsg = fmt.Sprintf("Editing state: %s (frame 1/%d)", state.Name, len(state.Frames))
+	}
+
+	return model
 }
