@@ -1722,6 +1722,7 @@ func NewEditModel(session *Session, sourcePath string, targetStateIdx int) Creat
 		}
 		model.currentFrame = 0
 		model.currentFrameLine = 0
+		model.frameLines = make([]string, session.Height)
 		if len(model.stateFrames) > 0 && len(model.stateFrames[0]) > 0 {
 			model.textInput.SetValue(model.stateFrames[0][0])
 		}
