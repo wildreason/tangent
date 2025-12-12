@@ -1,5 +1,81 @@
 # Changelog
 
+## [0.3.0] - 2025-12-11
+
+**Major Release: TangentClient API & Compact Micro Avatars**
+
+Framework-agnostic animation controller with thread-safe state management and compact 8x2 micro avatars.
+
+### Added
+
+**TangentClient API (`pkg/characters/client`)**
+- `New(name)` / `NewMicro(name)` - Create animation controller for 11x4 or 8x2 characters
+- Thread-safe state management with `sync.RWMutex`
+- Per-state FPS configuration: `SetStateFPS("write", 8)`
+- Dynamic FPS override: `SetStateWithFPS("read", 12)`
+- Built-in state aliases for common mappings (think->resting, bash->read, etc.)
+- Custom alias support: `SetAlias("busy", "write")`
+- Auto-tick mode: `Start()` / `Stop()` for background animation
+- State queue: `QueueState("write", AfterLoops(2))`
+- Callbacks: `OnStateChange()`, `OnLoopComplete()`
+- Frame access: `GetFrame()`, `GetFrameRaw()`, `GetDimensions()`
+
+**Default State Aliases**
+- `think`, `thinking` -> `resting`
+- `bash`, `grep`, `glob`, `find` -> `read`
+- `edit`, `editing`, `writing` -> `write`
+- `success`, `complete`, `done` -> `approval`
+- `fail`, `failed` -> `wait`
+- `start`, `startup` -> `arise`
+
+### Changed
+
+**Micro Avatars: 10x2 -> 8x2**
+- Removed padding characters from micro avatar frames
+- Width reduced from 10 to 8 characters
+- More compact display for status bars and tight layouts
+
+### Migration Guide
+
+**For TUI Framework Users (tview, tcell, etc.):**
+```go
+// Before: Manual animation management (~70 lines)
+var frameCache *characters.FrameCache
+var currentFrame int
+var animationMu sync.Mutex
+// ... manual ticker, state mapping, mutex handling
+
+// After: TangentClient handles everything
+import "github.com/wildreason/tangent/pkg/characters/client"
+
+tc, _ := client.NewMicro("sam")
+tc.SetStateFPS("resting", 2)
+tc.SetStateFPS("write", 8)
+tc.Start()
+
+// In render loop
+frame := tc.GetFrameRaw()
+
+// On state change
+tc.SetState("write")  // Aliases handle mapping automatically
+```
+
+**For Micro Avatar Width:**
+```go
+// Before: 10 columns for micro avatar
+container.AddItem(avatar, 12, 0, false)  // 10 + 2 padding
+
+// After: 8 columns for micro avatar
+container.AddItem(avatar, 10, 0, false)  // 8 + 2 padding
+```
+
+### Performance
+- Thread-safe with minimal lock contention
+- O(1) frame access via FrameCache
+- Configurable FPS per state for optimal animation speed
+
+---
+
 ## [0.2.0] - 2025-12-01
 
 **Major Release: Ecosystem Integration & Code Generation**

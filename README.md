@@ -2,14 +2,16 @@
 
 Terminal avatars for AI agents. Go library.
 
-**v0.2.0:** Now with Frame Cache API (500x faster) and plug-and-play Bubble Tea integration. No more custom adapters needed.
+**v0.3.0:** TangentClient API for framework-agnostic animation control. Compact 8x2 micro avatars.
 
 ## Features
 
 - **7 characters** × **16 animated states** × **4 color themes** = 448 combinations
+- **TangentClient API** - Thread-safe animation controller for any TUI framework
+- **Micro Avatars** - Compact 8x2 format for status bars
 - **Frame Cache API** - Pre-rendered frames for O(1) access (500x faster)
 - **Bubble Tea Component** - Built-in AnimatedCharacter (5 lines vs 310-line adapter)
-- **Code Generation** - Character management from single source of truth
+- **State Aliases** - Built-in mappings (think->resting, bash->read, etc.)
 - **Theme System** - Global color themes (latte, bright, garden, cozy)
 
 ## Install
@@ -18,55 +20,43 @@ Terminal avatars for AI agents. Go library.
 go get github.com/wildreason/tangent/pkg/characters
 ```
 
-## What's New in v0.2.0
+## What's New in v0.3.0
 
-### Frame Cache API - 500x Faster Performance
+### TangentClient API - Framework-Agnostic Animation
 
-Pre-rendered, pre-colored frames eliminate repeated compilation:
-
-```go
-agent, _ := characters.LibraryAgent("sam")
-cache := agent.GetFrameCache()
-
-// O(1) access - frames already compiled and colored
-frames := cache.GetStateFrames("plan")  // [][]string
-```
-
-**Performance:** 50µs → 0.1µs per frame (500x speedup)
-
-### Bubble Tea Integration - No Adapter Needed
-
-Built-in component eliminates 310-line custom adapters:
+Thread-safe animation controller for tview, tcell, or any TUI framework:
 
 ```go
-import "github.com/wildreason/tangent/pkg/characters/bubbletea"
+import "github.com/wildreason/tangent/pkg/characters/client"
 
-agent, _ := characters.LibraryAgent("sam")
-char := bubbletea.NewAnimatedCharacter(agent, 100*time.Millisecond)
-char.SetState("plan")
+tc, _ := client.NewMicro("sam")
+tc.SetStateFPS("resting", 2)
+tc.SetStateFPS("write", 8)
+tc.Start()
 
-program := tea.NewProgram(char)
-program.Run()
+// In render loop
+frame := tc.GetFrameRaw()
+
+// On state change - aliases handle mapping
+tc.SetState("bash")  // automatically maps to "read" animation
 ```
 
-**Code Reduction:** 310 lines → 5 lines (98% reduction)
+**Features:**
+- Per-state FPS configuration
+- Built-in state aliases (think->resting, bash->read, etc.)
+- Auto-tick background animation
+- State queue and callbacks
 
-### Code Generation - Easy Character Management
+### Compact Micro Avatars (8x2)
 
-Rename or add characters by editing one file:
+Micro avatars reduced from 10x2 to 8x2 for tighter layouts:
 
-```bash
-# Edit constants.go
-vim pkg/characters/library/constants.go
-
-# Regenerate all files
-make generate
-
-# Test
-make test
+```go
+tc, _ := client.NewMicro("sam")
+w, h := tc.GetDimensions()  // 8, 2
 ```
 
-See [CHANGELOG.md](CHANGELOG.md) for full v0.2.0 details.
+See [CHANGELOG.md](CHANGELOG.md) for full v0.3.0 details.
 
 ## Usage
 
@@ -199,8 +189,9 @@ See [CODEGEN.md](pkg/characters/library/CODEGEN.md) for details.
 
 ## Version
 
-Current: **v0.2.0-alpha** (2025-11-25)
-- v0.2.0-alpha: Frame Cache API + Bubble Tea + Code Generation
+Current: **v0.3.0** (2025-12-11)
+- v0.3.0: TangentClient API + Compact 8x2 Micro Avatars
+- v0.2.0: Frame Cache API + Bubble Tea + Code Generation
 - v0.1.1: Character name updates (sam, rio)
 - v0.1.0: Initial stable release
 
