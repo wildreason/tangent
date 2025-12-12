@@ -164,6 +164,10 @@ type tickMsg struct{}
 
 // Init initializes the model
 func (m *CreationModel) Init() tea.Cmd {
+	// In edit mode, start animation immediately
+	if m.editMode {
+		return tick()
+	}
 	return textinput.Blink
 }
 
@@ -192,6 +196,16 @@ func (m *CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tickMsg:
 		// Handle animation frame updates
+		if m.editMode && m.screen == ScreenMenu {
+			// In edit mode menu, animate selected state
+			if m.menuCursor < len(m.session.States) {
+				state := m.session.States[m.menuCursor]
+				if len(state.Frames) > 0 {
+					m.previewFrameIndex = (m.previewFrameIndex + 1) % len(state.Frames)
+				}
+			}
+			return m, tick() // Keep animating
+		}
 		if m.animating && m.screen == ScreenStatePreview {
 			if len(m.session.States) > 0 {
 				state := m.session.States[len(m.session.States)-1]
@@ -1151,16 +1165,45 @@ func (m *CreationModel) renderRightPane(width int) string {
 
 	switch m.screen {
 	case ScreenMenu:
-		// Show base if available
-		if len(m.session.BaseFrame.Lines) > 0 {
-			preview.WriteString("Base Character:\n\n")
-			for _, line := range m.session.BaseFrame.Lines {
-				compiled := compiler.Compile(line)
-				preview.WriteString("  " + compiled + "\n")
+		// In edit mode, show selected state animation; otherwise show base
+		if m.editMode && m.menuCursor < len(m.session.States) {
+			// Show selected state's first frame with animation indicator
+			state := m.session.States[m.menuCursor]
+			preview.WriteString(fmt.Sprintf("◢ %s\n\n", strings.ToUpper(state.Name)))
+			preview.WriteString(fmt.Sprintf("Frames: %d\n\n", len(state.Frames)))
+
+			// Show current animated frame
+			if len(state.Frames) > 0 {
+				frame := state.Frames[m.previewFrameIndex%len(state.Frames)]
+				preview.WriteString("\n")
+				for _, line := range frame.Lines {
+					compiled := compiler.Compile(line)
+					preview.WriteString("    " + compiled + "\n")
+				}
+				preview.WriteString("\n")
+			}
+
+			// Frame indicators
+			preview.WriteString("Frames: ")
+			for i := range state.Frames {
+				if i == m.previewFrameIndex%len(state.Frames) {
+					preview.WriteString("● ")
+				} else {
+					preview.WriteString("○ ")
+				}
 			}
 		} else {
-			preview.WriteString("No character created yet.\n\n")
-			preview.WriteString("Select 'Create base character' to begin.")
+			// Show base if available
+			if len(m.session.BaseFrame.Lines) > 0 {
+				preview.WriteString("Base Character:\n\n")
+				for _, line := range m.session.BaseFrame.Lines {
+					compiled := compiler.Compile(line)
+					preview.WriteString("  " + compiled + "\n")
+				}
+			} else {
+				preview.WriteString("No character created yet.\n\n")
+				preview.WriteString("Select 'Create base character' to begin.")
+			}
 		}
 
 	case ScreenCreateBase:
