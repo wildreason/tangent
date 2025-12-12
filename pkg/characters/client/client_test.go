@@ -81,18 +81,23 @@ func TestAliasResolution(t *testing.T) {
 
 	// Test default aliases
 	c.SetState("thinking")
-	if c.GetState() != "wait" {
-		t.Errorf("thinking resolved to %q, want wait", c.GetState())
+	if c.GetState() != "resting" {
+		t.Errorf("thinking resolved to %q, want resting", c.GetState())
 	}
 
 	c.SetState("bash")
-	if c.GetState() != "search" {
-		t.Errorf("bash resolved to %q, want search", c.GetState())
+	if c.GetState() != "read" {
+		t.Errorf("bash resolved to %q, want read", c.GetState())
 	}
 
 	c.SetState("success")
 	if c.GetState() != "approval" {
 		t.Errorf("success resolved to %q, want approval", c.GetState())
+	}
+
+	c.SetState("failed")
+	if c.GetState() != "wait" {
+		t.Errorf("failed resolved to %q, want wait", c.GetState())
 	}
 }
 
@@ -113,11 +118,11 @@ func TestCustomAlias(t *testing.T) {
 		t.Errorf("thinking resolved to %q after custom alias, want search", c.GetState())
 	}
 
-	// Remove custom alias, falls back to default
+	// Remove custom alias, falls back to default (resting)
 	c.RemoveAlias("thinking")
 	c.SetState("thinking")
-	if c.GetState() != "wait" {
-		t.Errorf("thinking resolved to %q after removing alias, want wait", c.GetState())
+	if c.GetState() != "resting" {
+		t.Errorf("thinking resolved to %q after removing alias, want resting", c.GetState())
 	}
 }
 

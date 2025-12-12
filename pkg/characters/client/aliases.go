@@ -5,37 +5,46 @@ package client
 // These are applied automatically when SetState is called with an unrecognized name.
 // Custom aliases set via SetAlias take precedence over these defaults.
 var DefaultAliases = map[string]string{
-	// Thinking/waiting states
-	"think":    "wait",
-	"thinking": "wait",
+	// Thinking states -> resting (calm idle)
+	"think":    "resting",
+	"thinking": "resting",
 
-	// Writing/editing states
+	// Tool/search states -> read (scanning)
+	"bash": "read",
+	"grep": "read",
+	"glob": "read",
+	"find": "read",
+
+	// Writing/editing states -> write
 	"edit":    "write",
 	"editing": "write",
 	"writing": "write",
 
-	// Reading states
+	// Reading states -> read
 	"reading": "read",
 
-	// Search/tool states
-	"bash":   "search",
-	"grep":   "search",
-	"glob":   "search",
-	"find":   "search",
-	"tool":   "search",
-	"search": "search",
-
-	// Success/approval states
+	// Success/approval states -> approval
 	"success":  "approval",
 	"complete": "approval",
 	"done":     "approval",
 
-	// Error states
-	"fail":   "error",
-	"failed": "error",
+	// Error/failure states -> wait (uncertain)
+	"fail":   "wait",
+	"failed": "wait",
 
-	// Arise/startup states
+	// Arise/startup states -> arise
 	"start":   "arise",
 	"startup": "arise",
-	"init":    "arise",
+}
+
+// DefaultStateFPS provides recommended FPS for states.
+// These can be applied via client.SetStateFPS() or used as reference.
+var DefaultStateFPS = map[string]int{
+	"resting":  2, // Slow, calm
+	"wait":     3, // Moderate
+	"read":     4, // Active scanning (2x for bash/grep)
+	"write":    4, // Normal write speed
+	"search":   6, // Fast scanning
+	"approval": 3, // Moderate celebration
+	"arise":    5, // Quick startup
 }
