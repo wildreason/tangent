@@ -453,31 +453,72 @@ func (m *CreationModel) updateMenu(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 // handleEditMenuSelect handles menu selection in edit mode
 func (m *CreationModel) handleEditMenuSelect() (tea.Model, tea.Cmd) {
 	numStates := len(m.session.States)
+	numMenuItems := numStates * 2 // Each state has 2 items: Edit and Duplicate
 
-	if m.menuCursor < numStates {
-		// Edit existing state
-		stateIdx := m.menuCursor
+	// Check if selecting a state or duplicate option
+	if m.menuCursor < numMenuItems {
+		itemIdx := m.menuCursor
+		stateIdx := itemIdx / 2
+		isDuplicate := itemIdx%2 == 1
+
 		state := m.session.States[stateIdx]
 
-		m.editStateIndex = stateIdx
-		m.currentStateName = state.Name
-		m.stateFrames = make([][]string, len(state.Frames))
-		for i, frame := range state.Frames {
-			m.stateFrames[i] = make([]string, len(frame.Lines))
-			copy(m.stateFrames[i], frame.Lines)
-		}
-		m.currentFrame = 0
-		m.currentFrameLine = 0
-		if len(m.stateFrames) > 0 && len(m.stateFrames[0]) > 0 {
-			m.textInput.SetValue(m.stateFrames[0][0])
-		}
-		m.textInput.CharLimit = m.session.Width
-		m.textInput.Focus()
+		if isDuplicate {
+			// Duplicate the state
+			newState := StateSession{
+				Name:           state.Name + " (copy)",
+				Description:    state.Description,
+				StateType:      state.StateType,
+				AnimationFPS:   state.AnimationFPS,
+				AnimationLoops: state.AnimationLoops,
+				Frames:         make([]Frame, len(state.Frames)),
+			}
 
-		m.screen = ScreenStateFrameInput
-		m.statusMsg = fmt.Sprintf("Editing state: %s (frame 1/%d, line 1/%d)", state.Name, len(state.Frames), m.session.Height)
-		return m, nil
-	} else if m.menuCursor == numStates {
+			// Deep copy frames
+			for i, frame := range state.Frames {
+				newState.Frames[i] = Frame{
+					Name:  frame.Name + "_copy",
+					Lines: make([]string, len(frame.Lines)),
+				}
+				copy(newState.Frames[i].Lines, frame.Lines)
+			}
+
+			m.session.States = append(m.session.States, newState)
+			m.rebuildEditMenu()
+			m.menuCursor = len(m.menuOptions) - 3 // Move to new state
+			m.statusMsg = fmt.Sprintf("✓ Duplicated state '%s' -> '%s'", state.Name, newState.Name)
+
+			// Save to source file
+			if m.sourcePath != "" {
+				if err := m.saveToSourceFile(); err != nil {
+					m.statusMsg = fmt.Sprintf("Error saving: %v", err)
+					m.err = err
+				}
+			}
+
+			return m, nil
+		} else {
+			// Edit existing state
+			m.editStateIndex = stateIdx
+			m.currentStateName = state.Name
+			m.stateFrames = make([][]string, len(state.Frames))
+			for i, frame := range state.Frames {
+				m.stateFrames[i] = make([]string, len(frame.Lines))
+				copy(m.stateFrames[i], frame.Lines)
+			}
+			m.currentFrame = 0
+			m.currentFrameLine = 0
+			if len(m.stateFrames) > 0 && len(m.stateFrames[0]) > 0 {
+				m.textInput.SetValue(m.stateFrames[0][0])
+			}
+			m.textInput.CharLimit = m.session.Width
+			m.textInput.Focus()
+
+			m.screen = ScreenStateFrameInput
+			m.statusMsg = fmt.Sprintf("Editing state: %s (frame 1/%d, line 1/%d)", state.Name, len(state.Frames), m.session.Height)
+			return m, nil
+		}
+	} else if m.menuCursor == numMenuItems {
 		// Add new state
 		m.screen = ScreenStateNameInput
 		m.textInput.SetValue("")
@@ -487,7 +528,7 @@ func (m *CreationModel) handleEditMenuSelect() (tea.Model, tea.Cmd) {
 		m.editStateIndex = -1
 		m.statusMsg = "Enter new state name"
 		return m, nil
-	} else if m.menuCursor == numStates+1 {
+	} else if m.menuCursor == numMenuItems+1 {
 		// Preview all states
 		if len(m.session.States) == 0 {
 			m.statusMsg = "No states to preview"
@@ -499,7 +540,7 @@ func (m *CreationModel) handleEditMenuSelect() (tea.Model, tea.Cmd) {
 		m.animating = true
 		m.statusMsg = "Previewing all states - Use ←/→ to switch, Esc to exit"
 		return m, tick()
-	} else if m.menuCursor == numStates+2 {
+	} else if m.menuCursor == numMenuItems+2 {
 		// Save and exit
 		if m.sourcePath != "" {
 			if err := m.saveToSourceFile(); err != nil {
@@ -520,6 +561,7 @@ func (m *CreationModel) rebuildEditMenu() {
 	menuOptions := []string{}
 	for _, state := range m.session.States {
 		menuOptions = append(menuOptions, fmt.Sprintf("Edit %s (%d frames)", state.Name, len(state.Frames)))
+		menuOptions = append(menuOptions, fmt.Sprintf("  ↳ Duplicate %s", state.Name))
 	}
 	menuOptions = append(menuOptions, "Add new state")
 	menuOptions = append(menuOptions, "Preview all states")
@@ -1602,6 +1644,7 @@ func NewEditModel(session *Session, sourcePath string, targetStateIdx int) Creat
 	menuOptions := []string{}
 	for _, state := range session.States {
 		menuOptions = append(menuOptions, fmt.Sprintf("Edit %s (%d frames)", state.Name, len(state.Frames)))
+		menuOptions = append(menuOptions, fmt.Sprintf("  ↳ Duplicate %s", state.Name))
 	}
 	menuOptions = append(menuOptions, "Add new state")
 	menuOptions = append(menuOptions, "Preview all states")
