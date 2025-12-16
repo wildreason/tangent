@@ -60,6 +60,9 @@ func NewPatternCompiler() domain.PatternCompiler {
 
 			// Special
 			'_': codes.Space, // Space
+
+			// Dynamic noise (replaced at render time)
+			'$': codes.Noise, // Noise placeholder
 		},
 		validators: []PatternValidator{
 			&LengthValidator{},

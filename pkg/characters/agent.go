@@ -9,6 +9,7 @@ import (
 
 	"github.com/wildreason/tangent/pkg/characters/domain"
 	"github.com/wildreason/tangent/pkg/characters/infrastructure"
+	"github.com/wildreason/tangent/pkg/characters/micronoise"
 )
 
 // colorize wraps text with ANSI RGB color codes
@@ -212,13 +213,31 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 	// Create pattern compiler for frame compilation
 	compiler := infrastructure.NewPatternCompiler()
 
+	// Check if this is a micro avatar (8x2)
+	isMicro := a.character.Width == 8 && a.character.Height == 2
+	noiseConfig := micronoise.GetConfig(stateName)
+	noiseCounter := 0
+
 	for loop := 0; loop < stateLoops; loop++ {
 		for _, frame := range state.Frames {
-			// Clear and print each line (compile pattern codes and apply color)
-			for _, line := range frame.Lines {
+			// Compile and colorize lines
+			lines := make([]string, len(frame.Lines))
+			for i, line := range frame.Lines {
 				compiledLine := compiler.Compile(line)
-				coloredLine := colorize(compiledLine, a.character.Color)
-				fmt.Fprintf(writer, "\r\x1b[2K%s\n", coloredLine)
+				lines[i] = colorize(compiledLine, a.character.Color)
+			}
+
+			// Apply micro noise if applicable
+			if isMicro && noiseConfig != nil {
+				if micronoise.ShouldRefresh(noiseCounter, noiseConfig.Intensity) {
+					lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseConfig.Count)
+				}
+				noiseCounter++
+			}
+
+			// Clear and print each line
+			for _, line := range lines {
+				fmt.Fprintf(writer, "\r\x1b[2K%s\n", line)
 			}
 
 			// Move cursor back up
@@ -228,12 +247,21 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 		}
 	}
 
-	// Print final frame cleanly (compile pattern codes and apply color)
+	// Print final frame cleanly
 	finalFrame := state.Frames[len(state.Frames)-1]
-	for _, line := range finalFrame.Lines {
+	lines := make([]string, len(finalFrame.Lines))
+	for i, line := range finalFrame.Lines {
 		compiledLine := compiler.Compile(line)
-		coloredLine := colorize(compiledLine, a.character.Color)
-		fmt.Fprintln(writer, coloredLine)
+		lines[i] = colorize(compiledLine, a.character.Color)
+	}
+
+	// Apply noise to final frame if micro
+	if isMicro && noiseConfig != nil {
+		lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseConfig.Count)
+	}
+
+	for _, line := range lines {
+		fmt.Fprintln(writer, line)
 	}
 
 	return nil

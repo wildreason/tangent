@@ -30,6 +30,7 @@ expand_shortcut() {
         A) echo "approval" ;;
         # Murmur states (test alias mapping)
         e) echo "edit" ;;
+        E) echo "execute" ;;
         b) echo "bash" ;;
         g) echo "grep" ;;
         t) echo "think" ;;
@@ -128,7 +129,7 @@ show_help() {
     echo ""
     echo "Shortcuts (interactive mode):"
     echo "  Tangent states: x=resting a=arise W=wait R=read w=write S=search A=approval"
-    echo "  Murmur states:  e=edit b=bash g=grep t=think s=success f=find F=failed"
+    echo "  Murmur states:  e=edit E=execute b=bash g=grep t=think s=success f=find F=failed"
     echo ""
     echo "Environment:"
     echo "  MURMUR_SOCKET  Socket path (default: ~/.murmur/projects/.../socket.sock)"
@@ -163,7 +164,7 @@ echo "Tangent State Emitter"
 echo "Socket: $SOCKET"
 echo ""
 echo "Shortcuts: x=resting a=arise W=wait R=read w=write S=search A=approval"
-echo "Murmur:    e=edit b=bash g=grep t=think s=success f=find F=failed"
+echo "Murmur:    e=edit E=execute b=bash g=grep t=think s=success f=find F=failed"
 echo "Commands:  new, run <name>, list, help, q"
 echo ""
 
@@ -192,6 +193,7 @@ while true; do
         A) emit "approval" ;;
         # Murmur states (test alias mapping)
         e) emit "edit" ;;
+        E) emit "execute" ;;
         b) emit "bash" ;;
         g) emit "grep" ;;
         t) emit "think" ;;

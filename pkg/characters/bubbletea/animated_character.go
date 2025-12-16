@@ -7,6 +7,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/wildreason/tangent/pkg/characters"
+	"github.com/wildreason/tangent/pkg/characters/micronoise"
 )
 
 // AnimatedCharacter is a Bubble Tea component that provides
@@ -33,6 +34,9 @@ type AnimatedCharacter struct {
 	playing       bool
 	width         int
 	height        int
+	// Micro noise support
+	isMicro      bool
+	noiseCounter int
 }
 
 // NewAnimatedCharacter creates a new Bubble Tea component from an AgentCharacter.
@@ -62,6 +66,8 @@ func NewAnimatedCharacter(agent *characters.AgentCharacter, tickInterval time.Du
 		playing:      true,
 		width:        char.Width,
 		height:       char.Height,
+		isMicro:      char.Width == 8 && char.Height == 2,
+		noiseCounter: 0,
 	}
 }
 
@@ -131,6 +137,16 @@ func (m *AnimatedCharacter) View() string {
 			// Show current frame from state animation
 			lines = frames[m.currentFrame]
 		}
+	}
+
+	// Apply micro noise for "Wall Street rush" effect
+	if m.isMicro {
+		if cfg := micronoise.GetConfig(m.currentState); cfg != nil {
+			if micronoise.ShouldRefresh(m.noiseCounter, cfg.Intensity) {
+				lines = micronoise.ApplyNoise(lines, m.width, m.height, cfg.Count)
+			}
+		}
+		m.noiseCounter++
 	}
 
 	return strings.Join(lines, "\n")
