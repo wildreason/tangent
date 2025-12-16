@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/wildreason/tangent/pkg/characters"
+	"github.com/wildreason/tangent/pkg/characters/micronoise"
 )
 
 // TangentClient is a framework-agnostic animation controller for tangent characters.
@@ -56,6 +57,13 @@ type TangentClient struct {
 	ticker     *time.Ticker
 	tickerDone chan struct{}
 	running    bool
+
+	// Micro noise support
+	isMicro      bool
+	noiseCounter int
+	noiseSlots   []int
+	width        int
+	height       int
 }
 
 // New creates a TangentClient for a regular (11x4) character.
@@ -80,6 +88,16 @@ func NewMicro(name string) (*TangentClient, error) {
 
 func newClient(agent *characters.AgentCharacter) *TangentClient {
 	cache := agent.GetFrameCache()
+	char := agent.GetCharacter()
+	isMicro := char.Width == 8 && char.Height == 2
+
+	// Initialize noise slots for micro avatars
+	var noiseSlots []int
+	if isMicro {
+		if cfg := micronoise.GetConfig("resting"); cfg != nil {
+			noiseSlots = micronoise.SelectSlots(cfg.Count)
+		}
+	}
 
 	c := &TangentClient{
 		cache:        cache,
@@ -88,6 +106,12 @@ func newClient(agent *characters.AgentCharacter) *TangentClient {
 		defaultFPS:   5,
 		stateFPS:     make(map[string]int),
 		aliases:      make(map[string]string),
+		// Noise fields
+		isMicro:      isMicro,
+		noiseCounter: 0,
+		noiseSlots:   noiseSlots,
+		width:        char.Width,
+		height:       char.Height,
 	}
 
 	return c
@@ -115,6 +139,16 @@ func (c *TangentClient) SetState(state string) {
 	c.overrideFPS = 0 // clear any FPS override
 	c.queuedState = nil
 
+	// Reset noise for recognition phase
+	if c.isMicro {
+		c.noiseCounter = 0
+		if cfg := micronoise.GetConfig(resolved); cfg != nil {
+			c.noiseSlots = micronoise.SelectSlots(cfg.Count)
+		} else {
+			c.noiseSlots = nil
+		}
+	}
+
 	if c.onStateChange != nil {
 		go c.onStateChange(oldState, resolved)
 	}
@@ -139,6 +173,16 @@ func (c *TangentClient) SetStateWithFPS(state string, fps int) {
 	c.frameCount = 0
 	c.overrideFPS = fps
 	c.queuedState = nil
+
+	// Reset noise for recognition phase
+	if c.isMicro {
+		c.noiseCounter = 0
+		if cfg := micronoise.GetConfig(resolved); cfg != nil {
+			c.noiseSlots = micronoise.SelectSlots(cfg.Count)
+		} else {
+			c.noiseSlots = nil
+		}
+	}
 
 	if oldState != resolved && c.onStateChange != nil {
 		go c.onStateChange(oldState, resolved)
@@ -294,6 +338,7 @@ func (c *TangentClient) resolveState(name string) string {
 
 // GetFrame returns the current animation frame as pre-colored lines.
 // This is safe to call from any goroutine.
+// For micro avatars (8x2), applies noise with breathing pattern.
 func (c *TangentClient) GetFrame() []string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -302,7 +347,21 @@ func (c *TangentClient) GetFrame() []string {
 	if len(frames) == 0 {
 		return c.cache.GetBaseFrame()
 	}
-	return frames[c.frameIndex%len(frames)]
+	lines := frames[c.frameIndex%len(frames)]
+
+	// Apply micro noise (breathing pattern)
+	if c.isMicro && len(c.noiseSlots) > 0 {
+		if cfg := micronoise.GetConfig(c.currentState); cfg != nil {
+			if micronoise.ShouldRefresh(c.noiseCounter, cfg.Intensity) {
+				activeCount := micronoise.CalculateNoiseCount(cfg.Count, c.noiseCounter)
+				if activeCount > 0 {
+					lines = micronoise.ApplyNoise(lines, c.width, c.height, c.noiseSlots, activeCount)
+				}
+			}
+		}
+	}
+
+	return lines
 }
 
 // GetFrameRaw returns the current frame without color codes.
@@ -322,6 +381,11 @@ func (c *TangentClient) GetFrameRaw() []string {
 func (c *TangentClient) Tick() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
+	// Increment noise counter for micro avatars
+	if c.isMicro {
+		c.noiseCounter++
+	}
 
 	frames := c.cache.GetStateFrames(c.currentState)
 	if len(frames) == 0 {
