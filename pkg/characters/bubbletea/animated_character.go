@@ -151,11 +151,15 @@ func (m *AnimatedCharacter) View() string {
 	}
 
 	// Apply micro noise for "Wall Street rush" effect
-	// Uses fixed slots (positions persist, characters change)
+	// Hybrid breathing: recognition -> awakening -> breathing oscillation
 	if m.isMicro && len(m.noiseSlots) > 0 {
 		if cfg := micronoise.GetConfig(m.currentState); cfg != nil {
 			if micronoise.ShouldRefresh(m.noiseCounter, cfg.Intensity) {
-				lines = micronoise.ApplyNoise(lines, m.width, m.height, m.noiseSlots)
+				// Calculate dynamic noise count based on frame (breathing pattern)
+				activeCount := micronoise.CalculateNoiseCount(cfg.Count, m.noiseCounter)
+				if activeCount > 0 {
+					lines = micronoise.ApplyNoise(lines, m.width, m.height, m.noiseSlots, activeCount)
+				}
 			}
 		}
 		m.noiseCounter++

@@ -12,14 +12,20 @@ import (
 var ansiColorRegex = regexp.MustCompile(`\x1b\[38;2;(\d+);(\d+);(\d+)m`)
 var ansiResetRegex = regexp.MustCompile(`\x1b\[0m`)
 
-// ApplyNoise injects random noise characters at FIXED slot positions.
-// Slots are pre-selected positions that persist - only characters change.
+// ApplyNoise injects random noise characters at slot positions.
+// Uses first 'activeCount' slots from the pool for breathing effect.
 // Lines are expected to be ANSI-colorized (format: \x1b[38;2;R;G;Bm{text}\x1b[0m).
 // Noise characters get random color variations from the base color.
-func ApplyNoise(lines []string, width, height int, slots []int) []string {
-	if len(slots) == 0 || len(lines) == 0 {
+func ApplyNoise(lines []string, width, height int, slots []int, activeCount int) []string {
+	if len(slots) == 0 || len(lines) == 0 || activeCount <= 0 {
 		return lines
 	}
+
+	// Use only first 'activeCount' slots from the pool
+	if activeCount > len(slots) {
+		activeCount = len(slots)
+	}
+	activeSlots := slots[:activeCount]
 
 	// Extract base color from first line
 	baseR, baseG, baseB := extractColor(lines[0])
@@ -30,13 +36,13 @@ func ApplyNoise(lines []string, width, height int, slots []int) []string {
 		rawLines[i] = []rune(stripANSI(line))
 	}
 
-	// Build noise for each slot position
+	// Build noise for each active slot position
 	noiseChars := make(map[int]struct {
 		char    rune
 		r, g, b int
 	})
 
-	for _, pos := range slots {
+	for _, pos := range activeSlots {
 		row := pos / width
 		col := pos % width
 

@@ -233,10 +233,14 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 				lines[i] = colorize(compiledLine, a.character.Color)
 			}
 
-			// Apply micro noise at fixed slots
+			// Apply micro noise with hybrid breathing pattern
 			if isMicro && len(noiseSlots) > 0 {
 				if micronoise.ShouldRefresh(noiseCounter, noiseConfig.Intensity) {
-					lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseSlots)
+					// Calculate dynamic noise count based on frame (breathing pattern)
+					activeCount := micronoise.CalculateNoiseCount(noiseConfig.Count, noiseCounter)
+					if activeCount > 0 {
+						lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseSlots, activeCount)
+					}
 				}
 				noiseCounter++
 			}
@@ -261,9 +265,12 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 		lines[i] = colorize(compiledLine, a.character.Color)
 	}
 
-	// Apply noise to final frame at fixed slots
+	// Apply noise to final frame (use current count from breathing pattern)
 	if isMicro && len(noiseSlots) > 0 {
-		lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseSlots)
+		activeCount := micronoise.CalculateNoiseCount(noiseConfig.Count, noiseCounter)
+		if activeCount > 0 {
+			lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseSlots, activeCount)
+		}
 	}
 
 	for _, line := range lines {
