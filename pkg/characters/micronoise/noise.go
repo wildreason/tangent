@@ -12,31 +12,17 @@ import (
 var ansiColorRegex = regexp.MustCompile(`\x1b\[38;2;(\d+);(\d+);(\d+)m`)
 var ansiResetRegex = regexp.MustCompile(`\x1b\[0m`)
 
-// ApplyNoise injects random noise characters at random positions in rendered lines.
+// ApplyNoise injects random noise characters at FIXED slot positions.
+// Slots are pre-selected positions that persist - only characters change.
 // Lines are expected to be ANSI-colorized (format: \x1b[38;2;R;G;Bm{text}\x1b[0m).
 // Noise characters get random color variations from the base color.
-func ApplyNoise(lines []string, width, height, count int) []string {
-	if count <= 0 || len(lines) == 0 {
+func ApplyNoise(lines []string, width, height int, slots []int) []string {
+	if len(slots) == 0 || len(lines) == 0 {
 		return lines
-	}
-
-	totalPositions := width * height
-	if count > totalPositions {
-		count = totalPositions
 	}
 
 	// Extract base color from first line
 	baseR, baseG, baseB := extractColor(lines[0])
-
-	// Generate random positions using partial Fisher-Yates shuffle
-	positions := make([]int, totalPositions)
-	for i := range positions {
-		positions[i] = i
-	}
-	for i := 0; i < count; i++ {
-		j := i + rand.Intn(totalPositions-i)
-		positions[i], positions[j] = positions[j], positions[i]
-	}
 
 	// Parse lines into raw content (strip ANSI codes)
 	rawLines := make([][]rune, len(lines))
@@ -44,14 +30,13 @@ func ApplyNoise(lines []string, width, height, count int) []string {
 		rawLines[i] = []rune(stripANSI(line))
 	}
 
-	// Apply noise at selected positions with random color variations
+	// Build noise for each slot position
 	noiseChars := make(map[int]struct {
-		char rune
+		char    rune
 		r, g, b int
 	})
 
-	for i := 0; i < count; i++ {
-		pos := positions[i]
+	for _, pos := range slots {
 		row := pos / width
 		col := pos % width
 
@@ -59,16 +44,16 @@ func ApplyNoise(lines []string, width, height, count int) []string {
 			// Random color variation from base
 			r, g, b := varyColor(baseR, baseG, baseB)
 			noiseChars[pos] = struct {
-				char rune
+				char    rune
 				r, g, b int
 			}{
 				char: NoisePool[rand.Intn(len(NoisePool))],
-				r: r, g: g, b: b,
+				r:    r, g: g, b: b,
 			}
 		}
 	}
 
-	// Rebuild lines with noise injected
+	// Rebuild lines with noise injected at fixed slots
 	result := make([]string, len(lines))
 	for row := 0; row < len(rawLines); row++ {
 		var sb strings.Builder

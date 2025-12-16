@@ -293,8 +293,8 @@ func LibraryAgentMicro(name string) (*AgentCharacter, error) {
 
 	// Create states from grouped frames
 	for stateName, stateFramesList := range stateFrames {
-		// Get FPS from micro state registry if available, default to 5
-		fps := 5
+		// Get FPS from micro state registry if available, default to 20 for micro (rush effect)
+		fps := 20
 		if microState := microstateregistry.GetState(stateName); microState != nil && microState.FPS > 0 {
 			fps = microState.FPS
 		}

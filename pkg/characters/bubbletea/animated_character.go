@@ -37,6 +37,7 @@ type AnimatedCharacter struct {
 	// Micro noise support
 	isMicro      bool
 	noiseCounter int
+	noiseSlots   []int // Fixed slot positions for noise (persist per state)
 }
 
 // NewAnimatedCharacter creates a new Bubble Tea component from an AgentCharacter.
@@ -56,6 +57,15 @@ func NewAnimatedCharacter(agent *characters.AgentCharacter, tickInterval time.Du
 	}
 
 	char := agent.GetCharacter()
+	isMicro := char.Width == 8 && char.Height == 2
+
+	// Initialize noise slots for micro avatars
+	var noiseSlots []int
+	if isMicro {
+		if cfg := micronoise.GetConfig(initialState); cfg != nil {
+			noiseSlots = micronoise.SelectSlots(cfg.Count)
+		}
+	}
 
 	return &AnimatedCharacter{
 		agent:        agent,
@@ -66,8 +76,9 @@ func NewAnimatedCharacter(agent *characters.AgentCharacter, tickInterval time.Du
 		playing:      true,
 		width:        char.Width,
 		height:       char.Height,
-		isMicro:      char.Width == 8 && char.Height == 2,
+		isMicro:      isMicro,
 		noiseCounter: 0,
+		noiseSlots:   noiseSlots,
 	}
 }
 
@@ -140,10 +151,11 @@ func (m *AnimatedCharacter) View() string {
 	}
 
 	// Apply micro noise for "Wall Street rush" effect
-	if m.isMicro {
+	// Uses fixed slots (positions persist, characters change)
+	if m.isMicro && len(m.noiseSlots) > 0 {
 		if cfg := micronoise.GetConfig(m.currentState); cfg != nil {
 			if micronoise.ShouldRefresh(m.noiseCounter, cfg.Intensity) {
-				lines = micronoise.ApplyNoise(lines, m.width, m.height, cfg.Count)
+				lines = micronoise.ApplyNoise(lines, m.width, m.height, m.noiseSlots)
 			}
 		}
 		m.noiseCounter++
@@ -162,6 +174,16 @@ func (m *AnimatedCharacter) SetState(stateName string) error {
 
 	m.currentState = stateName
 	m.currentFrame = 0
+
+	// Regenerate noise slots for new state (micro only)
+	if m.isMicro {
+		if cfg := micronoise.GetConfig(stateName); cfg != nil {
+			m.noiseSlots = micronoise.SelectSlots(cfg.Count)
+		} else {
+			m.noiseSlots = nil
+		}
+	}
+
 	return nil
 }
 

@@ -218,6 +218,12 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 	noiseConfig := micronoise.GetConfig(stateName)
 	noiseCounter := 0
 
+	// Select fixed noise slots once (positions persist, characters change)
+	var noiseSlots []int
+	if isMicro && noiseConfig != nil {
+		noiseSlots = micronoise.SelectSlots(noiseConfig.Count)
+	}
+
 	for loop := 0; loop < stateLoops; loop++ {
 		for _, frame := range state.Frames {
 			// Compile and colorize lines
@@ -227,10 +233,10 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 				lines[i] = colorize(compiledLine, a.character.Color)
 			}
 
-			// Apply micro noise if applicable
-			if isMicro && noiseConfig != nil {
+			// Apply micro noise at fixed slots
+			if isMicro && len(noiseSlots) > 0 {
 				if micronoise.ShouldRefresh(noiseCounter, noiseConfig.Intensity) {
-					lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseConfig.Count)
+					lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseSlots)
 				}
 				noiseCounter++
 			}
@@ -255,9 +261,9 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 		lines[i] = colorize(compiledLine, a.character.Color)
 	}
 
-	// Apply noise to final frame if micro
-	if isMicro && noiseConfig != nil {
-		lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseConfig.Count)
+	// Apply noise to final frame at fixed slots
+	if isMicro && len(noiseSlots) > 0 {
+		lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseSlots)
 	}
 
 	for _, line := range lines {
