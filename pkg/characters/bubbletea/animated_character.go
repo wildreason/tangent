@@ -32,12 +32,9 @@ type AnimatedCharacter struct {
 	currentFrame  int
 	tickInterval  time.Duration
 	playing       bool
-	width         int
-	height        int
-	// Micro noise support
-	isMicro      bool
-	noiseCounter int
-	noiseSlots   []int // Fixed slot positions for noise (persist per state)
+	width   int
+	height  int
+	isMicro bool
 }
 
 // NewAnimatedCharacter creates a new Bubble Tea component from an AgentCharacter.
@@ -59,14 +56,6 @@ func NewAnimatedCharacter(agent *characters.AgentCharacter, tickInterval time.Du
 	char := agent.GetCharacter()
 	isMicro := char.Width == 8 && char.Height == 2
 
-	// Initialize noise slots for micro avatars
-	var noiseSlots []int
-	if isMicro {
-		if cfg := micronoise.GetConfig(initialState); cfg != nil {
-			noiseSlots = micronoise.SelectSlots(cfg.Count)
-		}
-	}
-
 	return &AnimatedCharacter{
 		agent:        agent,
 		cache:        cache,
@@ -77,8 +66,6 @@ func NewAnimatedCharacter(agent *characters.AgentCharacter, tickInterval time.Du
 		width:        char.Width,
 		height:       char.Height,
 		isMicro:      isMicro,
-		noiseCounter: 0,
-		noiseSlots:   noiseSlots,
 	}
 }
 
@@ -150,19 +137,11 @@ func (m *AnimatedCharacter) View() string {
 		}
 	}
 
-	// Apply micro noise for "Wall Street rush" effect
-	// Hybrid breathing: recognition -> awakening -> breathing oscillation
-	if m.isMicro && len(m.noiseSlots) > 0 {
+	// Apply random flicker for "Wall Street rush" effect
+	if m.isMicro {
 		if cfg := micronoise.GetConfig(m.currentState); cfg != nil {
-			if micronoise.ShouldRefresh(m.noiseCounter, cfg.Intensity) {
-				// Calculate dynamic noise count based on frame (breathing pattern)
-				activeCount := micronoise.CalculateNoiseCount(cfg.Count, m.noiseCounter)
-				if activeCount > 0 {
-					lines = micronoise.ApplyNoise(lines, m.width, m.height, m.noiseSlots, activeCount)
-				}
-			}
+			lines = micronoise.ApplyRandomFlicker(lines, m.width, m.height, cfg)
 		}
-		m.noiseCounter++
 	}
 
 	return strings.Join(lines, "\n")
@@ -178,15 +157,6 @@ func (m *AnimatedCharacter) SetState(stateName string) error {
 
 	m.currentState = stateName
 	m.currentFrame = 0
-
-	// Regenerate noise slots for new state (micro only)
-	if m.isMicro {
-		if cfg := micronoise.GetConfig(stateName); cfg != nil {
-			m.noiseSlots = micronoise.SelectSlots(cfg.Count)
-		} else {
-			m.noiseSlots = nil
-		}
-	}
 
 	return nil
 }

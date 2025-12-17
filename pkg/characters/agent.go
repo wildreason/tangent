@@ -215,14 +215,7 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 
 	// Check if this is a micro avatar (8x2)
 	isMicro := a.character.Width == 8 && a.character.Height == 2
-	noiseConfig := micronoise.GetConfig(stateName)
-	noiseCounter := 0
-
-	// Select fixed noise slots once (positions persist, characters change)
-	var noiseSlots []int
-	if isMicro && noiseConfig != nil {
-		noiseSlots = micronoise.SelectSlots(noiseConfig.Count)
-	}
+	flickerConfig := micronoise.GetConfig(stateName)
 
 	for loop := 0; loop < stateLoops; loop++ {
 		for _, frame := range state.Frames {
@@ -233,16 +226,9 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 				lines[i] = colorize(compiledLine, a.character.Color)
 			}
 
-			// Apply micro noise with hybrid breathing pattern
-			if isMicro && len(noiseSlots) > 0 {
-				if micronoise.ShouldRefresh(noiseCounter, noiseConfig.Intensity) {
-					// Calculate dynamic noise count based on frame (breathing pattern)
-					activeCount := micronoise.CalculateNoiseCount(noiseConfig.Count, noiseCounter)
-					if activeCount > 0 {
-						lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseSlots, activeCount)
-					}
-				}
-				noiseCounter++
+			// Apply random flicker for "Wall Street rush" effect
+			if isMicro && flickerConfig != nil {
+				lines = micronoise.ApplyRandomFlicker(lines, a.character.Width, a.character.Height, flickerConfig)
 			}
 
 			// Clear and print each line
@@ -265,12 +251,9 @@ func (a *AgentCharacter) AnimateState(writer io.Writer, stateName string, fps in
 		lines[i] = colorize(compiledLine, a.character.Color)
 	}
 
-	// Apply noise to final frame (use current count from breathing pattern)
-	if isMicro && len(noiseSlots) > 0 {
-		activeCount := micronoise.CalculateNoiseCount(noiseConfig.Count, noiseCounter)
-		if activeCount > 0 {
-			lines = micronoise.ApplyNoise(lines, a.character.Width, a.character.Height, noiseSlots, activeCount)
-		}
+	// Apply flicker to final frame
+	if isMicro && flickerConfig != nil {
+		lines = micronoise.ApplyRandomFlicker(lines, a.character.Width, a.character.Height, flickerConfig)
 	}
 
 	for _, line := range lines {

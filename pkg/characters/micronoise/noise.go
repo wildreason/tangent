@@ -12,23 +12,21 @@ import (
 var ansiColorRegex = regexp.MustCompile(`\x1b\[38;2;(\d+);(\d+);(\d+)m`)
 var ansiResetRegex = regexp.MustCompile(`\x1b\[0m`)
 
-// ApplyNoise injects random noise characters at slot positions.
-// Uses first 'activeCount' slots from the pool for breathing effect.
-// Lines are expected to be ANSI-colorized (format: \x1b[38;2;R;G;Bm{text}\x1b[0m).
-// Noise characters get random color variations from the base color.
-func ApplyNoise(lines []string, width, height int, slots []int, activeCount int) []string {
-	if len(slots) == 0 || len(lines) == 0 || activeCount <= 0 {
+// ApplyRandomFlicker assigns random theme colors to each block.
+// Creates a "Wall Street rush" / stock ticker effect where each character
+// independently flickers between the 7 theme colors.
+//
+// Parameters:
+//   - lines: The avatar lines (ANSI colorized)
+//   - width, height: Avatar dimensions (unused, kept for API compatibility)
+//   - cfg: Flicker configuration for the current state
+//
+// Each frame tick, all 16 blocks (8x2) get a random color from ThemePalette.
+// FPS controls chaos level: higher FPS = faster flicker = more chaos.
+func ApplyRandomFlicker(lines []string, width, height int, cfg *FlickerConfig) []string {
+	if cfg == nil || !cfg.Enabled || len(lines) == 0 {
 		return lines
 	}
-
-	// Use only first 'activeCount' slots from the pool
-	if activeCount > len(slots) {
-		activeCount = len(slots)
-	}
-	activeSlots := slots[:activeCount]
-
-	// Extract base color from first line
-	baseR, baseG, baseB := extractColor(lines[0])
 
 	// Parse lines into raw content (strip ANSI codes)
 	rawLines := make([][]rune, len(lines))
@@ -36,42 +34,20 @@ func ApplyNoise(lines []string, width, height int, slots []int, activeCount int)
 		rawLines[i] = []rune(stripANSI(line))
 	}
 
-	// Build noise for each active slot position
-	noiseChars := make(map[int]struct {
-		char    rune
-		r, g, b int
-	})
-
-	for _, pos := range activeSlots {
-		row := pos / width
-		col := pos % width
-
-		if row < len(rawLines) && col < len(rawLines[row]) {
-			// Random color variation from base
-			r, g, b := varyColor(baseR, baseG, baseB)
-			noiseChars[pos] = struct {
-				char    rune
-				r, g, b int
-			}{
-				char: NoisePool[rand.Intn(len(NoisePool))],
-				r:    r, g: g, b: b,
-			}
-		}
-	}
-
-	// Rebuild lines with noise injected at fixed slots
+	// Rebuild with random colors per character
 	result := make([]string, len(lines))
 	for row := 0; row < len(rawLines); row++ {
 		var sb strings.Builder
 		for col := 0; col < len(rawLines[row]); col++ {
-			pos := row*width + col
-			if noise, ok := noiseChars[pos]; ok {
-				// Noise character with varied color
-				sb.WriteString(fmt.Sprintf("\x1b[38;2;%d;%d;%dm%c\x1b[0m", noise.r, noise.g, noise.b, noise.char))
-			} else {
-				// Original character with base color
-				sb.WriteString(fmt.Sprintf("\x1b[38;2;%d;%d;%dm%c\x1b[0m", baseR, baseG, baseB, rawLines[row][col]))
-			}
+			char := rawLines[row][col]
+
+			// Pick random color from palette
+			colorIdx := rand.Intn(len(ThemePalette))
+			hex := ThemePalette[colorIdx]
+			r, g, b := HexToRGB(hex)
+
+			// Write character with random color
+			sb.WriteString(fmt.Sprintf("\x1b[38;2;%d;%d;%dm%c\x1b[0m", r, g, b, char))
 		}
 		result[row] = sb.String()
 	}
@@ -79,17 +55,26 @@ func ApplyNoise(lines []string, width, height int, slots []int, activeCount int)
 	return result
 }
 
-// extractColor extracts RGB values from ANSI colorized string.
-// Returns (255, 255, 255) if no color found.
-func extractColor(s string) (r, g, b int) {
-	matches := ansiColorRegex.FindStringSubmatch(s)
-	if len(matches) == 4 {
-		r, _ = strconv.Atoi(matches[1])
-		g, _ = strconv.Atoi(matches[2])
-		b, _ = strconv.Atoi(matches[3])
-		return
+// HexToRGB converts hex color string to RGB values.
+// Returns (255, 255, 255) if parsing fails.
+func HexToRGB(hex string) (int, int, int) {
+	hex = strings.TrimPrefix(hex, "#")
+	if len(hex) != 6 {
+		return 255, 255, 255
 	}
-	return 255, 255, 255
+	r, err := strconv.ParseInt(hex[0:2], 16, 64)
+	if err != nil {
+		return 255, 255, 255
+	}
+	g, err := strconv.ParseInt(hex[2:4], 16, 64)
+	if err != nil {
+		return 255, 255, 255
+	}
+	b, err := strconv.ParseInt(hex[4:6], 16, 64)
+	if err != nil {
+		return 255, 255, 255
+	}
+	return int(r), int(g), int(b)
 }
 
 // stripANSI removes all ANSI escape codes from a string.
@@ -99,23 +84,14 @@ func stripANSI(s string) string {
 	return s
 }
 
-// varyColor creates a random variation of the base color.
-// Adds/subtracts up to 60 from each RGB component for dramatic effect.
-func varyColor(r, g, b int) (int, int, int) {
-	variation := 60
-	r = clamp(r + rand.Intn(variation*2+1) - variation, 0, 255)
-	g = clamp(g + rand.Intn(variation*2+1) - variation, 0, 255)
-	b = clamp(b + rand.Intn(variation*2+1) - variation, 0, 255)
-	return r, g, b
+// Legacy compatibility shims
+
+// ApplyColorWave is deprecated, redirects to ApplyRandomFlicker
+func ApplyColorWave(lines []string, width, height int, frameCounter int, cfg *FlickerConfig) []string {
+	return ApplyRandomFlicker(lines, width, height, cfg)
 }
 
-// clamp restricts a value to a range.
-func clamp(val, min, max int) int {
-	if val < min {
-		return min
-	}
-	if val > max {
-		return max
-	}
-	return val
+// ApplyNoise is deprecated, kept for compatibility
+func ApplyNoise(lines []string, width, height int, slots []int, activeCount int) []string {
+	return lines
 }
