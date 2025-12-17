@@ -291,6 +291,10 @@ func (m *CreationModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m.handleStateFrameDuplicate()
 			case "ctrl+r":
 				return m.handleStateFrameLinePaste()
+			case "ctrl+backspace":
+				return m.handleStateFrameLineDelete()
+			case "ctrl+x":
+				return m.handleStateFrameDelete()
 			case "g", "G":
 				m.gridEnabled = !m.gridEnabled
 				status := "OFF"
@@ -909,6 +913,39 @@ func (m *CreationModel) handleStateFrameLinePaste() (tea.Model, tea.Cmd) {
 		}
 	} else {
 		m.statusMsg = "No previous frame to paste from"
+	}
+	return m, nil
+}
+
+// handleStateFrameLineDelete handles Ctrl+Backspace - deletes last entered line in state frame input
+func (m *CreationModel) handleStateFrameLineDelete() (tea.Model, tea.Cmd) {
+	if m.currentFrameLine > 0 {
+		m.currentFrameLine--
+		m.frameLines[m.currentFrameLine] = ""
+		m.textInput.SetValue("")
+		m.statusMsg = fmt.Sprintf("Deleted line %d", m.currentFrameLine+1)
+	} else {
+		m.statusMsg = "No lines to delete"
+	}
+	return m, nil
+}
+
+// handleStateFrameDelete handles Ctrl+X - deletes last completed frame
+func (m *CreationModel) handleStateFrameDelete() (tea.Model, tea.Cmd) {
+	if len(m.stateFrames) > 0 {
+		// Remove last completed frame
+		frameNum := len(m.stateFrames)
+		m.stateFrames = m.stateFrames[:len(m.stateFrames)-1]
+		m.currentFrame--
+
+		// Reset current frame input
+		m.currentFrameLine = 0
+		m.frameLines = make([]string, m.session.Height)
+		m.textInput.SetValue("")
+
+		m.statusMsg = fmt.Sprintf("Deleted frame %d - re-enter frame %d", frameNum, m.currentFrame+1)
+	} else {
+		m.statusMsg = "No completed frames to delete"
 	}
 	return m, nil
 }

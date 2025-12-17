@@ -15,20 +15,20 @@
       "frames": [
         {
           "lines": [
-            "rffffffl",
-            "rf8lr8fl"
+            "rff7f7fl",
+            "________"
           ]
         },
         {
           "lines": [
-            "rffffffl",
-            "rf7lr7fl"
+            "rff77ffl",
+            "________"
           ]
         },
         {
           "lines": [
-            "rffffffl",
-            "rf7lr8fl"
+            "rf7f7ffl",
+            "________"
           ]
         }
       ]
@@ -78,20 +78,20 @@
       "frames": [
         {
           "lines": [
-            "rlfffffl",
-            "r##fff7l"
+            "r.fffffl",
+            "r###ff7l"
           ]
         },
         {
           "lines": [
-            "rlfffffl",
-            "r::fff7l"
+            "r.fffffl",
+            "r:::ff7l"
           ]
         },
         {
           "lines": [
-            "rlfffffl",
-            "r..fff7l"
+            "r.fffffl",
+            "r...ff7l"
           ]
         }
       ]
@@ -202,6 +202,47 @@
           "lines": [
             "rffffffl",
             "rf7lr8fl"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "resting (copy)",
+      "frames": [
+        {
+          "lines": [
+            "rffffffl",
+            "rf8lr8fl"
+          ]
+        },
+        {
+          "lines": [
+            "rffffffl",
+            "rf7lr7fl"
+          ]
+        },
+        {
+          "lines": [
+            "rffffffl",
+            "rf7lr8fl"
+          ]
+        },
+        {
+          "lines": [
+            "________",
+            "rf6lr6fl"
+          ]
+        },
+        {
+          "lines": [
+            "________",
+            "rf5lrf5l"
+          ]
+        },
+        {
+          "lines": [
+            "........",
+            "........"
           ]
         }
       ]
