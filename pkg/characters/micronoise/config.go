@@ -1,6 +1,6 @@
 package micronoise
 
-// FlickerConfig defines random color flicker behavior for micro avatars
+// FlickerConfig defines color flicker behavior for micro avatars
 type FlickerConfig struct {
 	Enabled bool // Whether flicker is active for this state
 }
@@ -18,16 +18,18 @@ var StateConfigs = map[string]FlickerConfig{
 	"approval":  {Enabled: true},
 }
 
-// ThemePalette holds the 7 theme colors for flicker effect (Cozy theme)
-// Each character in the avatar randomly picks from this palette each frame
-var ThemePalette = []string{
-	"#E18B8B", // Sa - Rose quartz
-	"#E5A679", // Ri - Amber glow
-	"#E6CC94", // Ga - Honey
-	"#99C794", // Ma - Balanced green
-	"#78AED4", // Pa - Clear sky
-	"#B592D4", // Da - Soft violet
-	"#DE99B8", // Ni - Blush
+// BrightnessLevels defines the 8 brightness multipliers for the gradient.
+// Goes from dark (left) to bright (right), creating a "marquee" effect.
+// Values < 1.0 = darker, values > 1.0 = brighter
+var BrightnessLevels = []float64{
+	0.25, // Column 0 - darkest
+	0.40, // Column 1
+	0.55, // Column 2
+	0.70, // Column 3
+	0.85, // Column 4
+	1.00, // Column 5
+	1.15, // Column 6
+	1.30, // Column 7 - brightest
 }
 
 // GetConfig returns the flicker config for a state, or nil if no flicker effect.

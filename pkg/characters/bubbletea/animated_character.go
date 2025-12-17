@@ -32,9 +32,10 @@ type AnimatedCharacter struct {
 	currentFrame  int
 	tickInterval  time.Duration
 	playing       bool
-	width   int
-	height  int
-	isMicro bool
+	width        int
+	height       int
+	isMicro      bool
+	noiseCounter int // Frame counter for gradient animation
 }
 
 // NewAnimatedCharacter creates a new Bubble Tea component from an AgentCharacter.
@@ -137,11 +138,12 @@ func (m *AnimatedCharacter) View() string {
 		}
 	}
 
-	// Apply random flicker for "Wall Street rush" effect
+	// Apply shifting gradient for "Wall Street rush" effect
 	if m.isMicro {
 		if cfg := micronoise.GetConfig(m.currentState); cfg != nil {
-			lines = micronoise.ApplyRandomFlicker(lines, m.width, m.height, cfg)
+			lines = micronoise.ApplyShiftingGradient(lines, m.width, m.height, m.noiseCounter, cfg)
 		}
+		m.noiseCounter++
 	}
 
 	return strings.Join(lines, "\n")

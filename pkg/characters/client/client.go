@@ -59,9 +59,10 @@ type TangentClient struct {
 	running    bool
 
 	// Micro avatar support
-	isMicro bool
-	width   int
-	height  int
+	isMicro      bool
+	width        int
+	height       int
+	noiseCounter int // Frame counter for gradient animation
 }
 
 // New creates a TangentClient for a regular (11x4) character.
@@ -317,10 +318,10 @@ func (c *TangentClient) GetFrame() []string {
 	}
 	lines := frames[c.frameIndex%len(frames)]
 
-	// Apply random flicker effect for micro avatars
+	// Apply shifting gradient effect for micro avatars
 	if c.isMicro {
 		if cfg := micronoise.GetConfig(c.currentState); cfg != nil {
-			lines = micronoise.ApplyRandomFlicker(lines, c.width, c.height, cfg)
+			lines = micronoise.ApplyShiftingGradient(lines, c.width, c.height, c.noiseCounter, cfg)
 		}
 	}
 
@@ -344,6 +345,11 @@ func (c *TangentClient) GetFrameRaw() []string {
 func (c *TangentClient) Tick() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
+	// Increment noise counter for gradient animation
+	if c.isMicro {
+		c.noiseCounter++
+	}
 
 	frames := c.cache.GetStateFrames(c.currentState)
 	if len(frames) == 0 {

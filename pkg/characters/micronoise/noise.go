@@ -2,7 +2,6 @@ package micronoise
 
 import (
 	"fmt"
-	"math/rand"
 	"regexp"
 	"strconv"
 	"strings"
@@ -12,21 +11,24 @@ import (
 var ansiColorRegex = regexp.MustCompile(`\x1b\[38;2;(\d+);(\d+);(\d+)m`)
 var ansiResetRegex = regexp.MustCompile(`\x1b\[0m`)
 
-// ApplyRandomFlicker assigns random theme colors to each block.
-// Creates a "Wall Street rush" / stock ticker effect where each character
-// independently flickers between the 7 theme colors.
+// ApplyShiftingGradient applies a dark-to-light gradient that shifts left each frame.
+// Creates a "marquee" / "Wall Street ticker" effect where brightness sweeps across.
 //
 // Parameters:
 //   - lines: The avatar lines (ANSI colorized)
-//   - width, height: Avatar dimensions (unused, kept for API compatibility)
+//   - width, height: Avatar dimensions
+//   - frameCounter: Current frame number (controls gradient shift)
 //   - cfg: Flicker configuration for the current state
 //
-// Each frame tick, all 16 blocks (8x2) get a random color from ThemePalette.
-// FPS controls chaos level: higher FPS = faster flicker = more chaos.
-func ApplyRandomFlicker(lines []string, width, height int, cfg *FlickerConfig) []string {
+// Each column has a brightness level from BrightnessLevels.
+// Every frame, the pattern shifts left by 1 position (wrapping around).
+func ApplyShiftingGradient(lines []string, width, height int, frameCounter int, cfg *FlickerConfig) []string {
 	if cfg == nil || !cfg.Enabled || len(lines) == 0 {
 		return lines
 	}
+
+	// Extract base color from first line
+	baseR, baseG, baseB := extractColor(lines[0])
 
 	// Parse lines into raw content (strip ANSI codes)
 	rawLines := make([][]rune, len(lines))
@@ -34,19 +36,28 @@ func ApplyRandomFlicker(lines []string, width, height int, cfg *FlickerConfig) [
 		rawLines[i] = []rune(stripANSI(line))
 	}
 
-	// Rebuild with random colors per character
+	numLevels := len(BrightnessLevels)
+
+	// Rebuild with shifted gradient colors
 	result := make([]string, len(lines))
 	for row := 0; row < len(rawLines); row++ {
 		var sb strings.Builder
-		for col := 0; col < len(rawLines[row]); col++ {
+		lineLen := len(rawLines[row])
+
+		for col := 0; col < lineLen; col++ {
 			char := rawLines[row][col]
 
-			// Pick random color from palette
-			colorIdx := rand.Intn(len(ThemePalette))
-			hex := ThemePalette[colorIdx]
-			r, g, b := HexToRGB(hex)
+			// Calculate which brightness level this column gets
+			// Shift pattern left by frameCounter positions (wrapping)
+			brightnessIdx := (col + frameCounter) % numLevels
+			brightness := BrightnessLevels[brightnessIdx]
 
-			// Write character with random color
+			// Apply brightness to base color
+			r := clamp(int(float64(baseR)*brightness), 0, 255)
+			g := clamp(int(float64(baseG)*brightness), 0, 255)
+			b := clamp(int(float64(baseB)*brightness), 0, 255)
+
+			// Write character with brightness-adjusted color
 			sb.WriteString(fmt.Sprintf("\x1b[38;2;%d;%d;%dm%c\x1b[0m", r, g, b, char))
 		}
 		result[row] = sb.String()
@@ -55,25 +66,41 @@ func ApplyRandomFlicker(lines []string, width, height int, cfg *FlickerConfig) [
 	return result
 }
 
+// Legacy function names for compatibility
+
+// ApplyRandomFlicker redirects to ApplyShiftingGradient
+func ApplyRandomFlicker(lines []string, width, height int, cfg *FlickerConfig) []string {
+	// Without frameCounter, use static gradient (no animation)
+	return ApplyShiftingGradient(lines, width, height, 0, cfg)
+}
+
+// ApplyColorWave redirects to ApplyShiftingGradient
+func ApplyColorWave(lines []string, width, height int, frameCounter int, cfg *FlickerConfig) []string {
+	return ApplyShiftingGradient(lines, width, height, frameCounter, cfg)
+}
+
+// extractColor extracts RGB values from ANSI colorized string.
+// Returns (255, 255, 255) if no color found.
+func extractColor(s string) (r, g, b int) {
+	matches := ansiColorRegex.FindStringSubmatch(s)
+	if len(matches) == 4 {
+		r, _ = strconv.Atoi(matches[1])
+		g, _ = strconv.Atoi(matches[2])
+		b, _ = strconv.Atoi(matches[3])
+		return
+	}
+	return 255, 255, 255
+}
+
 // HexToRGB converts hex color string to RGB values.
-// Returns (255, 255, 255) if parsing fails.
 func HexToRGB(hex string) (int, int, int) {
 	hex = strings.TrimPrefix(hex, "#")
 	if len(hex) != 6 {
 		return 255, 255, 255
 	}
-	r, err := strconv.ParseInt(hex[0:2], 16, 64)
-	if err != nil {
-		return 255, 255, 255
-	}
-	g, err := strconv.ParseInt(hex[2:4], 16, 64)
-	if err != nil {
-		return 255, 255, 255
-	}
-	b, err := strconv.ParseInt(hex[4:6], 16, 64)
-	if err != nil {
-		return 255, 255, 255
-	}
+	r, _ := strconv.ParseInt(hex[0:2], 16, 64)
+	g, _ := strconv.ParseInt(hex[2:4], 16, 64)
+	b, _ := strconv.ParseInt(hex[4:6], 16, 64)
 	return int(r), int(g), int(b)
 }
 
@@ -84,11 +111,15 @@ func stripANSI(s string) string {
 	return s
 }
 
-// Legacy compatibility shims
-
-// ApplyColorWave is deprecated, redirects to ApplyRandomFlicker
-func ApplyColorWave(lines []string, width, height int, frameCounter int, cfg *FlickerConfig) []string {
-	return ApplyRandomFlicker(lines, width, height, cfg)
+// clamp restricts a value to a range.
+func clamp(val, min, max int) int {
+	if val < min {
+		return min
+	}
+	if val > max {
+		return max
+	}
+	return val
 }
 
 // ApplyNoise is deprecated, kept for compatibility
