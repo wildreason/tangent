@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"math/rand"
 	"sync"
 	"time"
 
@@ -63,6 +64,11 @@ type TangentClient struct {
 	width        int
 	height       int
 	noiseCounter int // Frame counter for gradient animation
+
+	// Idle expressions
+	expressions          []string
+	currentExpression    string
+	lastExpressionChange time.Time
 }
 
 // New creates a TangentClient for a regular (11x4) character.
@@ -101,6 +107,8 @@ func newClient(agent *characters.AgentCharacter) *TangentClient {
 		isMicro: isMicro,
 		width:   char.Width,
 		height:  char.Height,
+		// Idle expressions
+		expressions: DefaultIdleExpressions,
 	}
 
 	return c
@@ -584,4 +592,36 @@ func stripANSI(s string) string {
 		result = append(result, s[i])
 	}
 	return string(result)
+}
+
+// --- Idle Expressions ---
+
+// GetIdleExpression returns current idle expression, changing every 2s.
+// Use this for status text when no active events exist.
+func (c *TangentClient) GetIdleExpression() string {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	now := time.Now()
+	if c.currentExpression == "" || now.Sub(c.lastExpressionChange) > ExpressionChangeInterval {
+		c.currentExpression = c.expressions[rand.Intn(len(c.expressions))]
+		c.lastExpressionChange = now
+	}
+	return c.currentExpression
+}
+
+// SetExpressions allows custom expressions (for per-agent personality).
+func (c *TangentClient) SetExpressions(expressions []string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if len(expressions) > 0 {
+		c.expressions = expressions
+	}
+}
+
+// GetExpressions returns the current expressions list.
+func (c *TangentClient) GetExpressions() []string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.expressions
 }
