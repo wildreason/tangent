@@ -1,4 +1,4 @@
-# Tangent
+# Tangent NEW
 
 Animated terminal avatars for AI agents. Go library.
 
